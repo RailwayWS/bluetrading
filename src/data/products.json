@@ -1,0 +1,416 @@
+[
+  {
+    "id": 1,
+    "name": "Heavy-Duty Field Tractor",
+    "category": "Agricultural Equipment",
+    "subcategory": "Tractors",
+    "price": 485000,
+    "image": "tractor-1.png",
+    "description": "The Heavy-Duty Field Tractor is engineered for large-scale farming operations. Featuring a powerful 6-cylinder turbocharged diesel engine, this tractor delivers exceptional torque and fuel efficiency across demanding terrain. Its enclosed climate-controlled cab ensures operator comfort during long working hours, while the advanced hydraulic system provides precise control for a wide range of implements.",
+    "features": [
+      "6-cylinder turbocharged diesel engine",
+      "Climate-controlled enclosed cab",
+      "Advanced hydraulic linkage system",
+      "4WD with differential lock",
+      "Power take-off (PTO) with multiple speed settings"
+    ],
+    "additionalInfo": {
+      "Engine Power": "180 HP",
+      "Fuel Capacity": "350 Litres",
+      "Transmission": "24-speed PowerShift",
+      "Weight": "7,200 kg",
+      "Warranty": "2 Years / 3,000 Hours"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Compact Orchard Tractor",
+    "category": "Agricultural Equipment",
+    "subcategory": "Tractors",
+    "price": 195000,
+    "image": "tractor-2.png",
+    "description": "Purpose-built for orchards, vineyards, and confined spaces, the Compact Orchard Tractor combines manoeuvrability with reliable power. Its narrow profile and tight turning radius allow effortless navigation between crop rows. The open-station ROPS design provides excellent visibility, while the robust 3-cylinder engine handles mowing, spraying, and light tillage tasks with ease.",
+    "features": [
+      "Compact narrow-profile design",
+      "3-cylinder diesel engine for efficiency",
+      "Tight turning radius for row-crop work",
+      "Category I & II 3-point hitch",
+      "Independent mid and rear PTO"
+    ],
+    "additionalInfo": {
+      "Engine Power": "35 HP",
+      "Fuel Capacity": "45 Litres",
+      "Transmission": "8F + 2R Synchromesh",
+      "Weight": "1,450 kg",
+      "Warranty": "2 Years / 2,000 Hours"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Front Loader Utility Tractor",
+    "category": "Agricultural Equipment",
+    "subcategory": "Tractors",
+    "price": 375000,
+    "image": "tractor-3.png",
+    "description": "A versatile workhorse for mixed farming operations, this utility tractor comes equipped with an integrated front loader for material handling, loading, and earthmoving. The turbocharged 4-cylinder engine provides ample power, and the quick-attach loader system allows rapid switching between buckets and forks for maximum productivity on the farm.",
+    "features": [
+      "Integrated quick-attach front loader",
+      "Turbocharged 4-cylinder diesel engine",
+      "Hydrostatic power steering",
+      "Enclosed cab with air conditioning",
+      "Heavy-duty front axle suspension"
+    ],
+    "additionalInfo": {
+      "Engine Power": "110 HP",
+      "Fuel Capacity": "200 Litres",
+      "Loader Capacity": "1,800 kg",
+      "Transmission": "16F + 16R PowerShuttle",
+      "Warranty": "2 Years / 2,500 Hours"
+    }
+  },
+  {
+    "id": 4,
+    "name": "8-Disc Heavy Plough",
+    "category": "Agricultural Equipment",
+    "subcategory": "Ploughs",
+    "price": 42000,
+    "image": "plough-1.png",
+    "description": "The 8-Disc Heavy Plough is designed for primary tillage in tough soil conditions. Its reinforced steel frame and high-carbon disc blades cut through compacted and rocky soil with minimal resistance. Adjustable disc angles allow precise depth and width control, making it suitable for both virgin land breaking and seasonal ploughing operations.",
+    "features": [
+      "8 high-carbon steel disc blades",
+      "Adjustable disc angle (15°–25°)",
+      "Reinforced box-section steel frame",
+      "Heavy-duty sealed bearings",
+      "Transport wheels for easy repositioning"
+    ],
+    "additionalInfo": {
+      "Working Width": "2.0 m",
+      "Disc Diameter": "660 mm",
+      "Working Depth": "Up to 300 mm",
+      "Required HP": "80–120 HP",
+      "Weight": "850 kg"
+    }
+  },
+  {
+    "id": 5,
+    "name": "3-Furrow Mouldboard Plough",
+    "category": "Agricultural Equipment",
+    "subcategory": "Ploughs",
+    "price": 35500,
+    "image": "plough-2.png",
+    "description": "A classic mouldboard design perfected for Southern African soil conditions. This 3-furrow plough inverts and aerates soil effectively, burying crop residue and weeds to prepare a clean seedbed. The hydraulic depth control and auto-reset protection system ensure consistent performance even in stony fields, reducing downtime and maintenance costs.",
+    "features": [
+      "3 reversible mouldboard shares",
+      "Hydraulic depth adjustment",
+      "Auto-reset shear bolt protection",
+      "Category II 3-point linkage",
+      "Hardened steel shin and landside"
+    ],
+    "additionalInfo": {
+      "Working Width": "1.05 m (3 × 350 mm)",
+      "Working Depth": "Up to 350 mm",
+      "Required HP": "60–90 HP",
+      "Weight": "620 kg",
+      "Hitch Type": "Category II"
+    }
+  },
+  {
+    "id": 6,
+    "name": "Deep Tillage Chisel Plough",
+    "category": "Agricultural Equipment",
+    "subcategory": "Ploughs",
+    "price": 58000,
+    "image": "plough-3.png",
+    "description": "Break through hardpan layers and improve water infiltration with the Deep Tillage Chisel Plough. Equipped with heavy-duty tines and a rear crumbler roller, this implement shatters compacted subsoil without inverting the topsoil, preserving organic matter and reducing erosion. Ideal for conservation tillage and soil rehabilitation programmes.",
+    "features": [
+      "9 heavy-duty spring-loaded tines",
+      "Rear crumbler roller for finishing",
+      "Conservation tillage design",
+      "Adjustable tine spacing",
+      "Category III 3-point hitch compatible"
+    ],
+    "additionalInfo": {
+      "Working Width": "2.7 m",
+      "Working Depth": "Up to 450 mm",
+      "Required HP": "100–150 HP",
+      "Weight": "1,250 kg",
+      "Tine Spacing": "300 mm"
+    }
+  },
+  {
+    "id": 7,
+    "name": "Center Pivot Sprinkler System",
+    "category": "Irrigation Systems",
+    "subcategory": "Sprinklers",
+    "price": 320000,
+    "image": "sprinkler-1.png",
+    "description": "Our Center Pivot Sprinkler System provides uniform water distribution across large circular fields. The galvanised steel structure is built to withstand harsh weather conditions, while the low-pressure spray nozzles minimise water loss through evaporation. GPS-guided alignment and variable rate application zones ensure every hectare receives precisely the right amount of water.",
+    "features": [
+      "Galvanised steel pipe and structure",
+      "Low-pressure drop spray nozzles",
+      "GPS-guided alignment system",
+      "Variable rate irrigation zones",
+      "Remote monitoring and control via app"
+    ],
+    "additionalInfo": {
+      "Coverage": "Up to 50 hectares per unit",
+      "Span Length": "400 m radius",
+      "Nozzle Pressure": "1.0–2.5 bar",
+      "Power Supply": "380V 3-phase electric",
+      "Pipe Diameter": "168 mm galvanised"
+    }
+  },
+  {
+    "id": 8,
+    "name": "Impact Sprinkler Head",
+    "category": "Irrigation Systems",
+    "subcategory": "Sprinklers",
+    "price": 850,
+    "image": "sprinkler-2.png",
+    "description": "The Impact Sprinkler Head is a reliable, field-proven component for solid-set and portable irrigation systems. Its brass and polymer construction resists corrosion and UV degradation, ensuring years of trouble-free service. The adjustable arc and flow rate allow precise water application for crops ranging from pasture grass to tall maize.",
+    "features": [
+      "Full or part-circle adjustment (25°–360°)",
+      "Brass nozzle with stainless steel spring",
+      "UV-resistant polymer body",
+      "Anti-backsplash arm",
+      "¾-inch threaded inlet connection"
+    ],
+    "additionalInfo": {
+      "Throw Radius": "9–14 m",
+      "Flow Rate": "0.5–2.1 m³/h",
+      "Operating Pressure": "2.0–4.0 bar",
+      "Inlet Size": "¾ inch BSP",
+      "Weight": "0.45 kg"
+    }
+  },
+  {
+    "id": 9,
+    "name": "Travelling Rain Gun",
+    "category": "Irrigation Systems",
+    "subcategory": "Sprinklers",
+    "price": 85000,
+    "image": "sprinkler-3.png",
+    "description": "The Travelling Rain Gun delivers high-volume irrigation over long strips of farmland, making it ideal for hay fields, sugarcane, and pasture. Mounted on a robust wheeled cart, it retracts along a guide cable while spraying, covering up to 5 hectares per pull. The adjustable trajectory and nozzle size allow operators to match application rates to soil infiltration capacity.",
+    "features": [
+      "Wheeled cart with cable retraction system",
+      "Adjustable spray trajectory (15°–45°)",
+      "Large-bore brass nozzle options",
+      "Turbine-driven automatic travel",
+      "Heavy-duty polyethylene lay-flat hose"
+    ],
+    "additionalInfo": {
+      "Throw Radius": "30–65 m",
+      "Flow Rate": "15–75 m³/h",
+      "Hose Length": "Up to 400 m",
+      "Operating Pressure": "3.5–7.0 bar",
+      "Coverage Per Pull": "Up to 5 ha"
+    }
+  },
+  {
+    "id": 10,
+    "name": "Complete Drip Irrigation Kit",
+    "category": "Irrigation Systems",
+    "subcategory": "Drip Irrigation",
+    "price": 4500,
+    "image": "drip-1.png",
+    "description": "Everything you need to set up efficient drip irrigation for small to medium plots. This kit includes 100 m of UV-stabilised drip line, pressure-compensating emitters, connectors, filters, and stakes. Drip irrigation delivers water directly to the root zone, reducing water usage by up to 60% compared to overhead sprinklers while promoting vigorous, uniform crop growth.",
+    "features": [
+      "100 m of UV-stabilised drip tubing",
+      "Pressure-compensating emitters (2 L/h)",
+      "Inline mesh filter included",
+      "Complete connector and fitting set",
+      "Installation guide and layout planner"
+    ],
+    "additionalInfo": {
+      "Tubing Diameter": "16 mm",
+      "Emitter Spacing": "300 mm",
+      "Operating Pressure": "0.5–3.0 bar",
+      "Coverage Area": "Up to 500 m²",
+      "UV Rating": "5-year stabilised"
+    }
+  },
+  {
+    "id": 11,
+    "name": "Pressure Regulator & Filter Unit",
+    "category": "Irrigation Systems",
+    "subcategory": "Drip Irrigation",
+    "price": 1200,
+    "image": "drip-2.png",
+    "description": "Protect your drip irrigation system with this combined pressure regulator and filter unit. The adjustable pressure regulator ensures consistent downstream pressure regardless of supply fluctuations, while the 120-mesh disc filter removes sand and organic particles that could block emitters. Quick-release housing makes cleaning and maintenance fast and simple.",
+    "features": [
+      "Adjustable pressure regulation (0.5–4.0 bar)",
+      "120-mesh disc filter element",
+      "Quick-release filter housing",
+      "Corrosion-resistant polymer construction",
+      "¾-inch BSP inlet/outlet connections"
+    ],
+    "additionalInfo": {
+      "Max Flow Rate": "3.5 m³/h",
+      "Filtration Rating": "130 micron (120 mesh)",
+      "Pressure Range": "0.5–4.0 bar output",
+      "Connection Size": "¾ inch BSP",
+      "Weight": "0.65 kg"
+    }
+  },
+  {
+    "id": 12,
+    "name": "Micro-Sprinkler Starter Kit",
+    "category": "Irrigation Systems",
+    "subcategory": "Drip Irrigation",
+    "price": 2800,
+    "image": "drip-3.png",
+    "description": "Ideal for greenhouses, nurseries, and under-tree irrigation, the Micro-Sprinkler Starter Kit provides gentle, uniform water distribution over a small radius. Each micro-sprinkler sits on a sturdy ground stake and connects to 4 mm micro-tubing. The kit covers up to 200 m² and includes all fittings, tubing, and a header line manifold.",
+    "features": [
+      "24 adjustable micro-sprinkler heads",
+      "Ground stakes and 4 mm micro-tubing",
+      "Header line manifold with valves",
+      "Flow rate: 20–70 L/h per head",
+      "Anti-drain check valves included"
+    ],
+    "additionalInfo": {
+      "Spray Radius": "1.0–2.5 m per head",
+      "Micro-Tubing Length": "50 m roll included",
+      "Header Line": "16 mm × 25 m",
+      "Operating Pressure": "1.0–2.5 bar",
+      "Coverage Area": "Up to 200 m²"
+    }
+  },
+  {
+    "id": 13,
+    "name": "Industrial Centrifugal Pump",
+    "category": "Dam Equipment",
+    "subcategory": "Pumps",
+    "price": 125000,
+    "image": "pump-1.png",
+    "description": "Designed for continuous high-flow water transfer from dams and reservoirs, the Industrial Centrifugal Pump features a cast-iron volute casing and stainless steel impeller for maximum durability. The close-coupled electric motor eliminates alignment issues, while the mechanical seal ensures leak-free operation under sustained pressure. Suitable for main-line irrigation supply and water distribution networks.",
+    "features": [
+      "Cast-iron volute with stainless impeller",
+      "Close-coupled electric motor design",
+      "Silicon carbide mechanical seal",
+      "Flanged suction and discharge ports",
+      "Baseplate-mounted for easy installation"
+    ],
+    "additionalInfo": {
+      "Max Flow Rate": "150 m³/h",
+      "Max Head": "65 m",
+      "Motor Power": "22 kW (30 HP)",
+      "Discharge Size": "100 mm (4 inch)",
+      "Power Supply": "380V 3-phase"
+    }
+  },
+  {
+    "id": 14,
+    "name": "Stainless Submersible Pump",
+    "category": "Dam Equipment",
+    "subcategory": "Pumps",
+    "price": 68000,
+    "image": "pump-2.png",
+    "description": "The Stainless Submersible Pump is built for reliable, long-term operation submerged in dam water. Its full stainless steel construction resists corrosion from minerals and sediment, while the built-in thermal overload and dry-run protection prevent motor damage. Ideal for dam-to-reservoir or dam-to-pivot irrigation supply where suction lift is impractical.",
+    "features": [
+      "Full 304 stainless steel construction",
+      "Built-in thermal overload protection",
+      "Dry-run protection sensor",
+      "10 m submersible power cable included",
+      "Multi-stage impeller for high head"
+    ],
+    "additionalInfo": {
+      "Max Flow Rate": "45 m³/h",
+      "Max Head": "85 m",
+      "Motor Power": "7.5 kW (10 HP)",
+      "Discharge Size": "80 mm (3 inch)",
+      "Max Submersion Depth": "25 m"
+    }
+  },
+  {
+    "id": 15,
+    "name": "Portable Diesel Water Pump",
+    "category": "Dam Equipment",
+    "subcategory": "Pumps",
+    "price": 32000,
+    "image": "pump-3.png",
+    "description": "When you need water where there's no electricity, the Portable Diesel Water Pump delivers. This self-priming trash pump handles dirty water, sludge, and solids up to 30 mm diameter. The air-cooled diesel engine starts easily with a recoil or electric starter, and the steel roll-cage frame with pneumatic wheels makes it simple to tow between dam sites.",
+    "features": [
+      "Self-priming trash pump design",
+      "Air-cooled single-cylinder diesel engine",
+      "Handles solids up to 30 mm",
+      "Electric and recoil start options",
+      "Wheeled roll-cage frame for portability"
+    ],
+    "additionalInfo": {
+      "Max Flow Rate": "60 m³/h",
+      "Max Head": "30 m",
+      "Engine Power": "10 HP diesel",
+      "Suction/Discharge": "80 mm (3 inch)",
+      "Fuel Capacity": "6.5 Litres"
+    }
+  },
+  {
+    "id": 16,
+    "name": "HDPE Dam Liner (500 micron)",
+    "category": "Dam Equipment",
+    "subcategory": "Liners & Covers",
+    "price": 18500,
+    "image": "pump-1.png",
+    "description": "Our premium HDPE Dam Liner provides a completely waterproof barrier for earth dams and reservoirs. The 500-micron high-density polyethylene membrane resists UV degradation, root penetration, and chemical attack. Factory-welded seams ensure leak-proof joins, and the flexible material conforms to irregular dam profiles without cracking or tearing.",
+    "features": [
+      "500-micron HDPE geomembrane",
+      "UV-stabilised for 20+ year lifespan",
+      "Factory-welded double seams",
+      "Root and puncture resistant",
+      "Custom sizes and shapes available"
+    ],
+    "additionalInfo": {
+      "Thickness": "0.5 mm (500 micron)",
+      "Roll Width": "6 m standard",
+      "Roll Length": "50 m standard",
+      "Colour": "Black",
+      "Standard Coverage": "300 m² per roll"
+    }
+  },
+  {
+    "id": 17,
+    "name": "Dam Shade Net Cover",
+    "category": "Dam Equipment",
+    "subcategory": "Liners & Covers",
+    "price": 9800,
+    "image": "pump-2.png",
+    "description": "Reduce evaporation from your farm dam by up to 85% with our floating shade net cover. The knitted HDPE netting blocks direct sunlight while allowing rainwater to pass through. Modular panels clip together to cover any dam shape, and built-in flotation elements keep the cover on the water surface without anchoring infrastructure.",
+    "features": [
+      "80% shade factor HDPE knitted net",
+      "Built-in closed-cell foam flotation",
+      "Modular clip-together panels",
+      "Allows rainwater pass-through",
+      "UV-stabilised for 10+ year life"
+    ],
+    "additionalInfo": {
+      "Panel Size": "5 m × 5 m standard",
+      "Shade Factor": "80%",
+      "Evaporation Reduction": "Up to 85%",
+      "Colour": "Dark Green",
+      "Weight": "180 g/m²"
+    }
+  },
+  {
+    "id": 18,
+    "name": "Geotextile Dam Wall Fabric",
+    "category": "Dam Equipment",
+    "subcategory": "Liners & Covers",
+    "price": 6200,
+    "image": "pump-3.png",
+    "description": "Reinforce your dam walls and protect liners with this non-woven geotextile fabric. Placed beneath the HDPE liner, it cushions against sharp stones and provides additional puncture resistance. It also functions as a separation layer between fill material and the dam wall, preventing fine soil migration while allowing water to drain freely.",
+    "features": [
+      "Non-woven needle-punched polypropylene",
+      "High puncture and tear resistance",
+      "Excellent drainage properties",
+      "UV-stabilised for exposed applications",
+      "Lightweight and easy to install"
+    ],
+    "additionalInfo": {
+      "Weight": "200 g/m²",
+      "Roll Width": "4 m",
+      "Roll Length": "100 m",
+      "Grab Tensile Strength": "900 N",
+      "Colour": "White"
+    }
+  }
+]
