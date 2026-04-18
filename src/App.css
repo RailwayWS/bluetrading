@@ -1,4 +1,39 @@
 /* App-level styles - minimal, most styles in components */
 .app {
-  min-height: 100vh;
+    min-height: 100vh;
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99;
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    color: #1a1a1a;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+}
+
+.back-to-top--visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top--visible:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(212, 168, 67, 0.5);
 }
