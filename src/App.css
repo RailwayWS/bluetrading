@@ -32,8 +32,10 @@
     transform: translateY(0);
 }
 
-.back-to-top--visible:hover {
-    background-color: var(--color-accent-hover);
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(212, 168, 67, 0.5);
+@media (hover: hover) {
+    .back-to-top--visible:hover {
+        background-color: var(--color-accent-hover);
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(212, 168, 67, 0.5);
+    }
 }

@@ -103,10 +103,12 @@
     width: fit-content;
 }
 
-.hero__cta:hover {
-    background-color: var(--color-accent-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(212, 168, 67, 0.4);
+@media (hover: hover) {
+    .hero__cta:hover {
+        background-color: var(--color-accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(212, 168, 67, 0.4);
+    }
 }
 
 /* Slide indicators */
@@ -135,8 +137,10 @@
     transform: scale(1.2);
 }
 
-.hero__indicator:hover {
-    background: rgba(255, 255, 255, 0.7);
+@media (hover: hover) {
+    .hero__indicator:hover {
+        background: rgba(255, 255, 255, 0.7);
+    }
 }
 
 /* Responsive */

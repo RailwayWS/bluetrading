@@ -91,9 +91,11 @@
     text-align: left;
 }
 
-.products__category-btn:hover {
-    background-color: var(--color-bg-light);
-    color: var(--color-primary);
+@media (hover: hover) {
+    .products__category-btn:hover {
+        background-color: var(--color-bg-light);
+        color: var(--color-primary);
+    }
 }
 
 .products__category-btn--active {
@@ -101,9 +103,11 @@
     color: #ffffff;
 }
 
-.products__category-btn--active:hover {
-    background-color: var(--color-primary-dark);
-    color: #ffffff;
+@media (hover: hover) {
+    .products__category-btn--active:hover {
+        background-color: var(--color-primary-dark);
+        color: #ffffff;
+    }
 }
 
 .products__count {
@@ -153,9 +157,11 @@
     text-align: left;
 }
 
-.products__subcategory-btn:hover {
-    color: var(--color-primary);
-    background-color: var(--color-bg-light);
+@media (hover: hover) {
+    .products__subcategory-btn:hover {
+        color: var(--color-primary);
+        background-color: var(--color-bg-light);
+    }
 }
 
 .products__subcategory-btn--active {
@@ -182,9 +188,11 @@
     flex-direction: column;
 }
 
-.product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
+@media (hover: hover) {
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+    }
 }
 
 .product-card__image-wrap {
@@ -203,8 +211,10 @@
     transition: transform var(--transition-normal);
 }
 
-.product-card:hover .product-card__image {
-    transform: scale(1.05);
+@media (hover: hover) {
+    .product-card:hover .product-card__image {
+        transform: scale(1.05);
+    }
 }
 
 .product-card__body {
@@ -254,10 +264,12 @@
     margin-top: auto;
 }
 
-.product-card__btn:hover {
-    background-color: var(--color-accent);
-    color: #1a1a1a;
-    transform: translateY(-1px);
+@media (hover: hover) {
+    .product-card__btn:hover {
+        background-color: var(--color-accent);
+        color: #1a1a1a;
+        transform: translateY(-1px);
+    }
 }
 
 /* ===== Responsive ===== */
