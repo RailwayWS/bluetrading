@@ -32,11 +32,9 @@
         transform var(--transition-fast);
 }
 
-@media (hover: hover) {
-    .details__breadcrumb-back-btn:hover {
-        color: var(--color-primary);
-        transform: translateX(-4px);
-    }
+.details__breadcrumb-back-btn:hover {
+    color: var(--color-primary);
+    transform: translateX(-4px);
 }
 
 /* Product Hero */
@@ -125,12 +123,10 @@
     margin-bottom: 32px;
 }
 
-@media (hover: hover) {
-    .details__call-btn:hover {
-        background-color: var(--color-primary-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(45, 106, 79, 0.3);
-    }
+.details__call-btn:hover {
+    background-color: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(45, 106, 79, 0.3);
 }
 
 .details__meta {
@@ -189,10 +185,8 @@
     transition: color var(--transition-fast);
 }
 
-@media (hover: hover) {
-    .details__tab:hover {
-        color: var(--color-text);
-    }
+.details__tab:hover {
+    color: var(--color-text);
 }
 
 .details__tab--active {
@@ -308,11 +302,9 @@
     cursor: pointer;
 }
 
-@media (hover: hover) {
-    .details .product-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-md);
-    }
+.details .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
 }
 
 .details .product-card__image-wrap {
@@ -332,10 +324,8 @@
     transition: transform var(--transition-normal);
 }
 
-@media (hover: hover) {
-    .details .product-card:hover .product-card__image {
-        transform: scale(1.05);
-    }
+.details .product-card:hover .product-card__image {
+    transform: scale(1.05);
 }
 
 .details .product-card__body {
@@ -387,11 +377,9 @@
     cursor: pointer;
 }
 
-@media (hover: hover) {
-    .details .product-card__btn:hover {
-        background-color: var(--color-accent);
-        color: #1a1a1a;
-    }
+.details .product-card__btn:hover {
+    background-color: var(--color-accent);
+    color: #1a1a1a;
 }
 
 /* Not Found */
@@ -414,10 +402,8 @@
     transition: all var(--transition-normal);
 }
 
-@media (hover: hover) {
-    .details__back-btn:hover {
-        background-color: var(--color-primary-dark);
-    }
+.details__back-btn:hover {
+    background-color: var(--color-primary-dark);
 }
 
 /* ===== Responsive ===== */
