@@ -16,8 +16,11 @@
 
 .login-glass-card {
     background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(16px);
+    /* 1. Put the webkit prefix FIRST as a fallback for older browsers */
     -webkit-backdrop-filter: blur(16px);
+    /* 2. Put the standard property LAST for modern browsers */
+    backdrop-filter: blur(16px);
+
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 24px;
     padding: 3rem 2.5rem;
@@ -85,7 +88,9 @@
     font-weight: 600;
     cursor: pointer;
     margin-top: 0.5rem;
-    transition: background-color 0.3s ease, transform 0.1s;
+    transition:
+        background-color 0.3s ease,
+        transform 0.1s;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -115,6 +120,10 @@
 }
 
 @keyframes login-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
