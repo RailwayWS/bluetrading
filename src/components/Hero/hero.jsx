@@ -11,7 +11,7 @@ const slides = [
     },
     {
         image: heroSlide1,
-        subtitle: "BEST AGRO COMPANY",
+        subtitle: "BEST AGRICULTURAL EQUIPMENT",
         title: "Quality Agricultural\nFarming Equipment",
     },
 ];
