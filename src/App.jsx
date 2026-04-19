@@ -3,9 +3,11 @@ import { Routes, Route } from "react-router-dom";
 import Hero from "./components/Hero/hero";
 import Products from "./components/Products/products";
 import Details from "./components/Details/details";
+import Login from "./pages/Login/login";
+import Admin from "./pages/Admin/admin";
 import "./App.css";
 
-function BackToTop() {
+function App() {
     const [isVisible, setIsVisible] = useState(false);
 
     const toggleVisibility = () => {
@@ -29,33 +31,28 @@ function BackToTop() {
     }, []);
 
     return (
-        <button
-            onClick={scrollToTop}
-            className={`back-to-top ${isVisible ? "back-to-top--visible" : ""}`}
-            aria-label="Back to top"
-        >
-            ↑
-        </button>
-    );
-}
-
-function HomePage() {
-    return (
-        <>
-            <Hero />
-            <Products />
-        </>
-    );
-}
-
-function App() {
-    return (
         <div className="app">
             <Routes>
-                <Route path="/" element={<HomePage />} />
+                <Route
+                    path="/"
+                    element={
+                        <>
+                            <Hero />
+                            <Products />
+                        </>
+                    }
+                />
                 <Route path="/product/:id" element={<Details />} />
+                <Route path="/admin" element={<Login />} />
+                <Route path="/admin/dashboard" element={<Admin />} />
             </Routes>
-            <BackToTop />
+            <button
+                onClick={scrollToTop}
+                className={`back-to-top ${isVisible ? "back-to-top--visible" : ""}`}
+                aria-label="Back to top"
+            >
+                ↑
+            </button>
         </div>
     );
 }

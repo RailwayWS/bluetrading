@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react'
-import heroSlide1 from '../../assets/hero1.webp'
-import heroSlide2 from '../../assets/hero2.webp'
-import './hero.css'
+import { useState, useEffect } from "react";
+import heroSlide1 from "../../assets/hero1.webp";
+import heroSlide2 from "../../assets/hero2.webp";
+import "./hero.css";
 
 const slides = [
-    {
-        image: heroSlide1,
-        subtitle: "BEST AGRO COMPANY",
-        title: "Quality Agricultural\nFarming Equipment",
-    },
     {
         image: heroSlide2,
         subtitle: "TRUSTED FARMING PARTNER",
         title: "Irrigation & Dam\nSolutions",
+    },
+    {
+        image: heroSlide1,
+        subtitle: "BEST AGRO COMPANY",
+        title: "Quality Agricultural\nFarming Equipment",
     },
 ];
 
