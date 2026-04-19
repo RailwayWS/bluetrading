@@ -127,3 +127,52 @@
         transform: rotate(360deg);
     }
 }
+
+/* Password Toggle Styles (Inside the input) */
+.login-password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.login-password-wrapper .login-input {
+    width: 100%;
+    /* Add extra padding on the right so long passwords don't type underneath the icon */
+    padding-right: 50px;
+    box-sizing: border-box;
+}
+
+.login-password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(
+        -50%
+    ); /* This perfectly centers the icon vertically inside the input */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+}
+
+.password-icon {
+    width: 22px;
+    height: 22px;
+    color: rgba(
+        255,
+        255,
+        255,
+        0.7
+    ); /* Slightly dimmed to match standard placeholder style */
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.login-password-toggle:hover .password-icon {
+    color: white;
+    transform: scale(1.1); /* Slight pop effect on hover */
+}
