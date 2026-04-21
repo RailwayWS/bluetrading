@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { sign_up, sign_in } from "../../database/auth_queries.js";
 import "./login.css";
 import bgImage from "../../assets/hero2.webp";
 
@@ -19,7 +20,8 @@ export default function Login({ setIsAdmin }) {
         setError("");
 
         // Simulate authentication delay
-        if (password === ADMIN_PASSWORD) {
+        
+        if (sign_in(email, password)  === true) {
             setIsLoading(true);
             setTimeout(() => {
                 setIsLoading(false);

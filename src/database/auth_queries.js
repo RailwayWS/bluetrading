@@ -7,10 +7,12 @@ export function sign_up(email, password) {
     .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
+        return true;
     })
     .catch((error) => {
         console.log(error.code);
         console.log(error.message);
+        return false;
   });
 }
 
@@ -21,9 +23,11 @@ export function sign_in(email, password) {
     .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
+        return true;
     })
     .catch((error) => {
         console.log(error.code);
         console.log(error.message);
+        return false;
   });
 };
