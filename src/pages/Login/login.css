@@ -176,3 +176,46 @@
     color: white;
     transform: scale(1.1); /* Slight pop effect on hover */
 }
+
+.login-error {
+    color: #ff4d4f;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: rgba(255, 77, 79, 0.1);
+    padding: 0.6rem;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 77, 79, 0.2);
+    font-family: inherit;
+}
+
+.error-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.shake {
+    animation: login-shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes login-shake {
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-2px, 0, 0);
+    }
+    40%,
+    60% {
+        transform: translate3d(2px, 0, 0);
+    }
+}

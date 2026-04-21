@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import jsonData from "../../data/products.json";
 import "./products.css";
+import NewProduct from "../New/newProduct";
 import {get_products} from "../../database/product_queries.js";
 
 
@@ -15,7 +16,7 @@ for (const path in imageModules) {
     images[filename] = imageModules[path].default;
 }
 
-function Products() {
+function Products({ isAdmin }) {
     const navigate = useNavigate();
     const [productsData, setProductsData] = useState([]);
     const [activeCategory, setActiveCategory] = useState("All");
@@ -171,6 +172,7 @@ function Products() {
 
                     {/* Product Grid */}
                     <div className="products__grid">
+                        {isAdmin && <NewProduct />}
                         {filteredProducts.length > 0 ? (
                             filteredProducts.map((product) => (
                                 <div className="product-card" key={product.id}>
