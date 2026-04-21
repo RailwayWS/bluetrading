@@ -1,24 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import productsData from "../../data/products.json";
+import jsonData from "../../data/products.json";
 import "./products.css";
-import { db } from "./../../config/firebase.js";
-import { collection, getDocs} from "firebase/firestore"; 
-
-
-const getData = async () => {
-    try{
-        const querySnapshot = await getDocs(collection(db, "products"));
-        querySnapshot.forEach((doc) => {
-            console.log(doc.id, " => ", doc.data());
-        });
-        console.log("Data fetching complete.");
-    } catch (error) {
-        console.error("Error fetching projects:", error);
-        throw new Error("Could not fetch projects"); 
-    }
-}
-
+import {get_products} from "../../database/product_queries.js";
 
 
 /* Dynamically import all product images */
@@ -33,6 +17,7 @@ for (const path in imageModules) {
 
 function Products() {
     const navigate = useNavigate();
+    const [productsData, setProductsData] = useState([]);
     const [activeCategory, setActiveCategory] = useState("All");
     const [activeSubcategory, setActiveSubcategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState(""); // 1. New search state
@@ -47,12 +32,14 @@ function Products() {
         return Object.fromEntries(
             Object.entries(cats).map(([k, v]) => [k, [...v]]),
         );
-    }, []);
+    }, [productsData]);
 
     useEffect(() => {
         const fetchData = async () => {
-            await getData();
+            const data = await get_products();
+            setProductsData(data);
         }
+
         fetchData();
     }, []);
 
@@ -88,7 +75,7 @@ function Products() {
 
             return true;
         });
-    }, [activeCategory, activeSubcategory, searchQuery]); // 3. Added searchQuery to dependencies
+    }, [activeCategory, activeSubcategory, searchQuery, productsData]); // 3. Added searchQuery to dependencies
 
     const handleCategoryClick = (cat) => {
         setActiveCategory(cat);
