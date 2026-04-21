@@ -54,11 +54,8 @@ export async function edit_product(productId, name, price, description, imageURL
 }
 
 export async function get_products() {
-    console.log("Fetching products");
-
     const productsRef = collection(db, 'products');
     const productSnapshot = await getDocs(productsRef);
     const productList = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    console.log("Fetched products: ", productList);
     return productList;
 }
