@@ -3,21 +3,35 @@ import { useNavigate } from "react-router-dom";
 import "./login.css";
 import bgImage from "../../assets/hero2.webp";
 
-export default function Login() {
-    const [email, setEmail] = useState("");
+export default function Login({ setIsAdmin }) {
     const [password, setPassword] = useState("");
+    const [isloggedIn, setIsLoggedIn] = useState(false);
+    const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState("");
     const navigate = useNavigate();
+
+    const ADMIN_PASSWORD = "admin";
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setIsLoading(true);
+        setError("");
+
         // Simulate authentication delay
-        setTimeout(() => {
+        if (password === ADMIN_PASSWORD) {
+            setIsLoading(true);
+            setTimeout(() => {
+                setIsLoading(false);
+                setIsLoggedIn(true);
+                localStorage.setItem("isAdminLoggedIn", "true");
+                if (setIsAdmin) setIsAdmin(true);
+                navigate("/");
+            }, 1500);
+        } else {
+            setError("Incorrect password");
             setIsLoading(false);
-            navigate("/admin/dashboard");
-        }, 1500);
+        }
     };
 
     return (
@@ -40,13 +54,15 @@ export default function Login() {
                         required
                         className="login-input"
                     />
-
                     <div className="login-password-wrapper">
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                if (error) setError("");
+                            }}
                             required
                             className="login-input"
                         />
@@ -98,7 +114,25 @@ export default function Login() {
                             )}
                         </button>
                     </div>
-
+                    {error && (
+                        <div className="login-error shake">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2}
+                                stroke="currentColor"
+                                className="error-icon"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 9v2m0 4h.01M12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z"
+                                />
+                            </svg>
+                            {error}
+                        </div>
+                    )}
                     <button
                         type="submit"
                         className="login-button"
