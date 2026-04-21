@@ -7,7 +7,6 @@ import Login from "./pages/Login/login";
 import Admin from "./pages/Admin/admin";
 import "./App.css";
 
-import { collection, addDoc } from "firebase/firestore"; 
 
 
 function App() {

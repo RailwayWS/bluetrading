@@ -1,7 +1,25 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import productsData from "../../data/products.json";
 import "./products.css";
+import { db } from "./../../config/firebase.js";
+import { collection, getDocs} from "firebase/firestore"; 
+
+
+const getData = async () => {
+    try{
+        const querySnapshot = await getDocs(collection(db, "products"));
+        querySnapshot.forEach((doc) => {
+            console.log(doc.id, " => ", doc.data());
+        });
+        console.log("Data fetching complete.");
+    } catch (error) {
+        console.error("Error fetching projects:", error);
+        throw new Error("Could not fetch projects"); 
+    }
+}
+
+
 
 /* Dynamically import all product images */
 const imageModules = import.meta.glob("../../assets/products/*.png", {
@@ -29,6 +47,13 @@ function Products() {
         return Object.fromEntries(
             Object.entries(cats).map(([k, v]) => [k, [...v]]),
         );
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getData();
+        }
+        fetchData();
     }, []);
 
     /* Filter products */
