@@ -14,10 +14,9 @@ export async function add_product(name, price, description, imageURL, category, 
 
         if (!existingProductSnapshot.empty) {
             console.error("A product with this name already exists.");
-            return;
+            return { success: false, error: "Product with this name already exists" };
         }
 
-        console.log
         const docRef = await addDoc(collection(db, "products"), {
             name: name,
             price: price,
@@ -29,8 +28,10 @@ export async function add_product(name, price, description, imageURL, category, 
             additionalInfo : additionalInfo
         });
         console.log("Document added with ID: ", docRef.id);
+        return { success: true, id: docRef.id };
     } catch (e) {
         console.error("Error adding document: ", e);
+        return { success: false, error: e.message };
     }
 }
 

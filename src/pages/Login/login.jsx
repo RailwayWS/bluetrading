@@ -1,37 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { sign_up, sign_in } from "../../database/auth_queries.js";
+import { sign_in } from "../../database/auth_queries.js";
+import { useAuth } from "../../AuthContext.jsx";
 import "./login.css";
 import bgImage from "../../assets/hero2.webp";
 
-export default function Login({ setIsAdmin }) {
+export default function Login() {
     const [password, setPassword] = useState("");
-    const [isloggedIn, setIsLoggedIn] = useState(false);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
+    const { setAdminState } = useAuth();
 
-    const ADMIN_PASSWORD = "admin";
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        setIsLoading(true);
 
-        // Simulate authentication delay
-        
-        if (sign_in(email, password)  === true) {
-            setIsLoading(true);
-            setTimeout(() => {
+        try {
+            const result = await sign_in(email, password);
+            
+            if (result.success) {
+                setAdminState(true);
+                setTimeout(() => {
+                    navigate("/");
+                }, 1500);
+            } else {
+                setError(result.error || "Invalid email or password");
                 setIsLoading(false);
-                setIsLoggedIn(true);
-                localStorage.setItem("isAdminLoggedIn", "true");
-                if (setIsAdmin) setIsAdmin(true);
-                navigate("/");
-            }, 1500);
-        } else {
-            setError("Incorrect password");
+            }
+        } catch (err) {
+            setError("An error occurred during login");
             setIsLoading(false);
         }
     };

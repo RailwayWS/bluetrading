@@ -4,15 +4,12 @@ import Hero from "./components/Hero/hero";
 import Products from "./components/Products/products";
 import Details from "./components/Details/details";
 import Login from "./pages/Login/login";
+import { AuthProvider, useAuth } from "./AuthContext.jsx";
 import "./App.css";
 
-
-
-function App() {
+function AppContent() {
     const [isVisible, setIsVisible] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(
-        localStorage.getItem("isAdminLoggedIn"),
-    );
+    const { isAdmin, logout } = useAuth();
 
     const toggleVisibility = () => {
         if (window.pageYOffset > 300) {
@@ -29,9 +26,8 @@ function App() {
         });
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem("isAdminLoggedIn");
-        setIsAdmin(false);
+    const handleLogout = async () => {
+        await logout();
     };
 
     useEffect(() => {
@@ -54,7 +50,7 @@ function App() {
                 <Route path="/product/:id" element={<Details />} />
                 <Route
                     path="/admin"
-                    element={<Login setIsAdmin={setIsAdmin} />}
+                    element={<Login />}
                 />
             </Routes>
             {isAdmin && (
@@ -70,6 +66,14 @@ function App() {
                 ↑
             </button>
         </div>
+    );
+}
+
+function App() {
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
     );
 }
 
