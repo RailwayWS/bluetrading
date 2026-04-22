@@ -4,11 +4,13 @@ import Hero from "./components/Hero/hero";
 import Products from "./components/Products/products";
 import Details from "./components/Details/details";
 import Login from "./pages/Login/login";
-import Admin from "./pages/Admin/admin";
 import "./App.css";
 
 function App() {
     const [isVisible, setIsVisible] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(
+        localStorage.getItem("isAdminLoggedIn"),
+    );
 
     const toggleVisibility = () => {
         if (window.pageYOffset > 300) {
@@ -25,6 +27,11 @@ function App() {
         });
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("isAdminLoggedIn");
+        setIsAdmin(false);
+    };
+
     useEffect(() => {
         window.addEventListener("scroll", toggleVisibility);
         return () => window.removeEventListener("scroll", toggleVisibility);
@@ -38,14 +45,21 @@ function App() {
                     element={
                         <>
                             <Hero />
-                            <Products />
+                            <Products isAdmin={isAdmin} />
                         </>
                     }
                 />
                 <Route path="/product/:id" element={<Details />} />
-                <Route path="/admin" element={<Login />} />
-                <Route path="/admin/dashboard" element={<Admin />} />
+                <Route
+                    path="/admin"
+                    element={<Login setIsAdmin={setIsAdmin} />}
+                />
             </Routes>
+            {isAdmin && (
+                <button onClick={handleLogout} className="end-session-btn">
+                    End Session
+                </button>
+            )}
             <button
                 onClick={scrollToTop}
                 className={`back-to-top ${isVisible ? "back-to-top--visible" : ""}`}

@@ -37,3 +37,23 @@
     transform: translateY(-4px) scale(1.05);
     box-shadow: 0 8px 20px rgba(212, 168, 67, 0.5);
 }
+
+.end-session-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s;
+}
+
+.end-session-btn:hover {
+    background-color: #cc0000;
+}
