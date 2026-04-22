@@ -37,11 +37,13 @@ function Products({ isAdmin }) {
         return Object.fromEntries(
             Object.entries(cats).map(([k, v]) => [k, [...v]]),
         );
+
     }, [productsData]);
 
     useEffect(() => {
         const fetchData = async () => {
             const data = await get_products();
+            console.log(data[0]);
             setProductsData(data);
         }
 

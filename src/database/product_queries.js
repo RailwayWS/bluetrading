@@ -1,6 +1,6 @@
 import { db } from "./../config/firebase.js";
 import { set, ref } from "firebase/database"; 
-import { collection, getDocs, addDoc, query, where, limit } from "firebase/firestore";
+import { doc, collection, getDocs, getDoc, addDoc, query, where, limit } from "firebase/firestore";
 
 
 export async function add_product(name, price, description, imageURL, category, subcategory, features, additionalInfo) {
@@ -60,4 +60,11 @@ export async function get_products() {
     const productSnapshot = await getDocs(productsRef);
     const productList = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     return productList;
+}
+
+export async function get_product_by_id(productId) {
+    const productDoc = doc(db, "products", productId);
+    const productSnapshot = await getDoc(productDoc);   
+    console.log(productSnapshot.data()); 
+    return {id: productSnapshot.id, ...productSnapshot.data()};
 }

@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, use } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { get_product_by_id } from "../../database/product_queries";
 import productsData from "../../data/products.json";
 import "./details.css";
 
@@ -17,9 +18,14 @@ function Details() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("description");
+    const [product, setProduct] = useState({price : 0});
 
-    const product = useMemo(() => {
-        return productsData.find((p) => p.id === parseInt(id));
+    useEffect(() => {
+        const fetchProduct = async () => {
+            const productData = await get_product_by_id(id);
+            setProduct(productData);
+        };
+        fetchProduct();
     }, [id]);
 
     const relatedProducts = useMemo(() => {
