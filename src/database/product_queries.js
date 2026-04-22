@@ -1,6 +1,7 @@
 import { db } from "./../config/firebase.js";
-import { ref, set} from "firebase/database"; 
+import { set, ref } from "firebase/database"; 
 import { collection, getDocs, addDoc, query, where, limit } from "firebase/firestore";
+
 
 export async function add_product(name, price, description, imageURL, category, subcategory, features, additionalInfo) {
     try {     

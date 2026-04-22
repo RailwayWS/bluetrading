@@ -1,9 +1,11 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, use } from "react";
 import { useNavigate } from "react-router-dom";
 import jsonData from "../../data/products.json";
 import "./products.css";
 import NewProduct from "../New/newProduct";
 import {get_products} from "../../database/product_queries.js";
+import { hydrateProductImageUrls } from "../../database/image_queries";
+
 
 
 /* Dynamically import all product images */
@@ -19,9 +21,11 @@ for (const path in imageModules) {
 function Products({ isAdmin }) {
     const navigate = useNavigate();
     const [productsData, setProductsData] = useState([]);
+    const [imageUrls, setImageUrls] = useState({});
     const [activeCategory, setActiveCategory] = useState("All");
     const [activeSubcategory, setActiveSubcategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState(""); // 1. New search state
+
 
     /* Build unique categories & subcategories */
     const categories = useMemo(() => {
@@ -43,6 +47,47 @@ function Products({ isAdmin }) {
 
         fetchData();
     }, []);
+
+    const productsNeedingImageUrls = useMemo(
+        () => productsData.filter((product) => !imageUrls[product.id]),
+        [productsData, imageUrls],
+    );
+
+    useEffect(() => {
+        if (!productsNeedingImageUrls.length) {
+            return;
+        }
+
+        let isCancelled = false;
+
+        hydrateProductImageUrls(
+            productsNeedingImageUrls.map((product) => ({
+                ...product,
+                imagePath: product.imagePath || product.image,
+            })),
+            (_, updatedProduct) => {
+                if (isCancelled || !updatedProduct?.imageUrl) {
+                    return;
+                }
+
+                setImageUrls((prev) => ({
+                    ...prev,
+                    [updatedProduct.id]: updatedProduct.imageUrl,
+                }));
+            },
+        );
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [productsNeedingImageUrls]);
+
+    // const populateFirebase = async () => {
+    //     jsonData.forEach(async (product) => {
+    //         await add_product(product.name, product.price, product.description, product.image, product.category, product.subcategory, product.features, product.additionalInfo);
+    //         console.log(`Added product: ${product.name}`);
+    //     });
+    // }
 
     /* Filter products */
     const filteredProducts = useMemo(() => {
@@ -102,6 +147,9 @@ function Products({ isAdmin }) {
                         irrigation systems, and dam solutions.
                     </p>
                 </div>
+
+                {/* USED TO POPULATE DB, ik this is kinda stupid but it works... */}
+                {/* <button onClick={populateFirebase}>Populate Firebase with JSON Data</button> */}
 
                 {/* 4. The Search Bar */}
                 <div className="products__search-wrapper">
@@ -178,10 +226,14 @@ function Products({ isAdmin }) {
                                 <div className="product-card" key={product.id}>
                                     <div className="product-card__image-wrap">
                                         <img
-                                            src={images[product.image]}
+                                            src={
+                                                imageUrls[product.id] 
+                                                // images[product.image]
+                                            }
                                             alt={product.name}
                                             className="product-card__image"
                                             loading="lazy"
+                                            decoding="async"
                                         />
                                     </div>
                                     <div className="product-card__body">
