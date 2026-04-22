@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect, use } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import jsonData from "../../data/products.json";
+// import jsonData from "../../data/products.json";
 import "./products.css";
 import NewProduct from "../New/newProduct";
 import {get_products} from "../../database/product_queries.js";

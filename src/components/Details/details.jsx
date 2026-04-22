@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, use } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { get_product_by_id } from "../../database/product_queries";
 import productsData from "../../data/products.json";
