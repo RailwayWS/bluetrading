@@ -4,7 +4,8 @@ import Hero from "./components/Hero/hero";
 import Products from "./components/Products/products";
 import Details from "./components/Details/details";
 import Login from "./pages/Login/login";
-import { AuthProvider, useAuth } from "./AuthContext.jsx";
+import { useAuth } from "./Contexts/AuthContext.jsx";
+import { AuthProvider } from "./Contexts/AuthProvider.jsx";
 import "./App.css";
 
 function AppContent() {

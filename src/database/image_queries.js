@@ -11,6 +11,7 @@ async function mapLimit(items, limit, asyncMapper) {
         try {
             results[current] = await asyncMapper(items[current], current);
         } catch (err) {
+            console.error(`Error processing item at index ${current}:`, err);
             results[current] = null; // fail soft
         }
     }

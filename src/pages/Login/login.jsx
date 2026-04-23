@@ -1,40 +1,37 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sign_in } from "../../database/auth_queries.js";
-import { useAuth } from "../../AuthContext.jsx";
+import { useAuth } from "../../Contexts/AuthContext.jsx";
 import "./login.css";
 import bgImage from "../../assets/hero2.webp";
 
 export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
-    const { setAdminState } = useAuth();
+
+    const { loading, setLoading } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
-        setIsLoading(true);
+        setLoading(true);
 
         try {
             const result = await sign_in(email, password);
             
             if (result.success) {
-                setAdminState(true);
-                setTimeout(() => {
-                    navigate("/");
-                }, 1500);
+                navigate("/");
             } else {
                 setError(result.error || "Invalid email or password");
-                setIsLoading(false);
+                setLoading(false);
             }
         } catch (err) {
             setError("An error occurred during login");
             console.error(err);
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
@@ -140,9 +137,9 @@ export default function Login() {
                     <button
                         type="submit"
                         className="login-button"
-                        disabled={isLoading}
+                        disabled={loading}
                     >
-                        {isLoading ? (
+                        {loading ? (
                             <div className="login-loader"></div>
                         ) : (
                             "Login"
