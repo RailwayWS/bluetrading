@@ -20,11 +20,17 @@ function Details() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("description");
     const [product, setProduct] = useState({price : 0});
-    const { products, imageUrls } = useProduct();
+    const { products, imageUrls, loadingProducts } = useProduct();
 
     useEffect(() => {
-        products.find((p) => {p.id === id && setProduct(p)});
-    }, [id, products]);
+        console.log(loadingProducts);
+        console.log(id);
+        if (loadingProducts) return;
+        const foundProduct = products.find((p) => String(p.id) === String(id));
+        if (foundProduct) {
+            setProduct(foundProduct);
+        }
+    }, [id, loadingProducts, products]);
 
     const relatedProducts = useMemo(() => {
         if (!product) return [];
