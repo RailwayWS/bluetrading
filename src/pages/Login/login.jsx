@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sign_in } from "../../database/auth_queries.js";
-import { useAuth } from "../../Contexts/AuthContext.jsx";
+import { useAuth } from "../../Contexts/authContext.js";
 import "./login.css";
 import bgImage from "../../assets/hero2.webp";
 

@@ -7,14 +7,14 @@ async function mapLimit(items, limit, asyncMapper) {
 
     async function worker() {
         while (nextIndex < items.length) {
-        const current = nextIndex++;
-        try {
-            results[current] = await asyncMapper(items[current], current);
-        } catch (err) {
-            console.error(`Error processing item at index ${current}:`, err);
-            results[current] = null; // fail soft
+            const current = nextIndex++;
+            try {
+                results[current] = await asyncMapper(items[current], current);
+            } catch (err) {
+                console.error(`Error processing item at index ${current}:`, err);
+                results[current] = null; // fail soft
+            }
         }
-    }
     }
 
     const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
@@ -39,6 +39,9 @@ export async function hydrateProductImageUrls(products, onItemResolved) {
     const limit = 6;
 
     await mapLimit(products, limit, async (product, index) => {
+        if (product.imageUrl && product.imageUrl !== "/fallback-image.png") {
+            return product; // already has resolved URL, skip
+        }
         const imageUrl = await resolveImageUrl(product.imagePath);
 
         // push incremental update to UI

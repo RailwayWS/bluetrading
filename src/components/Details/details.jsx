@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { get_product_by_id } from "../../database/product_queries";
+import { useProduct } from "../../Contexts/productContext";
 import productsData from "../../data/products.json";
 import "./details.css";
 
@@ -19,21 +20,18 @@ function Details() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("description");
     const [product, setProduct] = useState({price : 0});
+    const { products, imageUrls } = useProduct();
 
     useEffect(() => {
-        const fetchProduct = async () => {
-            const productData = await get_product_by_id(id);
-            setProduct(productData);
-        };
-        fetchProduct();
-    }, [id]);
+        products.find((p) => {p.id === id && setProduct(p)});
+    }, [id, products]);
 
     const relatedProducts = useMemo(() => {
         if (!product) return [];
-        return productsData.filter(
+        return products.filter(
             (p) => p.category === product.category && p.id !== product.id,
         );
-    }, [product]);
+    }, [products, product]);
 
     /* Scroll to top on product change */
     useEffect(() => {
@@ -94,7 +92,7 @@ function Details() {
                     <div className="details__image-col">
                         <div className="details__image-wrap">
                             <img
-                                src={images[product.image]}
+                                src={imageUrls[product.id]} 
                                 alt={product.name}
                                 className="details__image"
                             />

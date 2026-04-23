@@ -1,6 +1,6 @@
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useState, useEffect } from "react";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "./authContext";
 
 export function AuthProvider({ children }) {
     const [isAdmin, setIsAdmin] = useState(false);

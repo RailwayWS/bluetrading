@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 // import jsonData from "../../data/products.json";
 import "./products.css";
 import NewProduct from "../New/newProduct";
-import {get_products} from "../../database/product_queries.js";
-import { hydrateProductImageUrls } from "../../database/image_queries";
-
+import { useProduct } from "../../Contexts/productContext.js";
 
 
 /* Dynamically import all product images */
@@ -20,17 +18,17 @@ for (const path in imageModules) {
 
 function Products({ isAdmin }) {
     const navigate = useNavigate();
-    const [productsData, setProductsData] = useState([]);
-    const [imageUrls, setImageUrls] = useState({});
     const [activeCategory, setActiveCategory] = useState("All");
     const [activeSubcategory, setActiveSubcategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState(""); // 1. New search state
+    const { products, loadingProducts, imageUrls } = useProduct();
 
 
     /* Build unique categories & subcategories */
     const categories = useMemo(() => {
         const cats = {};
-        productsData.forEach((p) => {
+        if (!products.length) return cats;
+        products.forEach((p) => {
             if (!cats[p.category]) cats[p.category] = new Set();
             cats[p.category].add(p.subcategory);
         });
@@ -38,51 +36,7 @@ function Products({ isAdmin }) {
             Object.entries(cats).map(([k, v]) => [k, [...v]]),
         );
 
-    }, [productsData]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await get_products();
-            console.log(data[0]);
-            setProductsData(data);
-        }
-
-        fetchData();
-    }, []);
-
-    const productsNeedingImageUrls = useMemo(
-        () => productsData.filter((product) => !imageUrls[product.id]),
-        [productsData, imageUrls],
-    );
-
-    useEffect(() => {
-        if (!productsNeedingImageUrls.length) {
-            return;
-        }
-
-        let isCancelled = false;
-
-        hydrateProductImageUrls(
-            productsNeedingImageUrls.map((product) => ({
-                ...product,
-                imagePath: product.imagePath || product.image,
-            })),
-            (_, updatedProduct) => {
-                if (isCancelled || !updatedProduct?.imageUrl) {
-                    return;
-                }
-
-                setImageUrls((prev) => ({
-                    ...prev,
-                    [updatedProduct.id]: updatedProduct.imageUrl,
-                }));
-            },
-        );
-
-        return () => {
-            isCancelled = true;
-        };
-    }, [productsNeedingImageUrls]);
+    }, [products]);
 
     // const populateFirebase = async () => {
     //     jsonData.forEach(async (product) => {
@@ -93,7 +47,10 @@ function Products({ isAdmin }) {
 
     /* Filter products */
     const filteredProducts = useMemo(() => {
-        return productsData.filter((p) => {
+        if (loadingProducts) {
+            return [];
+        }
+        return products.filter((p) => {
             // Category check
             if (activeCategory !== "All" && p.category !== activeCategory)
                 return false;
@@ -123,7 +80,7 @@ function Products({ isAdmin }) {
 
             return true;
         });
-    }, [activeCategory, activeSubcategory, searchQuery, productsData]); // 3. Added searchQuery to dependencies
+    }, [activeCategory, activeSubcategory, searchQuery, products, loadingProducts]); // 3. Added searchQuery to dependencies
 
     const handleCategoryClick = (cat) => {
         setActiveCategory(cat);
@@ -138,16 +95,26 @@ function Products({ isAdmin }) {
         );
     };
 
-    return (
+    return (        
+        
         <section className="products" id="products-section">
             <div className="products__container">
                 <div className="products__header">
                     <span className="products__label">Our Products</span>
                     <h2 className="products__heading">Browse Our Equipment</h2>
-                    <p className="products__description">
-                        Explore our range of quality agricultural equipment,
-                        irrigation systems, and dam solutions.
-                    </p>
+                    
+                        {loadingProducts? 
+                            <p className="products__description">
+                            "Loading products..." 
+                            </p>
+                            : 
+                            <p className="products__description">
+                                Explore our range of quality agricultural equipment,
+                                irrigation systems, and dam solutions.                        
+                            </p>
+                        }
+                        
+                    
                 </div>
 
                 {/* USED TO POPULATE DB, ik this is kinda stupid but it works... */}
@@ -176,7 +143,7 @@ function Products({ isAdmin }) {
                                 >
                                     All Products
                                     <span className="products__count">
-                                        {productsData.length}
+                                        {products.length}
                                     </span>
                                 </button>
                             </li>
@@ -189,7 +156,7 @@ function Products({ isAdmin }) {
                                         {cat}
                                         <span className="products__count">
                                             {
-                                                productsData.filter(
+                                                products.filter(
                                                     (p) => p.category === cat,
                                                 ).length
                                             }
@@ -229,8 +196,7 @@ function Products({ isAdmin }) {
                                     <div className="product-card__image-wrap">
                                         <img
                                             src={
-                                                imageUrls[product.id] 
-                                                // images[product.image]
+                                                imageUrls[product.id] || images[0]
                                             }
                                             alt={product.name}
                                             className="product-card__image"

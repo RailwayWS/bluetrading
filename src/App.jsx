@@ -4,9 +4,10 @@ import Hero from "./components/Hero/hero";
 import Products from "./components/Products/products";
 import Details from "./components/Details/details";
 import Login from "./pages/Login/login";
-import { useAuth } from "./Contexts/AuthContext.jsx";
-import { AuthProvider } from "./Contexts/AuthProvider.jsx";
+import { useAuth } from "./Contexts/authContext.js";
+import { AuthProvider } from "./Contexts/authContextProvider.jsx";
 import "./App.css";
+import { ProductProvider } from "./Contexts/productContextProvider.jsx";
 
 function AppContent() {
     const [isVisible, setIsVisible] = useState(false);
@@ -73,7 +74,9 @@ function AppContent() {
 function App() {
     return (
         <AuthProvider>
-            <AppContent />
+            <ProductProvider>
+                <AppContent />
+            </ProductProvider>
         </AuthProvider>
     );
 }
