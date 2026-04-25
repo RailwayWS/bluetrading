@@ -23,14 +23,14 @@ function Details() {
     const { products, imageUrls, loadingProducts } = useProduct();
 
     useEffect(() => {
-        console.log(loadingProducts);
-        console.log(id);
         if (loadingProducts) return;
         const foundProduct = products.find((p) => String(p.id) === String(id));
+
         if (foundProduct) {
             setProduct(foundProduct);
         }
     }, [id, loadingProducts, products]);
+
 
     const relatedProducts = useMemo(() => {
         if (!product) return [];
@@ -98,7 +98,7 @@ function Details() {
                     <div className="details__image-col">
                         <div className="details__image-wrap">
                             <img
-                                src={imageUrls[product.id]} 
+                                src={product.imageUrl} 
                                 alt={product.name}
                                 className="details__image"
                             />

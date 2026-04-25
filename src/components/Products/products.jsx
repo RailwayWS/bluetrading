@@ -1,10 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-// import jsonData from "../../data/products.json";
-import "./products.css";
+import { InView } from "react-intersection-observer";
 import NewProduct from "../New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
-
+import "./products.css";
 
 /* Dynamically import all product images */
 const imageModules = import.meta.glob("../../assets/products/*.png", {
@@ -21,7 +20,14 @@ function Products({ isAdmin }) {
     const [activeCategory, setActiveCategory] = useState("All");
     const [activeSubcategory, setActiveSubcategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState(""); // 1. New search state
-    const { products, loadingProducts, imageUrls } = useProduct();
+
+    const { products, loadingProducts, setRequestMore, requestMore, hasMoreProducts } = useProduct();
+    
+    const getMoreProducts = (inView) => {
+        if (inView && !requestMore && hasMoreProducts) {
+            setRequestMore(true);
+        }
+    }
 
 
     /* Build unique categories & subcategories */
@@ -196,7 +202,7 @@ function Products({ isAdmin }) {
                                     <div className="product-card__image-wrap">
                                         <img
                                             src={
-                                                imageUrls[product.id] || images[0]
+                                                product.imageUrl
                                             }
                                             alt={product.name}
                                             className="product-card__image"
@@ -239,6 +245,7 @@ function Products({ isAdmin }) {
                     </div>
                 </div>
             </div>
+            <InView as="div" onChange={(inView) => {getMoreProducts(inView)}}/>
         </section>
     );
 }

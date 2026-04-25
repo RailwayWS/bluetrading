@@ -1,5 +1,17 @@
 import { getDownloadURL, ref } from "firebase/storage";
-import { storage } from "../config/firebase";
+import { storage} from "../config/firebase";
+
+
+//Will probably only use this one :3
+export async function resolveImageUrl(path) {
+    if (!path) return null;
+    if (urlCache.has(path)) return urlCache.get(path);
+
+    const normalizedPath = path.includes("/") ? path : `products/${path}`;
+    const url = await getDownloadURL(ref(storage, normalizedPath));
+    urlCache.set(path, url);
+    return url;
+}
 
 async function mapLimit(items, limit, asyncMapper) {
     const results = new Array(items.length);
@@ -23,16 +35,6 @@ async function mapLimit(items, limit, asyncMapper) {
 }
 
 const urlCache = new Map();
-
-async function resolveImageUrl(path) {
-    if (!path) return null;
-    if (urlCache.has(path)) return urlCache.get(path);
-
-    const normalizedPath = path.includes("/") ? path : `products/${path}`;
-    const url = await getDownloadURL(ref(storage, normalizedPath));
-    urlCache.set(path, url);
-    return url;
-}
 
 // products: [{ id, name, imagePath, ... }]
 export async function hydrateProductImageUrls(products, onItemResolved) {

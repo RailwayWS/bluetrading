@@ -1,6 +1,17 @@
 import { db } from "./../config/firebase.js";
-import { set, ref } from "firebase/database"; 
-import { doc, collection, getDocs, getDoc, addDoc, query, where, limit } from "firebase/firestore";
+import {
+    doc,
+    collection,
+    getDocs,
+    getDoc,
+    addDoc,
+    query,
+    where,
+    limit,
+    orderBy,
+    startAfter,
+    setDoc,
+} from "firebase/firestore";
 
 
 export async function add_product(name, price, description, imageURL, category, subcategory, features, additionalInfo) {
@@ -38,8 +49,8 @@ export async function add_product(name, price, description, imageURL, category, 
 
 export async function edit_product(productId, name, price, description, imageURL, category, subcategory, features, additionalInfo) {
     try {
-        const productRef = ref(db, 'products/' + productId);
-        await set(productRef, {
+        const productRef = doc(db, "products", productId);
+        await setDoc(productRef, {
             name: name,
             price: price,
             description: description,
@@ -48,10 +59,22 @@ export async function edit_product(productId, name, price, description, imageURL
             subcategory: subcategory,
             features : features,
             additionalInfo : additionalInfo
-        });
+        }, { merge: true });
         console.log("Document updated with ID: ", productId);
     } catch (e) {
         console.error("Error updating document: ", e);
+    }
+}
+
+export async function add_product_image_Url(productId, imageURL) {
+    try{
+        const productRef = doc(db, "products", productId);
+        await setDoc(productRef, {
+            imageUrl: imageURL
+        }, { merge: true });
+        console.log("Image URL updated for product ID: ", productId);
+    } catch (e) {
+        console.error("Error updating image URL: ", e);
     }
 }
 
@@ -60,6 +83,64 @@ export async function get_products() {
     const productSnapshot = await getDocs(productsRef);
     const productList = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     return productList;
+}
+
+export async function get_products_page(lastVisible = null, pageSize = 40) {
+    const productsRef = collection(db, "products");
+    const pageQuery = lastVisible
+        ? query(
+            productsRef,
+            orderBy("name"),
+            startAfter(lastVisible),
+            limit(pageSize),
+        )
+        : query(productsRef, orderBy("name"), limit(pageSize));
+
+    const snapshot = await getDocs(pageQuery);
+    const products = snapshot.docs.map((productDoc) => ({
+        id: productDoc.id,
+        ...productDoc.data(),
+    }));
+
+    return {
+        products,
+        lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,
+        hasMore: snapshot.docs.length === pageSize,
+    };
+}
+
+export async function get_products_by_subcategory_page(
+    subcategory,
+    lastVisible = null,
+    pageSize = 20,
+) {
+    const productsRef = collection(db, "products");
+    const pageQuery = lastVisible
+        ? query(
+            productsRef,
+            where("subcategory", "==", subcategory),
+            orderBy("name"),
+            startAfter(lastVisible),
+            limit(pageSize),
+        )
+        : query(
+            productsRef,
+            where("subcategory", "==", subcategory),
+            orderBy("name"),
+            limit(pageSize),
+        );
+
+    const snapshot = await getDocs(pageQuery);
+    const products = snapshot.docs.map((productDoc) => ({
+        id: productDoc.id,
+        ...productDoc.data(),
+    }));
+
+    return {
+        products,
+        lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,
+        hasMore: snapshot.docs.length === pageSize,
+    };
 }
 
 export async function get_product_by_id(productId) {
