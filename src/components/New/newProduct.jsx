@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./newProuct.css";
 import AddProductModal from "./AddProductModal";
+import {add_product} from "../../database/product_queries"; 
+import { add_image} from "../../database/image_queries";
 
 export default function NewProduct() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -9,9 +11,12 @@ export default function NewProduct() {
         setIsModalOpen(true);
     };
 
-    const handleSaveProduct = (productData) => {
+    const handleSaveProduct = async (productData) => {
         console.log("New Product Data:", productData);
-        //for rubber's convenience
+        const image = productData.image;
+        const imageUrl = await add_image(image);
+        console.log("Image URL:", imageUrl);
+        console.log(productData);
     };
 
     return (

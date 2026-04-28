@@ -7,11 +7,13 @@ import { doc, setDoc } from "firebase/firestore";
 
 export function ProductProvider({ children }) {
     const [products, setProducts] = useState([]);
-    const [loadingProducts, setLoadingProducts] = useState(true);
     const [imageUrls] = useState({});
+
+    const [loadingProducts, setLoadingProducts] = useState(true);
     const [requestMore, setRequestMore] = useState(false);
     const [lastVisible, setLastVisible] = useState(null);
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
+
 
     useEffect(() => {
         async function fetchProducts() {
@@ -28,13 +30,14 @@ export function ProductProvider({ children }) {
         fetchProducts();
     },[]);
 
+    // normal product loading
     useEffect(() => {
         const fetchAmount = 5;
         console.log("Request more changed:", requestMore);
         if (!requestMore) return;
         if (!products.length) return;
         if (!hasMoreProducts) return;
-
+        
         get_products_page(lastVisible, fetchAmount).then((newProducts) => {
             if (!newProducts.products.length) {
                 setHasMoreProducts(false);
@@ -44,6 +47,7 @@ export function ProductProvider({ children }) {
 
             setProducts((prev) => [...prev, ...newProducts.products]);
             setLastVisible(newProducts.lastVisible);
+
             setHasMoreProducts(newProducts.hasMore);
             setRequestMore(false);
         });
@@ -96,7 +100,12 @@ export function ProductProvider({ children }) {
     
 
 	return (
-        <ProductContext.Provider value={{ products, loadingProducts, imageUrls, setRequestMore, requestMore, hasMoreProducts }}>
+        <ProductContext.Provider value={{ products,
+                loadingProducts,
+                imageUrls,
+                setRequestMore,
+                requestMore,
+                hasMoreProducts }}>
 			{children}
 		</ProductContext.Provider>
 	);

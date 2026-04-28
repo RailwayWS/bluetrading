@@ -24,7 +24,7 @@ export default function AddProductModal({ onClose, onSave }) {
     });
 
     const [imagePreview, setImagePreview] = useState(null);
-
+    const maxImageSize = 1 * 1024 * 1024; // 1MB
     //additional fields
     const [features, setFeatures] = useState([]);
     const [additionalInfo, setAdditionalInfo] = useState([]);
@@ -34,9 +34,19 @@ export default function AddProductModal({ onClose, onSave }) {
         const { name, value, type, files } = e.target;
         if (type === "file") {
             const file = files[0];
-            setFormData((prev) => ({ ...prev, [name]: file }));
             if (file) {
-                setImagePreview(URL.createObjectURL(file));
+                if (file.size > maxImageSize) {
+                    // File exceeds size limit, show error and reset
+                    alert("Image size exceeds 1MB. Please choose a smaller file.");
+                    setImagePreview(null);
+                } else {
+
+                    const imageUrl = URL.createObjectURL(file);
+                    
+                    console.log("Selected image file:", file.name);
+                    setFormData((prev) => ({ ...prev, image: file }));
+                    setImagePreview(imageUrl);
+                }
             } else {
                 setImagePreview(null);
             }

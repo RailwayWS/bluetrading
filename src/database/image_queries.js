@@ -1,6 +1,17 @@
-import { getDownloadURL, ref } from "firebase/storage";
+import { uploadBytes, getDownloadURL, ref } from "firebase/storage";
 import { storage} from "../config/firebase";
 
+export async function add_image(image) {
+    try {
+      const storageRef = ref(storage, `products/${image.name}`);
+      await uploadBytes(storageRef, image);
+      const downloadURL = await getDownloadURL(storageRef);
+      console.log("Image uploaded successfully. Download URL:", downloadURL);
+      return downloadURL;
+    } catch (e) {
+        console.error("Error uploading image: ", e);
+    }
+}
 
 //Will probably only use this one :3
 export async function resolveImageUrl(path) {
@@ -8,7 +19,7 @@ export async function resolveImageUrl(path) {
     if (urlCache.has(path)) return urlCache.get(path);
 
     const normalizedPath = path.includes("/") ? path : `products/${path}`;
-    const url = await getDownloadURL(ref(storage, normalizedPath));
+    const url = await getDownloadURL(ref(storage,   normalizedPath));
     urlCache.set(path, url);
     return url;
 }
@@ -53,3 +64,4 @@ export async function hydrateProductImageUrls(products, onItemResolved) {
         });
     });
 }
+

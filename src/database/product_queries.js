@@ -14,12 +14,12 @@ import {
 } from "firebase/firestore";
 
 
-export async function add_product(name, price, description, imageURL, category, subcategory, features, additionalInfo) {
+export async function add_product(product) {
     try {     
         const productsRef = collection(db, "products");
         const existingProductQuery = query(
             productsRef,
-            where("name", "==", name),
+            where("name", "==", product.name),
             limit(1)
         );
         const existingProductSnapshot = await getDocs(existingProductQuery);
@@ -30,14 +30,14 @@ export async function add_product(name, price, description, imageURL, category, 
         }
 
         const docRef = await addDoc(collection(db, "products"), {
-            name: name,
-            price: price,
-            description: description,
-            image: imageURL,
-            category: category,
-            subcategory: subcategory,
-            features : features,
-            additionalInfo : additionalInfo
+            name: product.name,
+            price: product.price,
+            description: product.description,
+            image: product.imageURL,
+            category: product.category,
+            subcategory: product.subcategory,
+            features : product.features,
+            additionalInfo : product.additionalInfo
         });
         console.log("Document added with ID: ", docRef.id);
         return { success: true, id: docRef.id };
@@ -47,18 +47,18 @@ export async function add_product(name, price, description, imageURL, category, 
     }
 }
 
-export async function edit_product(productId, name, price, description, imageURL, category, subcategory, features, additionalInfo) {
+export async function edit_product(productId, product) {
     try {
         const productRef = doc(db, "products", productId);
         await setDoc(productRef, {
-            name: name,
-            price: price,
-            description: description,
-            image: imageURL,
-            category: category,
-            subcategory: subcategory,
-            features : features,
-            additionalInfo : additionalInfo
+            name: product.name,
+            price: product.price,
+            description: product.description,
+            image: product.imageURL,
+            category: product.category,
+            subcategory: product.subcategory,
+            features : product.features,
+            additionalInfo : product.additionalInfo
         }, { merge: true });
         console.log("Document updated with ID: ", productId);
     } catch (e) {
@@ -92,6 +92,7 @@ export async function get_products_page(lastVisible = null, pageSize = 40) {
             productsRef,
             orderBy("name"),
             startAfter(lastVisible),
+
             limit(pageSize),
         )
         : query(productsRef, orderBy("name"), limit(pageSize));
@@ -135,7 +136,7 @@ export async function get_products_by_subcategory_page(
         id: productDoc.id,
         ...productDoc.data(),
     }));
-
+    console.log(`Fetched ${products.length} products for subcategory "${subcategory}"`);
     return {
         products,
         lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,

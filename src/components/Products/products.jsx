@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, act } from "react";
 import { useNavigate } from "react-router-dom";
 import { InView } from "react-intersection-observer";
 import NewProduct from "../New/newProduct";
@@ -29,7 +29,6 @@ function Products({ isAdmin }) {
         }
     }
 
-
     /* Build unique categories & subcategories */
     const categories = useMemo(() => {
         const cats = {};
@@ -44,12 +43,6 @@ function Products({ isAdmin }) {
 
     }, [products]);
 
-    // const populateFirebase = async () => {
-    //     jsonData.forEach(async (product) => {
-    //         await add_product(product.name, product.price, product.description, product.image, product.category, product.subcategory, product.features, product.additionalInfo);
-    //         console.log(`Added product: ${product.name}`);
-    //     });
-    // }
 
     /* Filter products */
     const filteredProducts = useMemo(() => {
