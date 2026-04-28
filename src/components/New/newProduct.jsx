@@ -15,8 +15,9 @@ export default function NewProduct() {
         console.log("New Product Data:", productData);
         const image = productData.image;
         const imageUrl = await add_image(image);
-        console.log("Image URL:", imageUrl);
-        console.log(productData);
+        productData.imageURL = imageUrl;
+        await add_product(productData);
+        console.log("Product added successfully");
     };
 
     return (

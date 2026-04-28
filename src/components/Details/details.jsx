@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { get_product_by_id } from "../../database/product_queries";
 import { useProduct } from "../../Contexts/productContext";
-import productsData from "../../data/products.json";
 import "./details.css";
 
 /* Dynamically import all product images */
@@ -20,7 +19,7 @@ function Details() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("description");
     const [product, setProduct] = useState({price : 0});
-    const { products, imageUrls, loadingProducts } = useProduct();
+    const { products, loadingProducts } = useProduct();
 
     useEffect(() => {
         if (loadingProducts) return;
@@ -28,6 +27,15 @@ function Details() {
 
         if (foundProduct) {
             setProduct(foundProduct);
+        } else if (!loadingProducts && !foundProduct) {
+            // If products is not found, search it directly from the database
+            get_product_by_id(id).then((dbProduct) => {
+                if (dbProduct) {
+                    setProduct(dbProduct);
+                } else {
+                    console.error("Product not found in database either");
+                }
+            });
         }
     }, [id, loadingProducts, products]);
 
@@ -260,7 +268,7 @@ function Details() {
                                 >
                                     <div className="product-card__image-wrap">
                                         <img
-                                            src={images[rp.image]}
+                                            src={rp.imageUrl}
                                             alt={rp.name}
                                             className="product-card__image"
                                             loading="lazy"

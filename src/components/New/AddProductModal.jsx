@@ -23,8 +23,10 @@ export default function AddProductModal({ onClose, onSave }) {
         description: "",
     });
 
+    
     const [imagePreview, setImagePreview] = useState(null);
     const maxImageSize = 1 * 1024 * 1024; // 1MB
+
     //additional fields
     const [features, setFeatures] = useState([]);
     const [additionalInfo, setAdditionalInfo] = useState([]);
@@ -38,6 +40,7 @@ export default function AddProductModal({ onClose, onSave }) {
                 if (file.size > maxImageSize) {
                     // File exceeds size limit, show error and reset
                     alert("Image size exceeds 1MB. Please choose a smaller file.");
+                    files[0] = null; // Clear the file input
                     setImagePreview(null);
                 } else {
 

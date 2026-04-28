@@ -37,7 +37,8 @@ export async function add_product(product) {
             category: product.category,
             subcategory: product.subcategory,
             features : product.features,
-            additionalInfo : product.additionalInfo
+            additionalInfo : product.additionalInfo,
+            imageUrl : product.imageURL
         });
         console.log("Document added with ID: ", docRef.id);
         return { success: true, id: docRef.id };
@@ -103,40 +104,6 @@ export async function get_products_page(lastVisible = null, pageSize = 40) {
         ...productDoc.data(),
     }));
 
-    return {
-        products,
-        lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,
-        hasMore: snapshot.docs.length === pageSize,
-    };
-}
-
-export async function get_products_by_subcategory_page(
-    subcategory,
-    lastVisible = null,
-    pageSize = 20,
-) {
-    const productsRef = collection(db, "products");
-    const pageQuery = lastVisible
-        ? query(
-            productsRef,
-            where("subcategory", "==", subcategory),
-            orderBy("name"),
-            startAfter(lastVisible),
-            limit(pageSize),
-        )
-        : query(
-            productsRef,
-            where("subcategory", "==", subcategory),
-            orderBy("name"),
-            limit(pageSize),
-        );
-
-    const snapshot = await getDocs(pageQuery);
-    const products = snapshot.docs.map((productDoc) => ({
-        id: productDoc.id,
-        ...productDoc.data(),
-    }));
-    console.log(`Fetched ${products.length} products for subcategory "${subcategory}"`);
     return {
         products,
         lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,

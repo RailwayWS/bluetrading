@@ -1,4 +1,4 @@
-import { useState, useMemo, act } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { InView } from "react-intersection-observer";
 import NewProduct from "../New/newProduct";
@@ -19,15 +19,36 @@ function Products({ isAdmin }) {
     const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState("All");
     const [activeSubcategory, setActiveSubcategory] = useState("All");
-    const [searchQuery, setSearchQuery] = useState(""); // 1. New search state
+    const [searchQuery, setSearchQuery] = useState("");
+    const isLoadingMoreRef = useRef(false);
+    const { products, loadingProducts, loadMoreProducts, hasMoreProducts } = useProduct();
 
-    const { products, loadingProducts, setRequestMore, requestMore, hasMoreProducts } = useProduct();
-    
-    const getMoreProducts = (inView) => {
-        if (inView && !requestMore && hasMoreProducts) {
-            setRequestMore(true);
-        }
-    }
+    const matchesFilters = useCallback(
+        (product) => {
+            if (activeCategory !== "All" && product.category !== activeCategory) {
+                return false;
+            }
+
+            if (
+                activeSubcategory !== "All" &&
+                product.subcategory !== activeSubcategory
+            ) {
+                return false;
+            }
+
+            if (searchQuery.trim() !== "") {
+                const query = searchQuery.toLowerCase();
+                const matchesName = product.name.toLowerCase().includes(query);
+                const matchesCategory = product.category.toLowerCase().includes(query);
+                const matchesSubcategory = product.subcategory.toLowerCase().includes(query);
+
+                return matchesName || matchesCategory || matchesSubcategory;
+            }
+
+            return true;
+        },
+        [activeCategory, activeSubcategory, searchQuery],
+    );
 
     /* Build unique categories & subcategories */
     const categories = useMemo(() => {
@@ -43,49 +64,61 @@ function Products({ isAdmin }) {
 
     }, [products]);
 
-
-    /* Filter products */
     const filteredProducts = useMemo(() => {
         if (loadingProducts) {
             return [];
         }
-        return products.filter((p) => {
-            // Category check
-            if (activeCategory !== "All" && p.category !== activeCategory)
-                return false;
 
-            // Subcategory check
+        return products.filter(matchesFilters);
+    }, [products, loadingProducts, matchesFilters]);
+
+    const ensureMinimumFilteredGrowth = useCallback(
+        async (inView) => {
+            const minimumNewProducts = 4;
+            const pageSize = 4;
+            const maxRequests = 8;
+
             if (
-                activeSubcategory !== "All" &&
-                p.subcategory !== activeSubcategory
-            )
-                return false;
-
-            // 2. Search Query check (Checks name, category, and subcategory)
-            if (searchQuery.trim() !== "") {
-                const query = searchQuery.toLowerCase();
-                const matchesName = p.name.toLowerCase().includes(query);
-                const matchesCategory = p.category
-                    .toLowerCase()
-                    .includes(query);
-                const matchesSubcategory = p.subcategory
-                    .toLowerCase()
-                    .includes(query);
-
-                if (!matchesName && !matchesCategory && !matchesSubcategory) {
-                    return false;
-                }
+                !inView ||
+                loadingProducts ||
+                isLoadingMoreRef.current ||
+                !hasMoreProducts
+            ) {
+                return;
             }
 
-            return true;
-        });
-    }, [activeCategory, activeSubcategory, searchQuery, products, loadingProducts]); // 3. Added searchQuery to dependencies
+            isLoadingMoreRef.current = true;
+
+            try {
+                let matchedGrowth = 0;
+                let attempts = 0;
+                let moreProductsAvailable = hasMoreProducts;
+
+                while (
+                    moreProductsAvailable &&
+                    matchedGrowth < minimumNewProducts &&
+                    attempts < maxRequests
+                ) {
+                    const batch = await loadMoreProducts(pageSize);
+
+                    if (!batch.products.length) {
+                        break;
+                    }
+
+                    matchedGrowth += batch.products.filter(matchesFilters).length;
+                    moreProductsAvailable = batch.hasMore;
+                    attempts += 1;
+                }
+            } finally {
+                isLoadingMoreRef.current = false;
+            }
+        },
+        [hasMoreProducts, loadMoreProducts, loadingProducts, matchesFilters],
+    );
 
     const handleCategoryClick = (cat) => {
         setActiveCategory(cat);
         setActiveSubcategory("All");
-        // Optional: You could clear the search query here by adding setSearchQuery('')
-        // if you want category clicks to reset the search bar.
     };
 
     const formatPrice = (price) => {
@@ -238,7 +271,7 @@ function Products({ isAdmin }) {
                     </div>
                 </div>
             </div>
-            <InView as="div" onChange={(inView) => {getMoreProducts(inView)}}/>
+            <InView as="div" onChange={ensureMinimumFilteredGrowth} threshold={0} />
         </section>
     );
 }
