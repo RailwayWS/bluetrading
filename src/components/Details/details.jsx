@@ -14,11 +14,33 @@ for (const path in imageModules) {
     images[filename] = imageModules[path].default;
 }
 
+// wrapper component that handles its own image loading state
+const ProductImage = ({ src, alt, className }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    return (
+        <>
+            {/* The Skeleton Placeholder */}
+            {!isLoaded && <div className="skeleton skeleton-img"></div>}
+
+            {/* The Actual Image */}
+            <img
+                src={src}
+                alt={alt}
+                className={`${className} ${isLoaded ? "img-loaded" : "img-hidden"}`}
+                onLoad={() => setIsLoaded(true)}
+                loading="lazy"
+                decoding="async"
+            />
+        </>
+    );
+};
+
 function Details() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("description");
-    const [product, setProduct] = useState({price : 0});
+    const [product, setProduct] = useState({ price: 0 });
     const { products, loadingProducts } = useProduct();
 
     useEffect(() => {
@@ -38,7 +60,6 @@ function Details() {
             });
         }
     }, [id, loadingProducts, products]);
-
 
     const relatedProducts = useMemo(() => {
         if (!product) return [];
@@ -105,8 +126,8 @@ function Details() {
                 <div className="details__hero-inner">
                     <div className="details__image-col">
                         <div className="details__image-wrap">
-                            <img
-                                src={product.imageUrl} 
+                            <ProductImage
+                                src={product.imageUrl}
                                 alt={product.name}
                                 className="details__image"
                             />
@@ -267,7 +288,7 @@ function Details() {
                                     }
                                 >
                                     <div className="product-card__image-wrap">
-                                        <img
+                                        <ProductImage
                                             src={rp.imageUrl}
                                             alt={rp.name}
                                             className="product-card__image"
