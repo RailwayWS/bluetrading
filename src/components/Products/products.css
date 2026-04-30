@@ -327,6 +327,19 @@
     border-radius: 8px;
 }
 
+.button-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+@media (max-width: 400px) {
+    .button-wrapper {
+        flex-direction: column;
+    }
+}
+
 @keyframes skeleton-shimmer {
     0% {
         background-position: -200% 0;

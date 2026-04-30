@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { InView } from "react-intersection-observer";
 import NewProduct from "../New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
+import AddProductModal from "../New/AddProductModal.jsx";
 import "./products.css";
 
 /* Dynamically import all product images */
@@ -44,6 +45,18 @@ function Products({ isAdmin }) {
     const isLoadingMoreRef = useRef(false);
     const { products, loadingProducts, loadMoreProducts, hasMoreProducts } =
         useProduct();
+    const [editingProduct, setEditingProduct] = useState(null);
+
+    const handleEdit = (productId) => {
+        const productToEdit = products.find((p) => p.id === productId);
+        setEditingProduct(productToEdit);
+    };
+
+    const handleSaveEdit = async () => {
+        //ill leave this for the rubber man (he loves async)
+        console.log("Saving edited product:", editingProduct);
+        setEditingProduct(null);
+    };
 
     const matchesFilters = useCallback(
         (product) => {
@@ -264,16 +277,28 @@ function Products({ isAdmin }) {
                                         <p className="product-card__price">
                                             {formatPrice(product.price)}
                                         </p>
-                                        <button
-                                            className="product-card__btn"
-                                            onClick={() =>
-                                                navigate(
-                                                    `/product/${product.id}`,
-                                                )
-                                            }
-                                        >
-                                            More Detail
-                                        </button>
+                                        <div className="button-wrapper">
+                                            <button
+                                                className="product-card__btn"
+                                                onClick={() =>
+                                                    navigate(
+                                                        `/product/${product.id}`,
+                                                    )
+                                                }
+                                            >
+                                                More Detail
+                                            </button>
+                                            {isAdmin && (
+                                                <button
+                                                    className="product-card__btn"
+                                                    onClick={() =>
+                                                        handleEdit(product.id)
+                                                    }
+                                                >
+                                                    Edit
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))
@@ -293,6 +318,13 @@ function Products({ isAdmin }) {
                 onChange={ensureMinimumFilteredGrowth}
                 threshold={0}
             />
+            {editingProduct && (
+                <AddProductModal
+                    productToEdit={editingProduct}
+                    onClose={() => setEditingProduct(null)}
+                    onSave={handleSaveEdit}
+                />
+            )}
         </section>
     );
 }

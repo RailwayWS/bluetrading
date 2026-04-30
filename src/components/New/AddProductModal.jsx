@@ -4,7 +4,7 @@ import deleteIcon from "../../assets/symbols/delete(1).png";
 import uploadIcon from "../../assets/symbols/upload.png";
 import productsData from "../../data/products.json";
 
-export default function AddProductModal({ onClose, onSave }) {
+export default function AddProductModal({ onClose, onSave, editProduct }) {
     // Prevent background scrolling when modal is open
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -13,17 +13,16 @@ export default function AddProductModal({ onClose, onSave }) {
         };
     }, []);
 
-    //main fields
+    //main fields (if product data exists use it, otherwise default to empty strings)
     const [formData, setFormData] = useState({
-        name: "",
-        category: "",
-        subcategory: "",
-        price: "",
-        image: "",
-        description: "",
+        name: editProduct?.name || "",
+        category: editProduct?.category || "",
+        subcategory: editProduct?.subcategory || "",
+        price: editProduct?.price || "",
+        image: editProduct?.image || "",
+        description: editProduct?.description || "",
     });
 
-    
     const [imagePreview, setImagePreview] = useState(null);
     const maxImageSize = 1 * 1024 * 1024; // 1MB
 
@@ -39,13 +38,14 @@ export default function AddProductModal({ onClose, onSave }) {
             if (file) {
                 if (file.size > maxImageSize) {
                     // File exceeds size limit, show error and reset
-                    alert("Image size exceeds 1MB. Please choose a smaller file.");
+                    alert(
+                        "Image size exceeds 1MB. Please choose a smaller file.",
+                    );
                     files[0] = null; // Clear the file input
                     setImagePreview(null);
                 } else {
-
                     const imageUrl = URL.createObjectURL(file);
-                    
+
                     console.log("Selected image file:", file.name);
                     setFormData((prev) => ({ ...prev, image: file }));
                     setImagePreview(imageUrl);
