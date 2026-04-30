@@ -15,17 +15,42 @@ for (const path in imageModules) {
     images[filename] = imageModules[path].default;
 }
 
+// wrapper component that handles its own image loading state
+const ProductImage = ({ src, alt, className }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    return (
+        <>
+            {/* The Skeleton Placeholder */}
+            {!isLoaded && <div className="skeleton skeleton-img"></div>}
+
+            {/* The Actual Image */}
+            <img
+                src={src}
+                alt={alt}
+                className={`${className} ${isLoaded ? "img-loaded" : "img-hidden"}`}
+                onLoad={() => setIsLoaded(true)}
+                loading="lazy"
+                decoding="async"
+            />
+        </>
+    );
+};
 function Products({ isAdmin }) {
     const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState("All");
     const [activeSubcategory, setActiveSubcategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
     const isLoadingMoreRef = useRef(false);
-    const { products, loadingProducts, loadMoreProducts, hasMoreProducts } = useProduct();
+    const { products, loadingProducts, loadMoreProducts, hasMoreProducts } =
+        useProduct();
 
     const matchesFilters = useCallback(
         (product) => {
-            if (activeCategory !== "All" && product.category !== activeCategory) {
+            if (
+                activeCategory !== "All" &&
+                product.category !== activeCategory
+            ) {
                 return false;
             }
 
@@ -39,8 +64,12 @@ function Products({ isAdmin }) {
             if (searchQuery.trim() !== "") {
                 const query = searchQuery.toLowerCase();
                 const matchesName = product.name.toLowerCase().includes(query);
-                const matchesCategory = product.category.toLowerCase().includes(query);
-                const matchesSubcategory = product.subcategory.toLowerCase().includes(query);
+                const matchesCategory = product.category
+                    .toLowerCase()
+                    .includes(query);
+                const matchesSubcategory = product.subcategory
+                    .toLowerCase()
+                    .includes(query);
 
                 return matchesName || matchesCategory || matchesSubcategory;
             }
@@ -61,7 +90,6 @@ function Products({ isAdmin }) {
         return Object.fromEntries(
             Object.entries(cats).map(([k, v]) => [k, [...v]]),
         );
-
     }, [products]);
 
     const filteredProducts = useMemo(() => {
@@ -105,7 +133,8 @@ function Products({ isAdmin }) {
                         break;
                     }
 
-                    matchedGrowth += batch.products.filter(matchesFilters).length;
+                    matchedGrowth +=
+                        batch.products.filter(matchesFilters).length;
                     moreProductsAvailable = batch.hasMore;
                     attempts += 1;
                 }
@@ -127,32 +156,22 @@ function Products({ isAdmin }) {
         );
     };
 
-    return (        
-        
+    return (
         <section className="products" id="products-section">
             <div className="products__container">
                 <div className="products__header">
                     <span className="products__label">Our Products</span>
                     <h2 className="products__heading">Browse Our Equipment</h2>
-                    
-                        {loadingProducts? 
-                            <p className="products__description">
-                            "Loading products..." 
-                            </p>
-                            : 
-                            <p className="products__description">
-                                Explore our range of quality agricultural equipment,
-                                irrigation systems, and dam solutions.                        
-                            </p>
-                        }
-                        
-                    
+
+                    <p className="products__description">
+                        Explore our range of quality agricultural equipment,
+                        irrigation systems, and dam solutions.
+                    </p>
                 </div>
 
                 {/* USED TO POPULATE DB, ik this is kinda stupid but it works... */}
                 {/* <button onClick={populateFirebase}>Populate Firebase with JSON Data</button> */}
 
-                {/* 4. The Search Bar */}
                 <div className="products__search-wrapper">
                     <input
                         type="text"
@@ -226,10 +245,8 @@ function Products({ isAdmin }) {
                             filteredProducts.map((product) => (
                                 <div className="product-card" key={product.id}>
                                     <div className="product-card__image-wrap">
-                                        <img
-                                            src={
-                                                product.imageUrl
-                                            }
+                                        <ProductImage
+                                            src={product.imageUrl}
                                             alt={product.name}
                                             className="product-card__image"
                                             loading="lazy"
@@ -271,7 +288,11 @@ function Products({ isAdmin }) {
                     </div>
                 </div>
             </div>
-            <InView as="div" onChange={ensureMinimumFilteredGrowth} threshold={0} />
+            <InView
+                as="div"
+                onChange={ensureMinimumFilteredGrowth}
+                threshold={0}
+            />
         </section>
     );
 }
