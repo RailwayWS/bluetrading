@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { InView } from "react-intersection-observer";
-import NewProduct from "../New/newProduct";
+import NewProduct from "../../components/New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
-import AddProductModal from "../New/AddProductModal.jsx";
+import AddProductModal from "../../components/New/AddProductModal.jsx";
 import "./products.css";
 
 /* Dynamically import all product images */

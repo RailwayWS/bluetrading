@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Hero from "./components/Hero/hero";
-import Products from "./components/Products/products";
-import Details from "./components/Details/details";
+import Products from "./pages/Products/products";
+import Details from "./pages/Details/details";
 import Login from "./pages/Login/login";
 import { useAuth } from "./Contexts/authContext.js";
 import { AuthProvider } from "./Contexts/authContextProvider.jsx";
 import "./App.css";
 import { ProductProvider } from "./Contexts/productContextProvider.jsx";
+import Navbar from "./components/Navbar/navbar.jsx";
+import About from "./components/about/about.jsx";
+import Contact from "./components/contact/contact.jsx";
 
 function AppContent() {
     const [isVisible, setIsVisible] = useState(false);
@@ -39,16 +42,19 @@ function AppContent() {
 
     return (
         <div className="app">
+            <Navbar />
             <Routes>
                 <Route
                     path="/"
                     element={
                         <>
                             <Hero />
-                            <Products isAdmin={isAdmin} />
+                            <About />
+                            <Contact />
                         </>
                     }
                 />
+                <Route path="/products" element={<Products isAdmin={isAdmin} />} />
                 <Route path="/product/:id" element={<Details />} />
                 <Route
                     path="/admin"

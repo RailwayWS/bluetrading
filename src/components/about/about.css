@@ -1,0 +1,276 @@
+/* ===== About Section ===== */
+.about {
+    padding: 100px 0;
+    background-color: var(--color-bg, #ffffff);
+    overflow: hidden; /* Prevents decorative elements from causing horizontal scroll */
+}
+
+.about__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+/* --- Left Column: Content --- */
+.about__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.about__label {
+    font-family: var(--font-accent, sans-serif);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-primary, #1a1a1a);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: inline-block;
+}
+
+.about__heading {
+    font-family: var(--font-body, sans-serif);
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    color: var(--color-text, #111111);
+    line-height: 1.1;
+    margin-bottom: 24px;
+}
+
+.about__heading-highlight {
+    color: var(--color-primary, #4a90e2);
+    /* Optional sleek gradient text effect */
+    background: linear-gradient(120deg, var(--color-primary) 0%, var(--color-accent, #8e44ad) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.about__description {
+    font-family: var(--font-body, sans-serif);
+    font-size: 1.1rem;
+    color: var(--color-text-light, #555555);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    max-width: 540px;
+}
+
+/* Quick Stats Row */
+.about__stats {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 20px;
+    padding-top: 30px;
+    border-top: 1px solid var(--color-border-light, #eaeaea);
+}
+
+.about__stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text, #111111);
+    margin-bottom: 4px;
+}
+
+.about__stat-text {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-muted, #888888);
+    font-weight: 600;
+}
+
+.about__stat-divider {
+    width: 1px;
+    height: 50px;
+    background-color: var(--color-border-light, #eaeaea);
+}
+
+/* --- Right Column: Visual --- */
+.about__visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.about__image-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 4/5;
+    border-radius: var(--radius-md, 16px);
+    z-index: 1;
+}
+
+/* Sleek offset background square */
+.about__image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--color-primary, #1a1a1a);
+    border-radius: var(--radius-md, 16px);
+    z-index: -1;
+    transition: transform 0.4s ease;
+}
+
+.about__visual:hover .about__image-wrapper::before {
+    transform: translate(-10px, 10px); /* Subtle animation on hover */
+}
+
+.about__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-md, 16px);
+    box-shadow: var(--shadow-md, 0 10px 30px rgba(0, 0, 0, 0.1));
+}
+
+/* Floating Glassmorphism Badge */
+.about__experience-badge {
+    position: absolute;
+    bottom: -20px;
+    left: -30px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 20px 24px;
+    border-radius: var(--radius-md, 12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2;
+}
+
+.badge-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-primary, #1a1a1a);
+    line-height: 1;
+}
+
+.badge-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-light, #555555);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.3;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 960px) {
+    .about__container {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .about__content {
+        text-align: center;
+        align-items: center;
+    }
+
+    .about__description {
+        text-align: center;
+    }
+
+    .about__stats {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .about__image-wrapper {
+        max-width: 450px;
+    }
+
+    .about__experience-badge {
+        left: -10px; /* Adjust badge placement for smaller screens */
+    }
+}
+
+@media (max-width: 600px) {
+    .about {
+        padding: 60px 0;
+    }
+
+    .about__heading {
+        font-size: 2.2rem;
+    }
+
+    .about__stats {
+        flex-direction: column;
+        gap: 20px;
+        border-top: none;
+        padding-top: 10px;
+    }
+
+    .about__stat-divider {
+        width: 50px;
+        height: 1px;
+    }
+
+    .about__image-wrapper::before {
+        top: -10px;
+        right: -10px;
+    }
+
+    .about__experience-badge {
+        bottom: 10px;
+        left: 10px;
+        padding: 12px 16px;
+    }
+    
+    .badge-number {
+        font-size: 2rem;
+    }
+}
+
+/* ===== Partnership Section ===== */
+.about__partners {
+    grid-column: 1 / -1; /* Spans across both grid columns */
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid var(--color-border-light, #eaeaea);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+}
+
+.about__partners-title {
+    font-family: var(--font-body, sans-serif);
+    font-size: 1.1rem;
+    color: var(--color-text-muted, #888888);
+    font-weight: 500;
+}
+
+.about__partners-logo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.about__partners-logo {
+    max-width: 280px; /* Keeps the logo at a tasteful size */
+    height: auto;
+    opacity: 0.85; /* Slight transparency for a sleek, integrated look */
+    transition: all 0.3s ease;
+    filter: grayscale(100%); /* Optional: makes it black/white to match a modern theme */
+}
+
+/* Brings full color and opacity back when hovered */
+.about__partners-logo:hover {
+    opacity: 1;
+    filter: grayscale(0%);
+    transform: translateY(-2px);
+}

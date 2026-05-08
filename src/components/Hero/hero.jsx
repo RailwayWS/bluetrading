@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import heroSlide1 from "../../assets/hero1.webp";
 import heroSlide2 from "../../assets/hero2.webp";
 import "./hero.css";
@@ -19,6 +20,7 @@ const slides = [
 function Hero() {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -31,11 +33,6 @@ function Hero() {
 
         return () => clearInterval(interval);
     }, []);
-
-    const scrollToProducts = () => {
-        const el = document.getElementById("products-section");
-        if (el) el.scrollIntoView({ behavior: "smooth" });
-    };
 
     return (
         <section className="hero" id="hero-section">
@@ -63,8 +60,8 @@ function Hero() {
                         </span>
                     ))}
                 </h1>
-                <button className="hero__cta" onClick={scrollToProducts}>
-                    Discover More
+                <button className="hero__cta" onClick={() => navigate('/products')}>
+                    View Products
                 </button>
             </div>
 

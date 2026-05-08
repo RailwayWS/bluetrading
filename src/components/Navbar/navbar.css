@@ -1,0 +1,100 @@
+/* ===== Navbar Section ===== */
+.navbar {
+    position: fixed;
+    top: 24px; /* Creates the gap between the navbar and the top of the window */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Ensures it stays floating above all other content */
+    
+    width: 90%;
+    max-width: 700px; /* Keeps the pill relatively compact */
+    padding: 8px 24px;
+    border-radius: 50px; /* Gives it the distinct pill shape */
+    
+    /* Modern sleek styling with Glassmorphism */
+    background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
+    backdrop-filter: blur(12px); /* Blurs the content passing behind it */
+    -webkit-backdrop-filter: blur(12px); /* Safari support */
+    box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.08));
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.navbar__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar__logo {
+    font-family: var(--font-accent, sans-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primary, #1a1a1a);
+    text-decoration: none;
+    letter-spacing: 1.5px;
+}
+
+.navbar__menu {
+    display: flex;
+    list-style: none;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar__item {
+    display: flex;
+    align-items: center;
+}
+
+.navbar__link {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-text, #333333);
+    text-decoration: none;
+    padding: 8px 20px;
+    border-radius: 30px; /* Inner pill shape for the hover states */
+    transition: all var(--transition-fast, 0.2s ease);
+}
+
+.navbar__link:hover,
+.navbar__link:focus {
+    background-color: #cfd8cf;
+    color: var(--color-primary);
+}
+
+/* Optional: Active state class for when you add routing later */
+.navbar__link--active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+/* ===== Responsive Layout ===== */
+@media (max-width: 768px) {
+    .navbar {
+        top: 16px;
+        width: 95%;
+        padding: 10px 16px;
+    }
+
+    .navbar__link {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar__logo {
+        display: none; /* Hides logo on very small screens to make room for links */
+    }
+    
+    .navbar__container {
+        justify-content: center;
+    }
+
+    .navbar__link {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+}
