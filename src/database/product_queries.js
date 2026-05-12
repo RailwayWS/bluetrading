@@ -134,24 +134,18 @@ export async function get_products_page(lastVisible = null, pageSize = 40, filte
 
 export async function get_all_categories() {
     try {
-        const productsRef = collection(db, "products");
-        const snapshot = await getDocs(productsRef);
+        const categoriesRef = collection(db, "categories");
+        const snapshot = await getDocs(categoriesRef);
         
-        const categories = {};
+        const result = {};
         snapshot.docs.forEach((doc) => {
             const data = doc.data();
-            const category = data.category || "Uncategorized";
-            const subcategory = data.subcategory || "General";
+            const categoryName = data.category;
+            const subCategories = data.subCategories || [];
             
-            if (!categories[category]) {
-                categories[category] = new Set();
+            if (categoryName) {
+                result[categoryName] = subCategories;
             }
-            categories[category].add(subcategory);
-        });
-
-        const result = {};
-        Object.entries(categories).forEach(([key, value]) => {
-            result[key] = Array.from(value).sort();
         });
         
         return result;
