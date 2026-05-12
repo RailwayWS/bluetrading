@@ -239,7 +239,7 @@ function Products({ isAdmin }) {
                                                 className="product-card__btn"
                                                 onClick={() =>
                                                     navigate(
-                                                        `/product/${product.id}`,
+                                                        `/product/${product.id || product.objectID}`,
                                                     )
                                                 }
                                             >

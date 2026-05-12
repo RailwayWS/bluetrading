@@ -47,7 +47,9 @@ function Details() {
         if (loadingProducts) return;
         const foundProduct = products.find((p) => String(p.id) === String(id));
 
-        if (foundProduct) {
+        //note: if product contains objectID -> came from algolia search -> doesnt have all the fields -> fetch from firebase
+        // id product contains id but not objectID -> came from normal fetch -> has all fields -> use it directly
+        if (foundProduct && !foundProduct.objectID)  {
             setProduct(foundProduct);
         } else if (!loadingProducts && !foundProduct) {
             // If products is not found, search it directly from the database
