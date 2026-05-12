@@ -12,6 +12,7 @@ import {
     startAfter,
     setDoc,
 } from "firebase/firestore";
+import { syncProductToAlgolia, removeProductFromAlgolia } from "./algolia_queries.js";
 
 /**
  * Generates search terms array from a product name
@@ -55,8 +56,26 @@ export async function add_product(product) {
             features : product.features,
             additionalInfo : product.additionalInfo,
             imageUrl : product.imageURL,
-            searchTerms: searchTerms  // ← Automatically generated
+            searchTerms: searchTerms  // ← Keep for backup, but Algolia handles search
         });
+        
+        // Sync to Algolia
+        const productToSync = {
+            id: docRef.id,
+            name: product.name,
+            price: product.price,
+            description: product.description,
+            image: product.imageURL,
+            category: product.category,
+            subcategory: product.subcategory,
+            features: product.features,
+            additionalInfo: product.additionalInfo,
+            imageUrl: product.imageURL,
+            searchTerms: searchTerms,
+        };
+        
+        await syncProductToAlgolia(productToSync);
+        
         console.log("Document added with ID: ", docRef.id);
         return { success: true, id: docRef.id };
     } catch (e) {
@@ -81,6 +100,23 @@ export async function edit_product(productId, product) {
             additionalInfo : product.additionalInfo,
             searchTerms: searchTerms  // ← Auto-updated on edit
         }, { merge: true });
+        
+        // Sync to Algolia
+        const productToSync = {
+            id: productId,
+            name: product.name,
+            price: product.price,
+            description: product.description,
+            image: product.imageURL,
+            category: product.category,
+            subcategory: product.subcategory,
+            features: product.features,
+            additionalInfo: product.additionalInfo,
+            searchTerms: searchTerms,
+        };
+        
+        await syncProductToAlgolia(productToSync);
+        
         console.log("Document updated with ID: ", productId);
     } catch (e) {
         console.error("Error updating document: ", e);
@@ -106,48 +142,47 @@ export async function get_products() {
     return productList;
 }
 
-export async function get_products_page(lastVisible = null, pageSize = 40, filters = {}) {
-    const productsRef = collection(db, "products");
+/**
+ * Fetch products with Algolia search
+ * Supports filtering by category, subcategory, and full-text search
+ * Uses Algolia for efficient, fast search with typo tolerance and fuzzy matching
+ * 
+ * @param {number|null} page - Page number (0-indexed) - null means first page
+ * @param {number} pageSize - Results per page
+ * @param {Object} filters - Filter options {category, subcategory, searchTerm}
+ * @returns {Promise<{products, hasMore, nbHits, lastVisible}>}
+ */
+export async function get_products_page(page = 0, pageSize = 40, filters = {}) {
+    const { searchProducts } = await import("./algolia_queries.js");
     
-    const whereClauses = [];
-    if (filters.category && filters.category !== "All") {
-        whereClauses.push(where("category", "==", filters.category));
-    }
-    if (filters.subcategory && filters.subcategory !== "All") {
-        whereClauses.push(where("subcategory", "==", filters.subcategory));
-    }
-    if (filters.searchTerm && filters.searchTerm.trim() !== "") {
-        const searchTerm = filters.searchTerm.toLowerCase();
-        // Use arrayContains to find products with searchTerm in searchTerms array
-        whereClauses.push(where("searchTerms", "arrayContains", searchTerm));
-    }
-
-    const pageQuery = lastVisible
-        ? query(
-            productsRef,
-            ...whereClauses,
-            orderBy("name"),
-            startAfter(lastVisible),
-            limit(pageSize),
-        )
-        : query(
-            productsRef,
-            ...whereClauses,
-            orderBy("name"),
-            limit(pageSize),
+    try {
+        const results = await searchProducts(
+            filters.searchTerm || "",
+            {
+                category: filters.category || "All",
+                subcategory: filters.subcategory || "All",
+            },
+            page,
+            pageSize
         );
 
-    const snapshot = await getDocs(pageQuery);
-    const products = snapshot.docs.map((productDoc) => ({
-        id: productDoc.id,
-        ...productDoc.data(),
-    }));
-
-    return {
-        products,
-        lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,
-        hasMore: snapshot.docs.length === pageSize,
-    };
+        return {
+            products: results.products,
+            lastVisible: null,  // Algolia uses page-based pagination, not cursor
+            hasMore: results.hasMore,
+            nbHits: results.nbHits,
+            currentPage: results.page,
+        };
+    } catch (error) {
+        console.error("Error fetching products from Algolia:", error);
+        return {
+            products: [],
+            lastVisible: null,
+            hasMore: false,
+            nbHits: 0,
+            currentPage: 0,
+        };
+    }
 }
 
 /**
@@ -196,23 +231,11 @@ export async function backfillSearchTerms() {
 
 export async function get_all_categories() {
     try {
-        const categoriesRef = collection(db, "categories");
-        const snapshot = await getDocs(categoriesRef);
-        
-        const result = {};
-        snapshot.docs.forEach((doc) => {
-            const data = doc.data();
-            const categoryName = data.category;
-            const subCategories = data.subCategories || [];
-            
-            if (categoryName) {
-                result[categoryName] = subCategories;
-            }
-        });
-        
-        return result;
+        const { getAllCategoriesFromAlgolia } = await import("./algolia_queries.js");
+        const categories = await getAllCategoriesFromAlgolia();
+        return categories;
     } catch (e) {
-        console.error("Error fetching categories: ", e);
+        console.error("Error fetching categories from Algolia: ", e);
         return {};
     }
 }

@@ -16,7 +16,7 @@ export function ProductProvider({ children }) {
 
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
-    const lastVisibleRef = useRef(null);
+    const currentPageRef = useRef(0);  // Page-based pagination for Algolia
     const hasMoreProductsRef = useRef(true);
     const loadingMoreRef = useRef(false);
     const loadingProductsRef = useRef(true);
@@ -45,14 +45,14 @@ export function ProductProvider({ children }) {
             setLoadingProducts(true);
             loadingProductsRef.current = true;
             setProducts([]);
-            lastVisibleRef.current = null;
+            currentPageRef.current = 0;  // Reset to first page
             hasMoreProductsRef.current = true;
 
-            const fetchedProducts = await get_products_page(null, 3, currentFilters);
+            const fetchedProducts = await get_products_page(0, 3, currentFilters);
             console.log("Fetched products:", fetchedProducts.products);
 
             setProducts(fetchedProducts.products);
-            lastVisibleRef.current = fetchedProducts.lastVisible;
+            currentPageRef.current = 1;  // Next page is 1
             setHasMoreProducts(fetchedProducts.hasMore);
             hasMoreProductsRef.current = fetchedProducts.hasMore;
             setLoadingProducts(false);
@@ -71,7 +71,7 @@ export function ProductProvider({ children }) {
         ) {
             return {
                 products: [],
-                lastVisible: lastVisibleRef.current,
+                lastVisible: null,
                 hasMore: hasMoreProductsRef.current,
             };
         }
@@ -79,7 +79,7 @@ export function ProductProvider({ children }) {
         loadingMoreRef.current = true;
 
         try {
-            const newProducts = await get_products_page(lastVisibleRef.current, pageSize, currentFilters);
+            const newProducts = await get_products_page(currentPageRef.current, pageSize, currentFilters);
 
             if (!newProducts.products.length) {
                 hasMoreProductsRef.current = false;
@@ -88,7 +88,7 @@ export function ProductProvider({ children }) {
             }
 
             setProducts((prev) => [...prev, ...newProducts.products]);
-            lastVisibleRef.current = newProducts.lastVisible;
+            currentPageRef.current += 1;  // Increment page
 
             setHasMoreProducts(newProducts.hasMore);
             hasMoreProductsRef.current = newProducts.hasMore;
