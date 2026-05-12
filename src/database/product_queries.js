@@ -109,6 +109,28 @@ export async function get_products() {
     return productList;
 }
 
+export async function get_products_category(category, loadLimit = 10, excludeProductId = null) {
+    if (!category) {
+        return [];
+    }
+
+    const productsRef = collection(db, 'products');
+
+    const constraints = [where('category', '==', category)];
+    if (excludeProductId) {
+        constraints.push(where('__name__', '!=', excludeProductId));
+    }
+    constraints.push(orderBy('name'));
+    constraints.push(limit(loadLimit));
+    
+    const q = query(productsRef, ...constraints);
+
+    const productSnapshot = await getDocs(q);
+    const productList = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return productList;
+}
+
+
 /**
  * Fetch products with filtering by category/subcategory using cursor-based pagination
  * Uses Firebase when no search term provided (with lastVisible cursor)
@@ -129,6 +151,10 @@ export async function get_products_page(pageSize = 40, filters = {}, lastVisible
             const page = lastVisible ? lastVisible.algoliaPage : 0;
             const results = await searchProductsByTerm(searchTerm, page, pageSize);
             
+            results.hits.forEach(product => {
+                product.id = product.objectID; // Map Algolia's objectID to id for consistency
+            });
+
             return {
                 products: results.hits,
                 lastVisible: results.hasMore ? { algoliaPage: page + 1 } : null,

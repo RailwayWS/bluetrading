@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { get_product_by_id } from "../../database/product_queries";
+import { get_product_by_id, get_products_category } from "../../database/product_queries";
 import { useProduct } from "../../Contexts/productContext";
 import "./details.css";
 
@@ -41,6 +41,7 @@ function Details() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("description");
     const [product, setProduct] = useState({ price: 0 });
+    const [relatedProducts, setRelatedProducts] = useState([]);
     const { products, loadingProducts } = useProduct();
 
     useEffect(() => {
@@ -49,9 +50,9 @@ function Details() {
 
         //note: if product contains objectID -> came from algolia search -> doesnt have all the fields -> fetch from firebase
         // id product contains id but not objectID -> came from normal fetch -> has all fields -> use it directly
-        if (foundProduct && !foundProduct.objectID)  {
+        if (foundProduct && !foundProduct.objectID) {
             setProduct(foundProduct);
-        } else if (!loadingProducts && !foundProduct) {
+        } else if (!loadingProducts || !foundProduct) {
             // If products is not found, search it directly from the database
             get_product_by_id(id).then((dbProduct) => {
                 if (dbProduct) {
@@ -63,11 +64,28 @@ function Details() {
         }
     }, [id, loadingProducts, products]);
 
-    const relatedProducts = useMemo(() => {
-        if (!product) return [];
-        return products.filter(
-            (p) => p.category === product.category && p.id !== product.id,
+
+    useEffect(() => {
+        if (!product) {
+            setRelatedProducts([]);
+            return;
+        }
+
+        const minRelated = 5;
+        const filtered = products.filter(
+            (p) => p.category === product.category && p.id !== product.id
         );
+
+        console.log(filtered.length);
+
+        if (filtered.length >= minRelated) {
+            setRelatedProducts(filtered);
+        } else {
+            // Fetch more from database
+            get_products_category(product.category, 10, product.id).then((fetchedRelated) => {
+                setRelatedProducts(fetchedRelated);
+            });
+        }
     }, [products, product]);
 
     /* Scroll to top on product change */
