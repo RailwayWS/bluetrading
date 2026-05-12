@@ -114,9 +114,10 @@ export function ProductProvider({ children }) {
     
 
 	return (
-        <ProductContext.Provider value={{ products,
+        <ProductContext.Provider value={{ 
+                products,
                 loadingProducts,
-        loadMoreProducts,
+                loadMoreProducts,
                 hasMoreProducts }}>
 			{children}
 		</ProductContext.Provider>
