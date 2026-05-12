@@ -13,6 +13,20 @@ import {
     setDoc,
 } from "firebase/firestore";
 
+/**
+ * Generates search terms array from a product name
+ * Splits name into individual words and converts to lowercase
+ * @param {string} name - Product name
+ * @returns {string[]} Array of lowercase words
+ */
+export function generateSearchTerms(name) {
+    if (!name || typeof name !== "string") return [];
+    
+    return name
+        .toLowerCase()
+        .split(/\s+/)  // Split by whitespace
+        .filter((word) => word.length > 0);  // Remove empty strings
+}
 
 export async function add_product(product) {
     try {     
@@ -29,6 +43,8 @@ export async function add_product(product) {
             return { success: false, error: "Product with this name already exists" };
         }
 
+        const searchTerms = generateSearchTerms(product.name);
+
         const docRef = await addDoc(collection(db, "products"), {
             name: product.name,
             price: product.price,
@@ -38,7 +54,8 @@ export async function add_product(product) {
             subcategory: product.subcategory,
             features : product.features,
             additionalInfo : product.additionalInfo,
-            imageUrl : product.imageURL
+            imageUrl : product.imageURL,
+            searchTerms: searchTerms  // ← Automatically generated
         });
         console.log("Document added with ID: ", docRef.id);
         return { success: true, id: docRef.id };
@@ -51,6 +68,8 @@ export async function add_product(product) {
 export async function edit_product(productId, product) {
     try {
         const productRef = doc(db, "products", productId);
+        const searchTerms = generateSearchTerms(product.name);
+        
         await setDoc(productRef, {
             name: product.name,
             price: product.price,
@@ -59,7 +78,8 @@ export async function edit_product(productId, product) {
             category: product.category,
             subcategory: product.subcategory,
             features : product.features,
-            additionalInfo : product.additionalInfo
+            additionalInfo : product.additionalInfo,
+            searchTerms: searchTerms  // ← Auto-updated on edit
         }, { merge: true });
         console.log("Document updated with ID: ", productId);
     } catch (e) {
@@ -97,12 +117,9 @@ export async function get_products_page(lastVisible = null, pageSize = 40, filte
         whereClauses.push(where("subcategory", "==", filters.subcategory));
     }
     if (filters.searchTerm && filters.searchTerm.trim() !== "") {
-        // const searchTerm = filters.searchTerm.toLowerCase();
-        const searchTerm = filters.searchTerm
-        whereClauses.push(
-            where("name", ">=", searchTerm),
-            where("name", "<=", searchTerm + "\uf8ff")
-        );
+        const searchTerm = filters.searchTerm.toLowerCase();
+        // Use arrayContains to find products with searchTerm in searchTerms array
+        whereClauses.push(where("searchTerms", "arrayContains", searchTerm));
     }
 
     const pageQuery = lastVisible
@@ -131,6 +148,50 @@ export async function get_products_page(lastVisible = null, pageSize = 40, filte
         lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,
         hasMore: snapshot.docs.length === pageSize,
     };
+}
+
+/**
+ * Backfills search terms for all existing products without them
+ * Call this once during initial setup or when needed to populate existing products
+ * @returns {Promise<{updated: number, error: string | null}>}
+ */
+export async function backfillSearchTerms() {
+    try {
+        console.log("Starting search terms backfill...");
+        const productsRef = collection(db, "products");
+        const snapshot = await getDocs(productsRef);
+        
+        let updated = 0;
+        const updates = [];
+
+        snapshot.docs.forEach((productDoc) => {
+            const data = productDoc.data();
+            
+            // Skip if already has searchTerms
+            if (data.searchTerms && Array.isArray(data.searchTerms) && data.searchTerms.length > 0) {
+                return;
+            }
+
+            const searchTerms = generateSearchTerms(data.name);
+            updates.push(
+                setDoc(productDoc.ref, { searchTerms }, { merge: true })
+            );
+            updated++;
+        });
+
+        // Execute all updates in parallel
+        if (updates.length > 0) {
+            await Promise.all(updates);
+            console.log(`Search terms backfill complete! Updated ${updated} products.`);
+        } else {
+            console.log("No products needed search terms backfill.");
+        }
+
+        return { updated, error: null };
+    } catch (e) {
+        console.error("Error backfilling search terms: ", e);
+        return { updated: 0, error: e.message };
+    }
 }
 
 export async function get_all_categories() {

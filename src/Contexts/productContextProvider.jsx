@@ -1,6 +1,6 @@
 import { ProductContext } from "./productContext";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { get_products_page, get_all_categories, syncMissingCategories } from "../database/product_queries";
+import { get_products_page, get_all_categories, syncMissingCategories, backfillSearchTerms } from "../database/product_queries";
 import { resolveImageUrl } from "../database/image_queries";
 import { db } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
@@ -25,9 +25,13 @@ export function ProductProvider({ children }) {
     useEffect(() => {
         async function initializeCategories() {
             try {
+                // Run once on app startup to backfill any missing search terms
+                await backfillSearchTerms();
+                
+                // Then sync categories
                 await syncMissingCategories();
             } catch (e) {
-                console.error("Error syncing categories on mount: ", e);
+                console.error("Error during initialization: ", e);
             }
             
             const categories = await get_all_categories();
