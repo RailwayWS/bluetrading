@@ -3,8 +3,8 @@ import "./addProductModal.css";
 import deleteIcon from "../../assets/symbols/delete(1).png";
 import uploadIcon from "../../assets/symbols/upload.png";
 import productsData from "../../data/products.json";
-import { add_product, edit_product, add_product_image_Url } from "../../database/product_queries";
-import { add_image } from "../../database/image_queries";
+import { add_product, edit_product } from "../../database/product_queries";
+import { add_image, delete_image } from "../../database/image_queries";
 import Popup from "../popups/popups";
 
 export default function AddProductModal({ onClose, onSave, productToEdit, showPopup }) {
@@ -17,6 +17,7 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
     }, []);
 
     const isEditMode = !!productToEdit;
+    const [newImage, setNewImage] = useState(false);
 
     //main fields (if product data exists use it, otherwise default to empty strings)
     const [formData, setFormData] = useState({
@@ -54,7 +55,7 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
                     setImagePreview(null);
                 } else {
                     const imageUrl = URL.createObjectURL(file);
-
+                    setNewImage(true);
                     console.log("Selected image file:", file.name);
                     setFormData((prev) => ({ ...prev, image: file }));
                     setImagePreview(imageUrl);
@@ -132,12 +133,12 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
             price: Number(formData.price),
             features: cleanedFeatures,
             additionalInfo: cleanedInfo,
-            imageURL: isEditMode ? (productToEdit.imageUrl || productToEdit.image || "") : ""
+            imageUrl: isEditMode ? (productToEdit.imageUrl || productToEdit.image || "") : ""
         };
 
         try {
             // Upload new image if formData.image is a File object
-            if (formData.image && typeof formData.image === "object") {
+            if (formData.image && typeof formData.image === "object" && !isEditMode) {
                 const newImageUrl = await add_image(formData.image);
                 if (newImageUrl) {
                     updatedProduct.imageURL = newImageUrl;
@@ -146,6 +147,16 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
             }
 
             if (isEditMode) {
+
+                if (newImage && formData.image && typeof formData.image === "object") {
+                    const oldImage = productToEdit.image || "";
+                    const newImageUrl = await add_image(formData.image);
+                    if (newImageUrl) {
+                        updatedProduct.imageUrl = newImageUrl;
+                        await delete_image(oldImage);
+                    }
+                }
+
                 await edit_product(productToEdit.id, updatedProduct);
                 if (showPopup) showPopup("success", "Product updated successfully!");
             } else {

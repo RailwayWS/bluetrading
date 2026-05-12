@@ -1,4 +1,4 @@
-import { uploadBytes, getDownloadURL, ref } from "firebase/storage";
+import { uploadBytes, getDownloadURL, ref, deleteObject } from "firebase/storage";
 import { storage} from "../config/firebase";
 
 export async function add_image(image) {
@@ -10,6 +10,18 @@ export async function add_image(image) {
       return downloadURL;
     } catch (e) {
         console.error("Error uploading image: ", e);
+    }
+}
+
+export async function delete_image(imagePath) {
+    try {
+      const storageRef = ref(storage, `products/${imagePath}`);
+      await deleteObject(storageRef);
+      console.log("Image deleted successfully from path:", imagePath);
+      return true;
+    } catch (e) {
+        console.error("Error deleting image: ", e);
+        return false;
     }
 }
 
