@@ -12,7 +12,6 @@ import {
     startAfter,
     setDoc,
 } from "firebase/firestore";
-import { syncProductToAlgolia, removeProductFromAlgolia } from "./algolia_queries.js";
 
 /**
  * Generates search terms array from a product name
@@ -25,8 +24,8 @@ export function generateSearchTerms(name) {
     
     return name
         .toLowerCase()
-        .split(/\s+/)  // Split by whitespace
-        .filter((word) => word.length > 0);  // Remove empty strings
+        .split(/\s+/)
+        .filter((word) => word.length > 0);
 }
 
 export async function add_product(product) {
@@ -56,25 +55,8 @@ export async function add_product(product) {
             features : product.features,
             additionalInfo : product.additionalInfo,
             imageUrl : product.imageURL,
-            searchTerms: searchTerms  // ← Keep for backup, but Algolia handles search
+            searchTerms: searchTerms
         });
-        
-        // Sync to Algolia
-        const productToSync = {
-            id: docRef.id,
-            name: product.name,
-            price: product.price,
-            description: product.description,
-            image: product.imageURL,
-            category: product.category,
-            subcategory: product.subcategory,
-            features: product.features,
-            additionalInfo: product.additionalInfo,
-            imageUrl: product.imageURL,
-            searchTerms: searchTerms,
-        };
-        
-        await syncProductToAlgolia(productToSync);
         
         console.log("Document added with ID: ", docRef.id);
         return { success: true, id: docRef.id };
@@ -98,24 +80,8 @@ export async function edit_product(productId, product) {
             subcategory: product.subcategory,
             features : product.features,
             additionalInfo : product.additionalInfo,
-            searchTerms: searchTerms  // ← Auto-updated on edit
+            searchTerms: searchTerms
         }, { merge: true });
-        
-        // Sync to Algolia
-        const productToSync = {
-            id: productId,
-            name: product.name,
-            price: product.price,
-            description: product.description,
-            image: product.imageURL,
-            category: product.category,
-            subcategory: product.subcategory,
-            features: product.features,
-            additionalInfo: product.additionalInfo,
-            searchTerms: searchTerms,
-        };
-        
-        await syncProductToAlgolia(productToSync);
         
         console.log("Document updated with ID: ", productId);
     } catch (e) {
@@ -143,52 +109,90 @@ export async function get_products() {
 }
 
 /**
- * Fetch products with Algolia search
- * Supports filtering by category, subcategory, and full-text search
- * Uses Algolia for efficient, fast search with typo tolerance and fuzzy matching
+ * Fetch products with filtering by category/subcategory
+ * Uses Firebase when no search term provided
+ * Uses Algolia only when searchTerm is provided
  * 
- * @param {number|null} page - Page number (0-indexed) - null means first page
+ * @param {number} page - Page number (0-indexed) 
  * @param {number} pageSize - Results per page
- * @param {Object} filters - Filter options {category, subcategory, searchTerm}
- * @returns {Promise<{products, hasMore, nbHits, lastVisible}>}
+ * @param {Object} filters - {category, subcategory, searchTerm}
+ * @returns {Promise<Object>} {products, lastVisible, hasMore}
  */
 export async function get_products_page(page = 0, pageSize = 40, filters = {}) {
-    const { searchProducts } = await import("./algolia_queries.js");
-    
     try {
-        const results = await searchProducts(
-            filters.searchTerm || "",
-            {
-                category: filters.category || "All",
-                subcategory: filters.subcategory || "All",
-            },
-            page,
-            pageSize
-        );
-
+        const { searchTerm } = filters;
+        
+        // If user typed a search term, use Algolia
+        if (searchTerm && searchTerm.trim() !== '') {
+            const { searchProductsByTerm } = await import("./algolia_queries_minimal.js");
+            const results = await searchProductsByTerm(searchTerm, page, pageSize);
+            
+            return {
+                products: results.hits,
+                lastVisible: null,
+                hasMore: results.hasMore,
+                nbHits: results.nbHits,
+                currentPage: results.page,
+            };
+        }
+        
+        // Otherwise use Firebase for filtering by category/subcategory
+        const productsRef = collection(db, 'products');
+        let q;
+        
+        if (filters.category && filters.category !== 'All') {
+            if (filters.subcategory && filters.subcategory !== 'All') {
+                // Filter by both category AND subcategory
+                q = query(
+                    productsRef,
+                    where('category', '==', filters.category),
+                    where('subcategory', '==', filters.subcategory),
+                    orderBy('name'),
+                    limit(pageSize + 1)  // +1 to check if there are more
+                );
+            } else {
+                // Filter by category only
+                q = query(
+                    productsRef,
+                    where('category', '==', filters.category),
+                    orderBy('name'),
+                    limit(pageSize + 1)
+                );
+            }
+        } else {
+            // No filters, get all products
+            q = query(
+                productsRef,
+                orderBy('name'),
+                limit(pageSize + 1)
+            );
+        }
+        
+        const snapshot = await getDocs(q);
+        const products = snapshot.docs.slice(0, pageSize).map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        
         return {
-            products: results.products,
-            lastVisible: null,  // Algolia uses page-based pagination, not cursor
-            hasMore: results.hasMore,
-            nbHits: results.nbHits,
-            currentPage: results.page,
+            products,
+            lastVisible: null,
+            hasMore: snapshot.docs.length > pageSize,
         };
     } catch (error) {
-        console.error("Error fetching products from Algolia:", error);
+        console.error("Error fetching products:", error);
         return {
             products: [],
             lastVisible: null,
             hasMore: false,
-            nbHits: 0,
-            currentPage: 0,
         };
     }
 }
 
 /**
- * Backfills search terms for all existing products without them
- * Call this once during initial setup or when needed to populate existing products
- * @returns {Promise<{updated: number, error: string | null}>}
+ * Backfills search terms for all existing products
+ * Call this once during initialization
+ * @returns {Promise<Object>}
  */
 export async function backfillSearchTerms() {
     try {
@@ -202,7 +206,6 @@ export async function backfillSearchTerms() {
         snapshot.docs.forEach((productDoc) => {
             const data = productDoc.data();
             
-            // Skip if already has searchTerms
             if (data.searchTerms && Array.isArray(data.searchTerms) && data.searchTerms.length > 0) {
                 return;
             }
@@ -214,7 +217,6 @@ export async function backfillSearchTerms() {
             updated++;
         });
 
-        // Execute all updates in parallel
         if (updates.length > 0) {
             await Promise.all(updates);
             console.log(`Search terms backfill complete! Updated ${updated} products.`);
@@ -229,13 +231,25 @@ export async function backfillSearchTerms() {
     }
 }
 
+/**
+ * Get all categories from Firebase categories collection
+ * @returns {Promise<Object>} {CategoryName: [subcategories], ...}
+ */
 export async function get_all_categories() {
     try {
-        const { getAllCategoriesFromAlgolia } = await import("./algolia_queries.js");
-        const categories = await getAllCategoriesFromAlgolia();
+        const categoriesRef = collection(db, "categories");
+        const snapshot = await getDocs(categoriesRef);
+        
+        const categories = {};
+        snapshot.docs.forEach((doc) => {
+            const data = doc.data();
+            const categoryName = data.category;
+            categories[categoryName] = data.subCategories || [];
+        });
+        
         return categories;
     } catch (e) {
-        console.error("Error fetching categories from Algolia: ", e);
+        console.error("Error fetching categories: ", e);
         return {};
     }
 }

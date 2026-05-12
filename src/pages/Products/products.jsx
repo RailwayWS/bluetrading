@@ -233,7 +233,7 @@ function Products({ isAdmin }) {
                                             {product.name}
                                         </h3>
                                         <p className="product-card__price">
-                                            {formatPrice(product.price)}
+                                            {/* {formatPrice(product.price)} */} 0
                                         </p>
                                         <div className="button-wrapper">
                                             <button
