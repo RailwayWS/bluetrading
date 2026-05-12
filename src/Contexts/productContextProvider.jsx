@@ -1,6 +1,7 @@
 import { ProductContext } from "./productContext";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { get_products_page, get_all_categories, syncMissingCategories, backfillSearchTerms } from "../database/product_queries";
+import { get_products_page, get_all_categories, syncMissingCategories } from "../database/product_queries";
+import { backfillSearchTerms } from "../database/searchTermsHelper";
 import { resolveImageUrl } from "../database/image_queries";
 import { db } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
