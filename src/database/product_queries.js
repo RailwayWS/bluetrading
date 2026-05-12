@@ -12,7 +12,22 @@ import {
     startAfter,
     setDoc,
 } from "firebase/firestore";
+import { searchProductsByTerm } from "./algolia_queries_minimal.js";
 
+/**
+ * Generates search terms array from a product name
+ * Splits name into individual words and converts to lowercase
+ * @param {string} name - Product name
+ * @returns {string[]} Array of lowercase words
+ */
+export function generateSearchTerms(name) {
+    if (!name || typeof name !== "string") return [];
+    
+    return name
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((word) => word.length > 0);
+}
 
 export async function add_product(product) {
     try {     
@@ -29,6 +44,8 @@ export async function add_product(product) {
             return { success: false, error: "Product with this name already exists" };
         }
 
+        const searchTerms = generateSearchTerms(product.name);
+
         const docRef = await addDoc(collection(db, "products"), {
             name: product.name,
             price: product.price,
@@ -38,8 +55,10 @@ export async function add_product(product) {
             subcategory: product.subcategory,
             features : product.features,
             additionalInfo : product.additionalInfo,
-            imageUrl : product.imageURL
+            imageUrl : product.imageURL,
+            searchTerms: searchTerms
         });
+        
         console.log("Document added with ID: ", docRef.id);
         return { success: true, id: docRef.id };
     } catch (e) {
@@ -51,6 +70,8 @@ export async function add_product(product) {
 export async function edit_product(productId, product) {
     try {
         const productRef = doc(db, "products", productId);
+        const searchTerms = generateSearchTerms(product.name);
+        
         await setDoc(productRef, {
             name: product.name,
             price: product.price,
@@ -59,8 +80,10 @@ export async function edit_product(productId, product) {
             category: product.category,
             subcategory: product.subcategory,
             features : product.features,
-            additionalInfo : product.additionalInfo
+            additionalInfo : product.additionalInfo,
+            searchTerms: searchTerms
         }, { merge: true });
+        
         console.log("Document updated with ID: ", productId);
     } catch (e) {
         console.error("Error updating document: ", e);
@@ -86,29 +109,201 @@ export async function get_products() {
     return productList;
 }
 
-export async function get_products_page(lastVisible = null, pageSize = 40) {
-    const productsRef = collection(db, "products");
-    const pageQuery = lastVisible
-        ? query(
-            productsRef,
-            orderBy("name"),
-            startAfter(lastVisible),
+/**
+ * Fetch products with filtering by category/subcategory using cursor-based pagination
+ * Uses Firebase when no search term provided (with lastVisible cursor)
+ * Uses Algolia only when searchTerm is provided
+ * 
+ * @param {number} pageSize - Results per page
+ * @param {Object} filters - {category, subcategory, searchTerm}
+ * @param {Object} lastVisible - Firestore document snapshot of last product (for pagination)
+ * @returns {Promise<Object>} {products, lastVisible, hasMore}
+ */
+export async function get_products_page(pageSize = 40, filters = {}, lastVisible = null) {
+    try {
+        const { searchTerm } = filters;
+        
+        // If user typed a search term, use Algolia (page-based pagination)
+        if (searchTerm && searchTerm.trim() !== '') {
+            
+            const page = lastVisible ? lastVisible.algoliaPage : 0;
+            const results = await searchProductsByTerm(searchTerm, page, pageSize);
+            
+            return {
+                products: results.hits,
+                lastVisible: results.hasMore ? { algoliaPage: page + 1 } : null,
+                hasMore: results.hasMore,
+                nbHits: results.nbHits,
+                currentPage: results.page,
+            };
+        }
+        
+        // Otherwise use Firebase for filtering by category/subcategory (cursor-based pagination)
+        const productsRef = collection(db, 'products');
+        let q;
+        
+        const constraints = [];
+        
+        if (filters.category && filters.category !== 'All') {
+            constraints.push(where('category', '==', filters.category));
+        }
+        
+        if (filters.subcategory && filters.subcategory !== 'All') {
+            constraints.push(where('subcategory', '==', filters.subcategory));
+        }
+        
+        constraints.push(orderBy('name'));
+        
+        // If we have a lastVisible cursor, continue from there
+        if (lastVisible) {
+            constraints.push(startAfter(lastVisible));
+        }
+        
+        // Fetch one extra to check if there are more products
+        constraints.push(limit(pageSize + 1));
+        
+        q = query(productsRef, ...constraints);
+        
+        const snapshot = await getDocs(q);
+        
+        // Get only the products we need (pageSize results)
+        const productDocs = snapshot.docs.slice(0, pageSize);
+        const products = productDocs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        
+        // Determine if there are more products
+        const hasMore = snapshot.docs.length > pageSize;
+        
+        // Save the last document as cursor for next page
+        const newLastVisible = hasMore && productDocs.length > 0 
+            ? productDocs[productDocs.length - 1]  // Return the actual Firestore doc snapshot
+            : null;
+        
+        return {
+            products,
+            lastVisible: newLastVisible,
+            hasMore: hasMore,
+        };
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        return {
+            products: [],
+            lastVisible: null,
+            hasMore: false,
+        };
+    }
+}
 
-            limit(pageSize),
-        )
-        : query(productsRef, orderBy("name"), limit(pageSize));
+/**
+ * Get all categories from Firebase categories collection
+ * @returns {Promise<Object>} {CategoryName: [subcategories], ...}
+ */
+export async function get_all_categories() {
+    try {
+        const categoriesRef = collection(db, "categories");
+        const snapshot = await getDocs(categoriesRef);
+        
+        const categories = {};
+        snapshot.docs.forEach((doc) => {
+            const data = doc.data();
+            const categoryName = data.category;
+            categories[categoryName] = data.subCategories || [];
+        });
+        
+        return categories;
+    } catch (e) {
+        console.error("Error fetching categories: ", e);
+        return {};
+    }
+}
 
-    const snapshot = await getDocs(pageQuery);
-    const products = snapshot.docs.map((productDoc) => ({
-        id: productDoc.id,
-        ...productDoc.data(),
-    }));
+export async function syncMissingCategories() {
+    try {
+        // Fetch all categories from categories collection
+        const categoriesRef = collection(db, "categories");
+        const categoriesSnapshot = await getDocs(categoriesRef);
+        
+        const dbCategories = {};
+        categoriesSnapshot.docs.forEach((doc) => {
+            const data = doc.data();
+            const categoryName = data.category;
+            const subCategoriesSet = new Set(data.subCategories || []);
+            dbCategories[categoryName] = subCategoriesSet;
+        });
 
-    return {
-        products,
-        lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,
-        hasMore: snapshot.docs.length === pageSize,
-    };
+        // Fetch all products and extract unique category/subcategory pairs
+        const productsRef = collection(db, "products");
+        const productsSnapshot = await getDocs(productsRef);
+        
+        const productCategories = {};
+        productsSnapshot.docs.forEach((doc) => {
+            const data = doc.data();
+            const category = data.category || "Uncategorized";
+            const subcategory = data.subcategory || "General";
+            
+            if (!productCategories[category]) {
+                productCategories[category] = new Set();
+            }
+            productCategories[category].add(subcategory);
+        });
+
+        // Find missing categories and subcategories
+        const missingCategories = {};
+        Object.entries(productCategories).forEach(([category, subCategories]) => {
+            if (!dbCategories[category]) {
+                // Entire category is missing
+                missingCategories[category] = Array.from(subCategories);
+            } else {
+                // Check for missing subcategories
+                const missingSubcats = Array.from(subCategories).filter(
+                    (sub) => !dbCategories[category].has(sub)
+                );
+                
+                if (missingSubcats.length > 0) {
+                    missingCategories[category] = missingSubcats;
+                }
+            }
+        });
+
+        // Add missing categories to database
+        if (Object.keys(missingCategories).length > 0) {
+            for (const [category, newSubcategories] of Object.entries(missingCategories)) {
+                const existingDoc = categoriesSnapshot.docs.find(
+                    (doc) => doc.data().category === category
+                );
+
+                if (existingDoc) {
+                    // Category exists, add missing subcategories
+                    const currentSubcats = new Set(existingDoc.data().subCategories || []);
+                    newSubcategories.forEach((sub) => currentSubcats.add(sub));
+                    
+                    await setDoc(existingDoc.ref, {
+                        category,
+                        subCategories: Array.from(currentSubcats).sort(),
+                    });
+                    console.log(`Updated category "${category}" with missing subcategories`);
+                } else {
+                    // New category, add it
+                    await addDoc(categoriesRef, {
+                        category,
+                        subCategories: newSubcategories.sort(),
+                    });
+                    console.log(`Added new category "${category}" to database`);
+                }
+            }
+            
+            console.log("Category sync complete");
+            return { synced: true, missing: missingCategories };
+        }
+        
+        console.log("No missing categories found");
+        return { synced: false, missing: {} };
+    } catch (e) {
+        console.error("Error syncing categories: ", e);
+        return { synced: false, error: e.message };
+    }
 }
 
 export async function get_product_by_id(productId) {
