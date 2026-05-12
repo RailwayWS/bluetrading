@@ -86,17 +86,38 @@ export async function get_products() {
     return productList;
 }
 
-export async function get_products_page(lastVisible = null, pageSize = 40) {
+export async function get_products_page(lastVisible = null, pageSize = 40, filters = {}) {
     const productsRef = collection(db, "products");
+    
+    const whereClauses = [];
+    if (filters.category && filters.category !== "All") {
+        whereClauses.push(where("category", "==", filters.category));
+    }
+    if (filters.subcategory && filters.subcategory !== "All") {
+        whereClauses.push(where("subcategory", "==", filters.subcategory));
+    }
+    if (filters.searchTerm && filters.searchTerm.trim() !== "") {
+        const searchTerm = filters.searchTerm.toLowerCase();
+        whereClauses.push(
+            where("name", ">=", searchTerm),
+            where("name", "<=", searchTerm + "\uf8ff")
+        );
+    }
+
     const pageQuery = lastVisible
         ? query(
             productsRef,
+            ...whereClauses,
             orderBy("name"),
             startAfter(lastVisible),
-
             limit(pageSize),
         )
-        : query(productsRef, orderBy("name"), limit(pageSize));
+        : query(
+            productsRef,
+            ...whereClauses,
+            orderBy("name"),
+            limit(pageSize),
+        );
 
     const snapshot = await getDocs(pageQuery);
     const products = snapshot.docs.map((productDoc) => ({
@@ -109,6 +130,35 @@ export async function get_products_page(lastVisible = null, pageSize = 40) {
         lastVisible: snapshot.docs[snapshot.docs.length - 1] ?? null,
         hasMore: snapshot.docs.length === pageSize,
     };
+}
+
+export async function get_all_categories() {
+    try {
+        const productsRef = collection(db, "products");
+        const snapshot = await getDocs(productsRef);
+        
+        const categories = {};
+        snapshot.docs.forEach((doc) => {
+            const data = doc.data();
+            const category = data.category || "Uncategorized";
+            const subcategory = data.subcategory || "General";
+            
+            if (!categories[category]) {
+                categories[category] = new Set();
+            }
+            categories[category].add(subcategory);
+        });
+
+        const result = {};
+        Object.entries(categories).forEach(([key, value]) => {
+            result[key] = Array.from(value).sort();
+        });
+        
+        return result;
+    } catch (e) {
+        console.error("Error fetching categories: ", e);
+        return {};
+    }
 }
 
 export async function get_product_by_id(productId) {

@@ -1,12 +1,18 @@
 import { ProductContext } from "./productContext";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { get_products_page } from "../database/product_queries";
+import { get_products_page, get_all_categories } from "../database/product_queries";
 import { resolveImageUrl } from "../database/image_queries";
 import { db } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
 export function ProductProvider({ children }) {
     const [products, setProducts] = useState([]);
+    const [currentFilters, setCurrentFilters] = useState({
+        category: "All",
+        subcategory: "All",
+        searchTerm: "",
+    });
+    const [allCategories, setAllCategories] = useState({});
 
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
@@ -17,8 +23,22 @@ export function ProductProvider({ children }) {
 
 
     useEffect(() => {
+        async function fetchCategories() {
+            const categories = await get_all_categories();
+            setAllCategories(categories);
+        }
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
         async function fetchProducts() {
-            const fetchedProducts = await get_products_page(null, 3);
+            setLoadingProducts(true);
+            loadingProductsRef.current = true;
+            setProducts([]);
+            lastVisibleRef.current = null;
+            hasMoreProductsRef.current = true;
+
+            const fetchedProducts = await get_products_page(null, 3, currentFilters);
             console.log("Fetched products:", fetchedProducts.products);
 
             setProducts(fetchedProducts.products);
@@ -31,7 +51,7 @@ export function ProductProvider({ children }) {
         }
 
         fetchProducts();
-    },[]);
+    }, [currentFilters]);
 
     const loadMoreProducts = useCallback(async (pageSize = 1) => {
         if (
@@ -49,7 +69,7 @@ export function ProductProvider({ children }) {
         loadingMoreRef.current = true;
 
         try {
-            const newProducts = await get_products_page(lastVisibleRef.current, pageSize);
+            const newProducts = await get_products_page(lastVisibleRef.current, pageSize, currentFilters);
 
             if (!newProducts.products.length) {
                 hasMoreProductsRef.current = false;
@@ -67,7 +87,7 @@ export function ProductProvider({ children }) {
         } finally {
             loadingMoreRef.current = false;
         }
-    }, []);
+    }, [currentFilters]);
     
     // List of products that still needs their image URL resolved
     const docsNeedingImageUrls = useMemo(
@@ -113,12 +133,15 @@ export function ProductProvider({ children }) {
 
     
 
-	return (
+    return (
         <ProductContext.Provider value={{ 
                 products,
                 loadingProducts,
                 loadMoreProducts,
-                hasMoreProducts }}>
+                hasMoreProducts,
+                currentFilters,
+                setCurrentFilters,
+                allCategories }}>
 			{children}
 		</ProductContext.Provider>
 	);

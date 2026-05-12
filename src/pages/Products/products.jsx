@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { InView } from "react-intersection-observer";
 import NewProduct from "../../components/New/newProduct";
@@ -42,9 +42,20 @@ function Products({ isAdmin }) {
     const [activeCategory, setActiveCategory] = useState("All");
     const [activeSubcategory, setActiveSubcategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const isLoadingMoreRef = useRef(false);
-    const { products, loadingProducts, loadMoreProducts, hasMoreProducts } =
-        useProduct();
+    const searchTimeoutRef = useRef(null);
+    
+    const { 
+        products, 
+        loadingProducts, 
+        loadMoreProducts, 
+        hasMoreProducts,
+        currentFilters,
+        setCurrentFilters,
+        allCategories 
+    } = useProduct();
+    
     const [editingProduct, setEditingProduct] = useState(null);
 
     const handleEdit = (productId) => {
@@ -53,110 +64,35 @@ function Products({ isAdmin }) {
     };
 
     const handleSaveEdit = async () => {
-        //ill leave this for the rubber man (he loves async)
         console.log("Saving edited product:", editingProduct);
         setEditingProduct(null);
     };
 
-    const matchesFilters = useCallback(
-        (product) => {
-            if (
-                activeCategory !== "All" &&
-                product.category !== activeCategory
-            ) {
-                return false;
-            }
-
-            if (
-                activeSubcategory !== "All" &&
-                product.subcategory !== activeSubcategory
-            ) {
-                return false;
-            }
-
-            if (searchQuery.trim() !== "") {
-                const query = searchQuery.toLowerCase();
-                const matchesName = product.name.toLowerCase().includes(query);
-                const matchesCategory = product.category
-                    .toLowerCase()
-                    .includes(query);
-                const matchesSubcategory = product.subcategory
-                    .toLowerCase()
-                    .includes(query);
-
-                return matchesName || matchesCategory || matchesSubcategory;
-            }
-
-            return true;
-        },
-        [activeCategory, activeSubcategory, searchQuery],
-    );
-
-    /* Build unique categories & subcategories */
-    const categories = useMemo(() => {
-        const cats = {};
-        if (!products.length) return cats;
-        products.forEach((p) => {
-            if (!cats[p.category]) cats[p.category] = new Set();
-            cats[p.category].add(p.subcategory);
-        });
-        return Object.fromEntries(
-            Object.entries(cats).map(([k, v]) => [k, [...v]]),
-        );
-    }, [products]);
-
-    const filteredProducts = useMemo(() => {
-        if (loadingProducts) {
-            return [];
+    // Debounce search input (500ms)
+    useEffect(() => {
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
         }
 
-        return products.filter(matchesFilters);
-    }, [products, loadingProducts, matchesFilters]);
+        searchTimeoutRef.current = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+        }, 500);
 
-    const ensureMinimumFilteredGrowth = useCallback(
-        async (inView) => {
-            const minimumNewProducts = 4;
-            const pageSize = 4;
-            const maxRequests = 8;
-
-            if (
-                !inView ||
-                loadingProducts ||
-                isLoadingMoreRef.current ||
-                !hasMoreProducts
-            ) {
-                return;
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
             }
+        };
+    }, [searchQuery]);
 
-            isLoadingMoreRef.current = true;
-
-            try {
-                let matchedGrowth = 0;
-                let attempts = 0;
-                let moreProductsAvailable = hasMoreProducts;
-
-                while (
-                    moreProductsAvailable &&
-                    matchedGrowth < minimumNewProducts &&
-                    attempts < maxRequests
-                ) {
-                    const batch = await loadMoreProducts(pageSize);
-
-                    if (!batch.products.length) {
-                        break;
-                    }
-
-                    matchedGrowth +=
-                        batch.products.filter(matchesFilters).length;
-                    moreProductsAvailable = batch.hasMore;
-                    attempts += 1;
-                }
-            } finally {
-                isLoadingMoreRef.current = false;
-            }
-        },
-        [hasMoreProducts, loadMoreProducts, loadingProducts, matchesFilters],
-    );
+    // Update filters when debounced search changes
+    useEffect(() => {
+        setCurrentFilters({
+            category: activeCategory,
+            subcategory: activeSubcategory,
+            searchTerm: debouncedSearch,
+        });
+    }, [activeCategory, activeSubcategory, debouncedSearch, setCurrentFilters]);
 
     const handleCategoryClick = (cat) => {
         setActiveCategory(cat);
@@ -168,6 +104,28 @@ function Products({ isAdmin }) {
             "R " + price.toLocaleString("en-ZA", { minimumFractionDigits: 2 })
         );
     };
+
+    // Build categories from context (or empty if loading)
+    const categories = useMemo(() => {
+        return allCategories || {};
+    }, [allCategories]);
+
+    const handleLoadMore = useCallback(
+        async (inView) => {
+            if (!inView || loadingProducts || isLoadingMoreRef.current || !hasMoreProducts) {
+                return;
+            }
+
+            isLoadingMoreRef.current = true;
+
+            try {
+                await loadMoreProducts(4);
+            } finally {
+                isLoadingMoreRef.current = false;
+            }
+        },
+        [hasMoreProducts, loadMoreProducts, loadingProducts],
+    );
 
     return (
         <section className="products" id="products-section">
@@ -254,8 +212,8 @@ function Products({ isAdmin }) {
                     {/* Product Grid */}
                     <div className="products__grid">
                         {isAdmin && <NewProduct />}
-                        {filteredProducts.length > 0 ? (
-                            filteredProducts.map((product) => (
+                        {products.length > 0 ? (
+                            products.map((product) => (
                                 <div className="product-card" key={product.id}>
                                     <div className="product-card__image-wrap">
                                         <ProductImage
@@ -306,7 +264,7 @@ function Products({ isAdmin }) {
                             /* Fallback message if search yields no results */
                             <div className="products__no-results">
                                 <p>
-                                    No products found matching "{searchQuery}".
+                                    No products found. Try adjusting your filters.
                                 </p>
                             </div>
                         )}
@@ -315,7 +273,7 @@ function Products({ isAdmin }) {
             </div>
             <InView
                 as="div"
-                onChange={ensureMinimumFilteredGrowth}
+                onChange={handleLoadMore}
                 threshold={0}
             />
             {editingProduct && (
