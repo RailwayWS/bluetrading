@@ -21,7 +21,7 @@ export function ProductProvider({ children }) {
     const hasMoreProductsRef = useRef(true);
     const loadingMoreRef = useRef(false);
     const loadingProductsRef = useRef(true);
-
+    const amountToLoad = 6;
 
     useEffect(() => {
         async function initializeCategories() {
@@ -49,7 +49,7 @@ export function ProductProvider({ children }) {
             lastVisibleRef.current = null;  // Reset cursor on filter change
             hasMoreProductsRef.current = true;
 
-            const fetchedProducts = await get_products_page(3, currentFilters, null);
+            const fetchedProducts = await get_products_page(amountToLoad, currentFilters, null);
             console.log("Fetched products:", fetchedProducts.products);
 
             setProducts(fetchedProducts.products);
