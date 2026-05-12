@@ -10,7 +10,13 @@ if (!appId || !apiKey) {
 
 // Initialize Algolia client (v5)
 const client = algoliasearch(appId, apiKey);
-const index = client.initIndex(indexName);
+
+// In v5, call search/index methods directly on client with indexName parameter
+// OR use client.getIndex() which returns the index interface
+const getIndex = () => {
+    // v5 provides these methods on client directly for quick access
+    return client;
+};
 
 /**
  * Search products using Algolia (v5)
@@ -40,20 +46,34 @@ export async function searchProducts(
         }
 
         const searchParams = {
+            indexName,
+            searchableAttributes: ['name', 'description', 'category', 'subcategory'],
             page,
             hitsPerPage,
             ...(filterString && { filters: filterString }),
         };
 
-        // v5: search() is called on the index instance
-        const results = await index.search(searchTerm, searchParams);
+        // v5: Use client.search() with index name parameter
+        const results = await client.search({
+            requests: [
+                {
+                    indexName,
+                    query: searchTerm,
+                    page,
+                    hitsPerPage,
+                    ...(filterString && { filters: filterString }),
+                }
+            ]
+        });
+
+        const indexResults = results.results[0];
 
         return {
-            products: results.hits,
-            nbHits: results.nbHits,
-            nbPages: results.nbPages,
-            page: results.page,
-            hasMore: results.page < results.nbPages - 1,
+            products: indexResults.hits,
+            nbHits: indexResults.nbHits,
+            nbPages: indexResults.nbPages,
+            page: indexResults.page,
+            hasMore: indexResults.page < indexResults.nbPages - 1,
         };
     } catch (error) {
         console.error('Algolia search error:', error);
@@ -73,15 +93,23 @@ export async function searchProducts(
  */
 export async function getAlgoliaFacets() {
     try {
-        // v5: search on index instance
-        const results = await index.search('', {
-            facets: ['category', 'subcategory'],
-            hitsPerPage: 0,
+        // v5: Use client.search() with facets parameter
+        const results = await client.search({
+            requests: [
+                {
+                    indexName,
+                    query: '',
+                    facets: ['category', 'subcategory'],
+                    hitsPerPage: 0,
+                }
+            ]
         });
 
+        const indexResults = results.results[0];
+
         return {
-            categories: results.facets?.category || {},
-            subcategories: results.facets?.subcategory || {},
+            categories: indexResults.facets?.category || {},
+            subcategories: indexResults.facets?.subcategory || {},
         };
     } catch (error) {
         console.error('Error fetching Algolia facets:', error);
@@ -98,24 +126,36 @@ export async function getAlgoliaFacets() {
  */
 export async function getAllCategoriesFromAlgolia() {
     try {
-        // v5: search on index instance
-        const results = await index.search('', {
-            facets: ['category'],
-            hitsPerPage: 0,
+        // v5: Use client.search() to get categories
+        const results = await client.search({
+            requests: [
+                {
+                    indexName,
+                    query: '',
+                    facets: ['category'],
+                    hitsPerPage: 0,
+                }
+            ]
         });
 
-        // Get all unique categories
-        const categorySet = new Set(Object.keys(results.facets?.category || {}));
+        const indexResults = results.results[0];
+        const categorySet = new Set(Object.keys(indexResults.facets?.category || {}));
         
         // For each category, get its subcategories
         const result = {};
         for (const category of categorySet) {
-            const subcatResults = await index.search('', {
-                facets: ['subcategory'],
-                filters: `category:"${category}"`,
-                hitsPerPage: 0,
+            const subcatResults = await client.search({
+                requests: [
+                    {
+                        indexName,
+                        query: '',
+                        facets: ['subcategory'],
+                        filters: `category:"${category}"`,
+                        hitsPerPage: 0,
+                    }
+                ]
             });
-            result[category] = Object.keys(subcatResults.facets?.subcategory || {}).sort();
+            result[category] = Object.keys(subcatResults.results[0].facets?.subcategory || {}).sort();
         }
 
         return result;
@@ -143,8 +183,11 @@ export async function syncProductToAlgolia(product) {
             ...product,
         };
 
-        // v5: saveObject() on index instance
-        await index.saveObject(algoliaProduct);
+        // v5: Use client.saveObject() with index name
+        await client.saveObject({
+            indexName,
+            body: algoliaProduct,
+        });
         console.log(`Product "${product.name}" synced to Algolia`);
 
         return { success: true, id: product.id };
@@ -168,8 +211,11 @@ export async function syncProductsToAlgolia(products) {
             ...product,
         }));
 
-        // v5: saveObjects() on index instance
-        const results = await index.saveObjects(algoliaProducts);
+        // v5: Use client.saveObjects() with index name
+        const results = await client.saveObjects({
+            indexName,
+            bodies: algoliaProducts,
+        });
         console.log(`${results.objectIDs?.length || algoliaProducts.length} products synced to Algolia`);
 
         return { success: true, count: results.objectIDs?.length || algoliaProducts.length };
@@ -188,8 +234,11 @@ export async function syncProductsToAlgolia(products) {
  */
 export async function removeProductFromAlgolia(productId) {
     try {
-        // v5: deleteObject() on index instance
-        await index.deleteObject(productId);
+        // v5: Use client.deleteObject() with index name
+        await client.deleteObject({
+            indexName,
+            objectID: productId,
+        });
         console.log(`Product ${productId} removed from Algolia`);
 
         return { success: true, id: productId };
@@ -207,8 +256,11 @@ export async function removeProductFromAlgolia(productId) {
  */
 export async function removeProductsFromAlgolia(productIds) {
     try {
-        // v5: deleteObjects() on index instance
-        await index.deleteObjects(productIds);
+        // v5: Use client.deleteObjects() with index name
+        await client.deleteObjects({
+            indexName,
+            objectIDs: productIds,
+        });
         console.log(`${productIds.length} products removed from Algolia`);
 
         return { success: true, count: productIds.length };
@@ -224,8 +276,10 @@ export async function removeProductsFromAlgolia(productIds) {
  */
 export async function clearAlgoliaIndex() {
     try {
-        // v5: clearObjects() on index instance
-        await index.clearObjects();
+        // v5: Use client.clearObjects() with index name
+        await client.clearObjects({
+            indexName,
+        });
         console.log('Algolia index cleared');
         return { success: true };
     } catch (error) {
@@ -235,13 +289,11 @@ export async function clearAlgoliaIndex() {
 }
 
 /**
- * Get the Algolia index instance for direct access (v5)
- * Use for advanced operations
- * 
- * @returns {Object} Algolia index instance
+ * Get the Algolia index name (v5)
+ * @returns {string} Index name
  */
-export function getAlgoliaIndex() {
-    return index;
+export function getAlgoliaIndexName() {
+    return indexName;
 }
 
 /**
@@ -263,6 +315,6 @@ export default {
     removeProductFromAlgolia,
     removeProductsFromAlgolia,
     clearAlgoliaIndex,
-    getAlgoliaIndex,
+    getAlgoliaIndexName,
     getAlgoliaClient,
 };
