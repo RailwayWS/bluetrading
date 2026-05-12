@@ -16,7 +16,7 @@ export function ProductProvider({ children }) {
 
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
-    const currentPageRef = useRef(0);  // Page-based pagination for Algolia
+    const lastVisibleRef = useRef(null);  // Firestore cursor for pagination
     const hasMoreProductsRef = useRef(true);
     const loadingMoreRef = useRef(false);
     const loadingProductsRef = useRef(true);
@@ -45,14 +45,14 @@ export function ProductProvider({ children }) {
             setLoadingProducts(true);
             loadingProductsRef.current = true;
             setProducts([]);
-            currentPageRef.current = 0;  // Reset to first page
+            lastVisibleRef.current = null;  // Reset cursor on filter change
             hasMoreProductsRef.current = true;
 
-            const fetchedProducts = await get_products_page(0, 3, currentFilters);
+            const fetchedProducts = await get_products_page(3, currentFilters, null);
             console.log("Fetched products:", fetchedProducts.products);
 
             setProducts(fetchedProducts.products);
-            currentPageRef.current = 1;  // Next page is 1
+            lastVisibleRef.current = fetchedProducts.lastVisible;  // Store cursor
             setHasMoreProducts(fetchedProducts.hasMore);
             hasMoreProductsRef.current = fetchedProducts.hasMore;
             setLoadingProducts(false);
@@ -79,7 +79,8 @@ export function ProductProvider({ children }) {
         loadingMoreRef.current = true;
 
         try {
-            const newProducts = await get_products_page(currentPageRef.current, pageSize, currentFilters);
+            // Pass lastVisibleRef.current to continue from where we left off
+            const newProducts = await get_products_page(pageSize, currentFilters, lastVisibleRef.current);
 
             if (!newProducts.products.length) {
                 hasMoreProductsRef.current = false;
@@ -88,7 +89,7 @@ export function ProductProvider({ children }) {
             }
 
             setProducts((prev) => [...prev, ...newProducts.products]);
-            currentPageRef.current += 1;  // Increment page
+            lastVisibleRef.current = newProducts.lastVisible;  // Update cursor
 
             setHasMoreProducts(newProducts.hasMore);
             hasMoreProductsRef.current = newProducts.hasMore;

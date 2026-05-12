@@ -109,75 +109,81 @@ export async function get_products() {
 }
 
 /**
- * Fetch products with filtering by category/subcategory
- * Uses Firebase when no search term provided
+ * Fetch products with filtering by category/subcategory using cursor-based pagination
+ * Uses Firebase when no search term provided (with lastVisible cursor)
  * Uses Algolia only when searchTerm is provided
  * 
- * @param {number} page - Page number (0-indexed) 
  * @param {number} pageSize - Results per page
  * @param {Object} filters - {category, subcategory, searchTerm}
+ * @param {Object} lastVisible - Firestore document snapshot of last product (for pagination)
  * @returns {Promise<Object>} {products, lastVisible, hasMore}
  */
-export async function get_products_page(page = 0, pageSize = 40, filters = {}) {
+export async function get_products_page(pageSize = 40, filters = {}, lastVisible = null) {
     try {
         const { searchTerm } = filters;
         
-        // If user typed a search term, use Algolia
+        // If user typed a search term, use Algolia (page-based pagination)
         if (searchTerm && searchTerm.trim() !== '') {
             const { searchProductsByTerm } = await import("./algolia_queries_minimal.js");
+            const page = lastVisible ? lastVisible.algoliaPage : 0;
             const results = await searchProductsByTerm(searchTerm, page, pageSize);
             
             return {
                 products: results.hits,
-                lastVisible: null,
+                lastVisible: results.hasMore ? { algoliaPage: page + 1 } : null,
                 hasMore: results.hasMore,
                 nbHits: results.nbHits,
                 currentPage: results.page,
             };
         }
         
-        // Otherwise use Firebase for filtering by category/subcategory
+        // Otherwise use Firebase for filtering by category/subcategory (cursor-based pagination)
         const productsRef = collection(db, 'products');
         let q;
         
+        const constraints = [];
+        
         if (filters.category && filters.category !== 'All') {
-            if (filters.subcategory && filters.subcategory !== 'All') {
-                // Filter by both category AND subcategory
-                q = query(
-                    productsRef,
-                    where('category', '==', filters.category),
-                    where('subcategory', '==', filters.subcategory),
-                    orderBy('name'),
-                    limit(pageSize + 1)  // +1 to check if there are more
-                );
-            } else {
-                // Filter by category only
-                q = query(
-                    productsRef,
-                    where('category', '==', filters.category),
-                    orderBy('name'),
-                    limit(pageSize + 1)
-                );
-            }
-        } else {
-            // No filters, get all products
-            q = query(
-                productsRef,
-                orderBy('name'),
-                limit(pageSize + 1)
-            );
+            constraints.push(where('category', '==', filters.category));
         }
         
+        if (filters.subcategory && filters.subcategory !== 'All') {
+            constraints.push(where('subcategory', '==', filters.subcategory));
+        }
+        
+        constraints.push(orderBy('name'));
+        
+        // If we have a lastVisible cursor, continue from there
+        if (lastVisible) {
+            constraints.push(startAfter(lastVisible));
+        }
+        
+        // Fetch one extra to check if there are more products
+        constraints.push(limit(pageSize + 1));
+        
+        q = query(productsRef, ...constraints);
+        
         const snapshot = await getDocs(q);
-        const products = snapshot.docs.slice(0, pageSize).map(doc => ({
+        
+        // Get only the products we need (pageSize results)
+        const productDocs = snapshot.docs.slice(0, pageSize);
+        const products = productDocs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
         
+        // Determine if there are more products
+        const hasMore = snapshot.docs.length > pageSize;
+        
+        // Save the last document as cursor for next page
+        const newLastVisible = hasMore && productDocs.length > 0 
+            ? productDocs[productDocs.length - 1]  // Return the actual Firestore doc snapshot
+            : null;
+        
         return {
             products,
-            lastVisible: null,
-            hasMore: snapshot.docs.length > pageSize,
+            lastVisible: newLastVisible,
+            hasMore: hasMore,
         };
     } catch (error) {
         console.error("Error fetching products:", error);
