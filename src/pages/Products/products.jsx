@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { InView } from "react-intersection-observer";
 import NewProduct from "../../components/New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
-import AddProductModal from "../../components/New/AddProductModal.jsx";
 import "./products.css";
 
 /* Dynamically import all product images */
@@ -54,18 +53,6 @@ function Products({ isAdmin }) {
         setCurrentFilters,
         allCategories 
     } = useProduct();
-    
-    const [editingProduct, setEditingProduct] = useState(null);
-
-    const handleEdit = (productId) => {
-        const productToEdit = products.find((p) => p.id === productId);
-        setEditingProduct(productToEdit);
-    };
-
-    const handleSaveEdit = async () => {
-        console.log("Saving edited product:", editingProduct);
-        setEditingProduct(null);
-    };
 
     // Debounce search input (500ms)
     useEffect(() => {
@@ -245,16 +232,6 @@ function Products({ isAdmin }) {
                                             >
                                                 More Detail
                                             </button>
-                                            {isAdmin && (
-                                                <button
-                                                    className="product-card__btn"
-                                                    onClick={() =>
-                                                        handleEdit(product.id)
-                                                    }
-                                                >
-                                                    Edit
-                                                </button>
-                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -275,13 +252,6 @@ function Products({ isAdmin }) {
                 onChange={handleLoadMore}
                 threshold={0}
             />
-            {editingProduct && (
-                <AddProductModal
-                    productToEdit={editingProduct}
-                    onClose={() => setEditingProduct(null)}
-                    onSave={handleSaveEdit}
-                />
-            )}
         </section>
     );
 }

@@ -3,8 +3,11 @@ import "./addProductModal.css";
 import deleteIcon from "../../assets/symbols/delete(1).png";
 import uploadIcon from "../../assets/symbols/upload.png";
 import productsData from "../../data/products.json";
+import { add_product, edit_product, add_product_image_Url } from "../../database/product_queries";
+import { add_image } from "../../database/image_queries";
+import Popup from "../popups/popups";
 
-export default function AddProductModal({ onClose, onSave, editProduct }) {
+export default function AddProductModal({ onClose, onSave, productToEdit, showPopup }) {
     // Prevent background scrolling when modal is open
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -13,22 +16,28 @@ export default function AddProductModal({ onClose, onSave, editProduct }) {
         };
     }, []);
 
+    const isEditMode = !!productToEdit;
+
     //main fields (if product data exists use it, otherwise default to empty strings)
     const [formData, setFormData] = useState({
-        name: editProduct?.name || "",
-        category: editProduct?.category || "",
-        subcategory: editProduct?.subcategory || "",
-        price: editProduct?.price || "",
-        image: editProduct?.image || "",
-        description: editProduct?.description || "",
+        name: productToEdit?.name || "",
+        category: productToEdit?.category || "",
+        subcategory: productToEdit?.subcategory || "",
+        price: productToEdit?.price || "",
+        image: productToEdit?.image || "",
+        description: productToEdit?.description || "",
     });
 
     const [imagePreview, setImagePreview] = useState(null);
     const maxImageSize = 1 * 1024 * 1024; // 1MB
 
     //additional fields
-    const [features, setFeatures] = useState([]);
-    const [additionalInfo, setAdditionalInfo] = useState([]);
+    const [features, setFeatures] = useState(productToEdit?.features || []);
+    const [additionalInfo, setAdditionalInfo] = useState(
+        productToEdit?.additionalInfo
+            ? Object.entries(productToEdit.additionalInfo).map(([key, value]) => ({ key, value }))
+            : []
+    );
 
     // Handle input changes for main form fields
     const handleChange = (e) => {
@@ -106,7 +115,7 @@ export default function AddProductModal({ onClose, onSave, editProduct }) {
         return [...new Set(subcats)].filter(Boolean);
     }, [formData.category, isCustomCategory]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         // Clean up features and additional info (removes empty entries)
@@ -118,24 +127,52 @@ export default function AddProductModal({ onClose, onSave, editProduct }) {
             }
         });
 
-        const newProduct = {
+        const updatedProduct = {
             ...formData,
             price: Number(formData.price),
             features: cleanedFeatures,
             additionalInfo: cleanedInfo,
+            imageURL: isEditMode ? (productToEdit.imageUrl || productToEdit.image || "") : ""
         };
 
-        if (onSave) {
-            onSave(newProduct);
+        try {
+            // Upload new image if formData.image is a File object
+            if (formData.image && typeof formData.image === "object") {
+                const newImageUrl = await add_image(formData.image);
+                if (newImageUrl) {
+                    updatedProduct.imageURL = newImageUrl;
+                    updatedProduct.imageUrl = newImageUrl; 
+                }
+            }
+
+            if (isEditMode) {
+                await edit_product(productToEdit.id, updatedProduct);
+                if (showPopup) showPopup("success", "Product updated successfully!");
+            } else {
+                const res = await add_product(updatedProduct);
+                if (res.success) {
+                    if (showPopup) showPopup("success", "Product added successfully!");
+                } else {
+                    if (showPopup) showPopup("error", res.error || "Failed to add product");
+                    return;
+                }
+            }
+
+            if (onSave) {
+                onSave(updatedProduct);
+            }
+            // Close the modal directly after saving, letting popup survive in parent
+            onClose();
+        } catch (err) {
+            if (showPopup) showPopup("error", err.message || "An error occurred");
         }
-        onClose();
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2>Add New Product</h2>
+                    <h2>{isEditMode ? "Edit Product" : "Add New Product"}</h2>
                     <button className="modal-close" onClick={onClose}>
                         &times;
                     </button>
@@ -293,16 +330,16 @@ export default function AddProductModal({ onClose, onSave, editProduct }) {
                                 accept="image/*"
                                 onChange={handleChange}
                                 className="hidden-file-input"
-                                required
+                                required={!isEditMode}
                             />
                             <label
                                 htmlFor="imageUpload"
                                 className="image-upload-dropzone"
                             >
-                                {imagePreview ? (
+                                {imagePreview || (isEditMode && productToEdit?.imageUrl) ? (
                                     <div className="image-preview-container">
                                         <img
-                                            src={imagePreview}
+                                            src={imagePreview || productToEdit.imageUrl}
                                             alt="Preview"
                                             className="image-preview"
                                         />
@@ -423,7 +460,7 @@ export default function AddProductModal({ onClose, onSave, editProduct }) {
                             Cancel
                         </button>
                         <button type="submit" className="btn-submit">
-                            Save Product
+                            {isEditMode ? "Update" : "Add Product"}
                         </button>
                     </div>
                 </form>

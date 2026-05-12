@@ -1,0 +1,124 @@
+.popups-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10000;
+    pointer-events: none; /* Let clicks pass through the container void */
+}
+
+.popup {
+    position: relative;
+    pointer-events: auto; /* Let clicks register on the popup itself */
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    max-width: 400px;
+    width: max-content;
+    transform-origin: right center;
+    overflow: hidden;
+}
+
+.popup--exiting {
+    animation: fadeOut 0.4s ease-in forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(120%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        max-height: 100px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        margin-bottom: 0;
+    }
+    50% {
+        opacity: 0;
+        transform: translateX(100%) scale(0.95);
+        max-height: 100px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        margin-bottom: 0;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100%) scale(0.95);
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-bottom: -12px; /* Pulls the bottom item up to close the gap smoothly */
+        border: none;
+    }
+}
+
+.popup--success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.popup--error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.popup__content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.popup__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.popup--success .popup__icon {
+    color: #155724;
+}
+
+.popup--error .popup__icon {
+    color: #721c24;
+}
+
+.popup__message {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.popup--success .popup__message {
+    color: #155724;
+}
+
+.popup--error .popup__message {
+    color: #721c24;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
