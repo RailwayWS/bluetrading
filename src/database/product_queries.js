@@ -97,7 +97,8 @@ export async function get_products_page(lastVisible = null, pageSize = 40, filte
         whereClauses.push(where("subcategory", "==", filters.subcategory));
     }
     if (filters.searchTerm && filters.searchTerm.trim() !== "") {
-        const searchTerm = filters.searchTerm.toLowerCase();
+        // const searchTerm = filters.searchTerm.toLowerCase();
+        const searchTerm = filters.searchTerm
         whereClauses.push(
             where("name", ">=", searchTerm),
             where("name", "<=", searchTerm + "\uf8ff")
