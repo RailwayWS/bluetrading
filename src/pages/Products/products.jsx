@@ -51,7 +51,6 @@ function Products({ isAdmin }) {
         loadingProducts, 
         loadMoreProducts, 
         hasMoreProducts,
-        currentFilters,
         setCurrentFilters,
         allCategories 
     } = useProduct();

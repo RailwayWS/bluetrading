@@ -12,6 +12,7 @@ import {
     startAfter,
     setDoc,
 } from "firebase/firestore";
+import { searchProductsByTerm } from "./algolia_queries_minimal.js";
 
 /**
  * Generates search terms array from a product name
@@ -124,7 +125,7 @@ export async function get_products_page(pageSize = 40, filters = {}, lastVisible
         
         // If user typed a search term, use Algolia (page-based pagination)
         if (searchTerm && searchTerm.trim() !== '') {
-            const { searchProductsByTerm } = await import("./algolia_queries_minimal.js");
+            
             const page = lastVisible ? lastVisible.algoliaPage : 0;
             const results = await searchProductsByTerm(searchTerm, page, pageSize);
             
@@ -192,48 +193,6 @@ export async function get_products_page(pageSize = 40, filters = {}, lastVisible
             lastVisible: null,
             hasMore: false,
         };
-    }
-}
-
-/**
- * Backfills search terms for all existing products
- * Call this once during initialization
- * @returns {Promise<Object>}
- */
-export async function backfillSearchTerms() {
-    try {
-        console.log("Starting search terms backfill...");
-        const productsRef = collection(db, "products");
-        const snapshot = await getDocs(productsRef);
-        
-        let updated = 0;
-        const updates = [];
-
-        snapshot.docs.forEach((productDoc) => {
-            const data = productDoc.data();
-            
-            if (data.searchTerms && Array.isArray(data.searchTerms) && data.searchTerms.length > 0) {
-                return;
-            }
-
-            const searchTerms = generateSearchTerms(data.name);
-            updates.push(
-                setDoc(productDoc.ref, { searchTerms }, { merge: true })
-            );
-            updated++;
-        });
-
-        if (updates.length > 0) {
-            await Promise.all(updates);
-            console.log(`Search terms backfill complete! Updated ${updated} products.`);
-        } else {
-            console.log("No products needed search terms backfill.");
-        }
-
-        return { updated, error: null };
-    } catch (e) {
-        console.error("Error backfilling search terms: ", e);
-        return { updated: 0, error: e.message };
     }
 }
 
