@@ -1,6 +1,6 @@
 import { ProductContext } from "./productContext";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { get_products_page, get_all_categories } from "../database/product_queries";
+import { get_products_page, get_all_categories, syncMissingCategories } from "../database/product_queries";
 import { resolveImageUrl } from "../database/image_queries";
 import { db } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
@@ -23,11 +23,17 @@ export function ProductProvider({ children }) {
 
 
     useEffect(() => {
-        async function fetchCategories() {
+        async function initializeCategories() {
+            try {
+                await syncMissingCategories();
+            } catch (e) {
+                console.error("Error syncing categories on mount: ", e);
+            }
+            
             const categories = await get_all_categories();
             setAllCategories(categories);
         }
-        fetchCategories();
+        initializeCategories();
     }, []);
 
     useEffect(() => {
