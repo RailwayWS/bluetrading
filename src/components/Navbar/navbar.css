@@ -5,12 +5,12 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000; /* Ensures it stays floating above all other content */
-    
+
     width: 90%;
     max-width: 700px; /* Keeps the pill relatively compact */
     padding: 8px 24px;
     border-radius: 50px; /* Gives it the distinct pill shape */
-    
+
     /* Modern sleek styling with Glassmorphism */
     background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
     backdrop-filter: blur(12px); /* Blurs the content passing behind it */
@@ -58,16 +58,9 @@
     transition: all var(--transition-fast, 0.2s ease);
 }
 
-.navbar__link:hover,
-.navbar__link:focus {
+.navbar__link:hover {
     background-color: #cfd8cf;
     color: var(--color-primary);
-}
-
-/* Optional: Active state class for when you add routing later */
-.navbar__link--active {
-    background-color: var(--color-primary);
-    color: #ffffff;
 }
 
 /* ===== Responsive Layout ===== */
@@ -88,7 +81,7 @@
     .navbar__logo {
         display: none; /* Hides logo on very small screens to make room for links */
     }
-    
+
     .navbar__container {
         justify-content: center;
     }
