@@ -184,8 +184,8 @@ export default function AddProductModal({
                     const newImageUrl = await add_image(newImage);
 
                     if (newImageUrl) {
-                        updatedProduct.imageUrl = newImageUrl;
                         updatedProduct.image = newImage.name;
+                        updatedProduct.imageUrl = newImageUrl;
                         await delete_image(oldImage);
                     }
                 }
