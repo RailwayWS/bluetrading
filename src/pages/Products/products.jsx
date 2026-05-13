@@ -267,6 +267,26 @@ function Products({ isAdmin }) {
                                                 className={`product-card__dropdown ${openMenuId === product.id ? "is-open" : ""}`}
                                             >
                                                 <button
+                                                    className="product-card__dropdown-item edit"
+                                                    // navigate to details edit
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setOpenMenuId(null);
+                                                        // Pass state so details.jsx knows to open the modal
+                                                        navigate(
+                                                            `/product/${product.id}`,
+                                                            {
+                                                                state: {
+                                                                    openEditModal: true,
+                                                                },
+                                                            },
+                                                        );
+                                                    }}
+                                                >
+                                                    Edit
+                                                </button>
+
+                                                <button
                                                     className="product-card__dropdown-item delete"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -276,7 +296,7 @@ function Products({ isAdmin }) {
                                                         );
                                                     }}
                                                 >
-                                                    Delete Product
+                                                    Delete
                                                 </button>
                                             </div>
                                         </div>

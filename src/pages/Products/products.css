@@ -268,12 +268,16 @@
     border: none;
 }
 
-.product-card__dropdown-item.delete {
+/* .product-card__dropdown-item.delete {
     color: #e53e3e;
-}
+} */
 
 .product-card__dropdown-item.delete:hover {
     color: #c53030;
+}
+
+.product-card__dropdown-item.edit:hover {
+    color: var(--color-primary);
 }
 
 .product-card__image-wrap {

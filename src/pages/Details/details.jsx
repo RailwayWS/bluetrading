@@ -1,6 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { get_product_by_id, get_products_category } from "../../database/product_queries";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import {
+    get_product_by_id,
+    get_products_category,
+} from "../../database/product_queries";
 import { useProduct } from "../../Contexts/productContext";
 import AddProductModal from "../../components/New/AddProductModal";
 import { PopupContainer } from "../../components/popups/popups";
@@ -41,6 +44,7 @@ const ProductImage = ({ src, alt, className }) => {
 function Details({ isAdmin }) {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [activeTab, setActiveTab] = useState("description");
     const [product, setProduct] = useState({ price: 0 });
     const [relatedProducts, setRelatedProducts] = useState([]);
@@ -50,11 +54,11 @@ function Details({ isAdmin }) {
 
     const addPopup = (type, message) => {
         const popupId = Date.now() + Math.random();
-        setPopups(prev => [...prev, { id: popupId, type, message }]);
+        setPopups((prev) => [...prev, { id: popupId, type, message }]);
     };
 
     const removePopup = (id) => {
-        setPopups(prev => prev.filter(p => p.id !== id));
+        setPopups((prev) => prev.filter((p) => p.id !== id));
     };
 
     useEffect(() => {
@@ -77,7 +81,6 @@ function Details({ isAdmin }) {
         }
     }, [id, loadingProducts, products]);
 
-
     useEffect(() => {
         if (!product) {
             setRelatedProducts([]);
@@ -86,7 +89,7 @@ function Details({ isAdmin }) {
 
         const minRelated = 5;
         const filtered = products.filter(
-            (p) => p.category === product.category && p.id !== product.id
+            (p) => p.category === product.category && p.id !== product.id,
         );
 
         console.log(filtered.length);
@@ -95,9 +98,11 @@ function Details({ isAdmin }) {
             setRelatedProducts(filtered);
         } else {
             // Fetch more from database
-            get_products_category(product.category, 10, product.id).then((fetchedRelated) => {
-                setRelatedProducts(fetchedRelated);
-            });
+            get_products_category(product.category, 10, product.id).then(
+                (fetchedRelated) => {
+                    setRelatedProducts(fetchedRelated);
+                },
+            );
         }
     }, [products, product]);
 
@@ -105,6 +110,14 @@ function Details({ isAdmin }) {
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }, [id]);
+
+    /* Open edit modal if navigated here via the Edit button */
+    useEffect(() => {
+        if (location.state?.openEditModal && isAdmin) {
+            setIsEditing(true);
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location.state, location.pathname, isAdmin, navigate]);
 
     if (!product) {
         return (
@@ -177,20 +190,20 @@ function Details({ isAdmin }) {
                                 </svg>
                                 Call Us
                             </button>
-                            
+
                             {isAdmin && (
                                 <button
                                     className="details__edit-btn"
                                     onClick={() => setIsEditing(true)}
                                 >
-                                    <svg 
-                                        width="20" 
-                                        height="20" 
-                                        viewBox="0 0 24 24" 
-                                        fill="none" 
-                                        stroke="currentColor" 
-                                        strokeWidth="2" 
-                                        strokeLinecap="round" 
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
                                         strokeLinejoin="round"
                                     >
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -361,7 +374,7 @@ function Details({ isAdmin }) {
                     onClose={() => setIsEditing(false)}
                     onSave={(updatedProduct) => {
                         setProduct({ ...updatedProduct, id: product.id });
-                        setCurrentFilters(prev => ({ ...prev }));
+                        setCurrentFilters((prev) => ({ ...prev }));
                     }}
                     showPopup={addPopup}
                 />
