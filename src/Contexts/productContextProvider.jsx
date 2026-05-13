@@ -1,8 +1,8 @@
 import { ProductContext } from "./productContext";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { get_products_page, get_all_categories, syncMissingCategories } from "../database/product_queries";
+import { get_products_page, get_all_categories, syncMissingCategories, delete_product } from "../database/product_queries";
 import { backfillSearchTerms } from "../database/searchTermsHelper";
-import { resolveImageUrl } from "../database/image_queries";
+import { resolveImageUrl, delete_image } from "../database/image_queries";
 import { db } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -142,8 +142,22 @@ export function ProductProvider({ children }) {
         };
     }, [docsNeedingImageUrls]);
 
+    async function removeProduct(productId) {
+        try {
+            // Remove from local state
+            const product = products.find((p) => p.id === productId);
+            
+            const imagePath = product.image;
+            delete_image(imagePath); // Remove from Storage
+            delete_product(productId); // Remove from Firestore
 
-    
+            setProducts((prev) => prev.filter((product) => product.id !== productId));
+            console.log(`Product ${productId} removed successfully`);
+        } catch (error) {
+            console.error(`Failed to remove product ${productId}:`, error);
+            throw error;
+        }
+    };
 
     return (
         <ProductContext.Provider value={{ 
@@ -153,7 +167,8 @@ export function ProductProvider({ children }) {
                 hasMoreProducts,
                 currentFilters,
                 setCurrentFilters,
-                allCategories }}>
+                allCategories,
+                removeProduct }}>
 			{children}
 		</ProductContext.Provider>
 	);

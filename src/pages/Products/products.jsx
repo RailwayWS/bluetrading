@@ -57,6 +57,7 @@ function Products({ isAdmin }) {
         hasMoreProducts,
         setCurrentFilters,
         allCategories,
+        removeProduct
     } = useProduct();
 
     // Debounce search input (500ms)
@@ -137,9 +138,7 @@ function Products({ isAdmin }) {
 
     const HandleDelete = () => {
         if (productToDelete) {
-            const image = productToDelete.image;
-            delete_image(image); // First delete the image from storage
-            delete_product(productToDelete.id);
+            removeProduct(productToDelete.id);
             setProductToDelete(null);
         }
         console.log("Deleted");
