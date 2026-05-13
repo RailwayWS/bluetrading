@@ -302,3 +302,89 @@
     cursor: pointer;
     color: var(--color-text, #333333);
 }
+
+/* --- Add these Animation Keyframes anywhere in your file --- */
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes overlayFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modalSlideDown {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.96) translateY(15px);
+    }
+}
+
+/* --- Update your existing Overlay --- */
+.add-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+
+    /* Add the entry animation here */
+    animation: overlayFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Add the exit animation class */
+.add-modal-overlay.closing {
+    animation: overlayFadeOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- Update your existing Modal Content --- */
+.add-modal-content {
+    background: var(--color-bg-card, #ffffff);
+    border-radius: var(--radius-md, 8px);
+    width: 90%;
+    max-width: 630px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.2));
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px 10px 10px;
+
+    /* Add the entry animation here */
+    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Add the exit animation class tied to the parent overlay */
+.add-modal-overlay.closing .add-modal-content {
+    animation: modalSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

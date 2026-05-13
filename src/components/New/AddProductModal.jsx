@@ -23,7 +23,16 @@ export default function AddProductModal({
 
     const isEditMode = !!productToEdit;
     const [newImage, setNewImage] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
 
+    //needed for css
+    const handleClose = () => {
+        setIsClosing(true);
+        // Wait for the CSS animation to finish before actually telling parent to close
+        setTimeout(() => {
+            onClose();
+        }, 250);
+    };
     //main fields (if product data exists use it, otherwise default to empty strings)
     const [formData, setFormData] = useState({
         name: productToEdit?.name || "",
@@ -195,7 +204,7 @@ export default function AddProductModal({
                 onSave(updatedProduct);
             }
             // Close the modal directly after saving, letting popup survive in parent
-            onClose();
+            handleClose();
         } catch (err) {
             if (showPopup)
                 showPopup("error", err.message || "An error occurred");
@@ -203,14 +212,17 @@ export default function AddProductModal({
     };
 
     return (
-        <div className="add-modal-overlay" onClick={onClose}>
+        <div
+            className={`add-modal-overlay ${isClosing ? "closing" : ""}`}
+            onClick={handleClose}
+        >
             <div
                 className="add-modal-content"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="modal-header-add">
                     <h2>{isEditMode ? "Edit Product" : "Add New Product"}</h2>
-                    <button className="modal-close" onClick={onClose}>
+                    <button className="modal-close" onClick={handleClose}>
                         &times;
                     </button>
                 </div>
@@ -496,7 +508,7 @@ export default function AddProductModal({
                         <button
                             type="button"
                             className="btn-cancel"
-                            onClick={onClose}
+                            onClick={handleClose}
                         >
                             Cancel
                         </button>
