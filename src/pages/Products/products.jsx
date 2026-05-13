@@ -4,6 +4,8 @@ import { InView } from "react-intersection-observer";
 import NewProduct from "../../components/New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
 import Confirmation from "../../components/popups/confirmation.jsx";
+import { delete_product } from "../../database/product_queries.js";
+import { delete_image } from "../../database/image_queries.js";
 import "./products.css";
 
 /* Dynamically import all product images */
@@ -134,8 +136,12 @@ function Products({ isAdmin }) {
     );
 
     const HandleDelete = () => {
-        //FOR RUBBER
-        // this function gets productToDelete.id
+        if (productToDelete) {
+            const image = productToDelete.image;
+            delete_image(image); // First delete the image from storage
+            delete_product(productToDelete.id);
+            setProductToDelete(null);
+        }
         console.log("Deleted");
     };
 
