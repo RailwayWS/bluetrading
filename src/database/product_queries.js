@@ -52,11 +52,11 @@ export async function add_product(product) {
             price: product.price,
             description: product.description,
             image: product.image || product.imageUrl || "",
+            imageUrl : product.imageUrl,
             category: product.category,
             subcategory: product.subcategory,
             features : product.features,
             additionalInfo : product.additionalInfo,
-            imageUrl : product.imageURL,
             searchTerms: searchTerms
         });
         
