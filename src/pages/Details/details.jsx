@@ -113,11 +113,12 @@ function Details({ isAdmin }) {
 
     /* Open edit modal if navigated here via the Edit button */
     useEffect(() => {
-        if (location.state?.openEditModal && isAdmin) {
+        // Wait until the product is fully loaded from the database
+        if (location.state?.openEditModal && isAdmin && product?.id === id && !product?.objectID) {
             setIsEditing(true);
             navigate(location.pathname, { replace: true, state: {} });
         }
-    }, [location.state, location.pathname, isAdmin, navigate]);
+    }, [location.state, location.pathname, isAdmin, navigate, product, id]);
 
     if (!product) {
         return (
