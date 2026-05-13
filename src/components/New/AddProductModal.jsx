@@ -7,7 +7,12 @@ import { add_product, edit_product } from "../../database/product_queries";
 import { add_image, delete_image } from "../../database/image_queries";
 import Popup from "../popups/popups";
 
-export default function AddProductModal({ onClose, onSave, productToEdit, showPopup }) {
+export default function AddProductModal({
+    onClose,
+    onSave,
+    productToEdit,
+    showPopup,
+}) {
     // Prevent background scrolling when modal is open
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -36,8 +41,10 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
     const [features, setFeatures] = useState(productToEdit?.features || []);
     const [additionalInfo, setAdditionalInfo] = useState(
         productToEdit?.additionalInfo
-            ? Object.entries(productToEdit.additionalInfo).map(([key, value]) => ({ key, value }))
-            : []
+            ? Object.entries(productToEdit.additionalInfo).map(
+                  ([key, value]) => ({ key, value }),
+              )
+            : [],
     );
 
     // Handle input changes for main form fields
@@ -133,22 +140,31 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
             price: Number(formData.price),
             features: cleanedFeatures,
             additionalInfo: cleanedInfo,
-            imageUrl: isEditMode ? (productToEdit.imageUrl || productToEdit.image || "") : ""
+            imageUrl: isEditMode
+                ? productToEdit.imageUrl || productToEdit.image || ""
+                : "",
         };
 
         try {
             // Upload new image if formData.image is a File object
-            if (formData.image && typeof formData.image === "object" && !isEditMode) {
+            if (
+                formData.image &&
+                typeof formData.image === "object" &&
+                !isEditMode
+            ) {
                 const newImageUrl = await add_image(formData.image);
                 if (newImageUrl) {
                     updatedProduct.imageURL = newImageUrl;
-                    updatedProduct.imageUrl = newImageUrl; 
+                    updatedProduct.imageUrl = newImageUrl;
                 }
             }
 
             if (isEditMode) {
-
-                if (newImage && formData.image && typeof formData.image === "object") {
+                if (
+                    newImage &&
+                    formData.image &&
+                    typeof formData.image === "object"
+                ) {
                     const oldImage = productToEdit.image || "";
                     const newImageUrl = await add_image(formData.image);
                     if (newImageUrl) {
@@ -158,13 +174,19 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
                 }
 
                 await edit_product(productToEdit.id, updatedProduct);
-                if (showPopup) showPopup("success", "Product updated successfully!");
+                if (showPopup)
+                    showPopup("success", "Product updated successfully!");
             } else {
                 const res = await add_product(updatedProduct);
                 if (res.success) {
-                    if (showPopup) showPopup("success", "Product added successfully!");
+                    if (showPopup)
+                        showPopup("success", "Product added successfully!");
                 } else {
-                    if (showPopup) showPopup("error", res.error || "Failed to add product");
+                    if (showPopup)
+                        showPopup(
+                            "error",
+                            res.error || "Failed to add product",
+                        );
                     return;
                 }
             }
@@ -175,14 +197,18 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
             // Close the modal directly after saving, letting popup survive in parent
             onClose();
         } catch (err) {
-            if (showPopup) showPopup("error", err.message || "An error occurred");
+            if (showPopup)
+                showPopup("error", err.message || "An error occurred");
         }
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
+        <div className="add-modal-overlay" onClick={onClose}>
+            <div
+                className="add-modal-content"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="modal-header-add">
                     <h2>{isEditMode ? "Edit Product" : "Add New Product"}</h2>
                     <button className="modal-close" onClick={onClose}>
                         &times;
@@ -347,10 +373,14 @@ export default function AddProductModal({ onClose, onSave, productToEdit, showPo
                                 htmlFor="imageUpload"
                                 className="image-upload-dropzone"
                             >
-                                {imagePreview || (isEditMode && productToEdit?.imageUrl) ? (
+                                {imagePreview ||
+                                (isEditMode && productToEdit?.imageUrl) ? (
                                     <div className="image-preview-container">
                                         <img
-                                            src={imagePreview || productToEdit.imageUrl}
+                                            src={
+                                                imagePreview ||
+                                                productToEdit.imageUrl
+                                            }
                                             alt="Preview"
                                             className="image-preview"
                                         />
