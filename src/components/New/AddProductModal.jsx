@@ -65,9 +65,9 @@ export default function AddProductModal({
             if (file) {
                 if (file.size > maxImageSize) {
                     // File exceeds size limit, show error and reset
-                    alert(
-                        "Image size exceeds 1MB. Please choose a smaller file.",
-                    );
+                    if (showPopup) {
+                        showPopup("error", "Image size exceeds 1MB. Please choose a smaller file.");
+                    }
                     files[0] = null; // Clear the file input
                     setImagePreview(null);
                 } else {
