@@ -5,6 +5,7 @@ import {
     getDocs,
     getDoc,
     addDoc,
+    deleteDoc,
     query,
     where,
     limit,
@@ -88,6 +89,18 @@ export async function edit_product(productId, product) {
         console.log("Document updated with ID: ", productId);
     } catch (e) {
         console.error("Error updating document: ", e);
+    }
+}
+
+export async function delete_product(productId) {
+    try {
+        const productRef = doc(db, "products", productId);
+        await deleteDoc(productRef);
+        console.log("Document deleted with ID: ", productId);
+        return { success: true };
+    } catch (e) {
+        console.error("Error deleting document: ", e);
+        return { success: false, error: e.message };
     }
 }
 
