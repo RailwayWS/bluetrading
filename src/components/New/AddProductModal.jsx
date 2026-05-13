@@ -165,9 +165,10 @@ export default function AddProductModal({
                 typeof formData.image === "object" &&
                 !isEditMode
             ) {
-                const newImageUrl = await add_image(formData.image);
+                const newImage = formData.image;
+                const newImageUrl = await add_image(newImage);
                 if (newImageUrl) {
-                    updatedProduct.imageURL = newImageUrl;
+                    updatedProduct.image = newImage.name;
                     updatedProduct.imageUrl = newImageUrl;
                 }
             }
@@ -179,9 +180,12 @@ export default function AddProductModal({
                     typeof formData.image === "object"
                 ) {
                     const oldImage = productToEdit.image || "";
-                    const newImageUrl = await add_image(formData.image);
+                    const newImage = formData.image;
+                    const newImageUrl = await add_image(newImage);
+
                     if (newImageUrl) {
                         updatedProduct.imageUrl = newImageUrl;
+                        updatedProduct.image = newImage.name;
                         await delete_image(oldImage);
                     }
                 }
