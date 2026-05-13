@@ -5,6 +5,7 @@ import uploadIcon from "../../assets/symbols/upload.png";
 import productsData from "../../data/products.json";
 import { add_product, edit_product } from "../../database/product_queries";
 import { add_image, delete_image } from "../../database/image_queries";
+import { add_category} from "../../database/category_queries";
 import Popup from "../popups/popups";
 
 export default function AddProductModal({
@@ -38,7 +39,7 @@ export default function AddProductModal({
     const [formData, setFormData] = useState({
         name: productToEdit?.name || "",
         category: productToEdit?.category || "",
-        subcategory: productToEdit?.subcategory || "",
+        subcategory: productToEdit?.subcategory || "General",
         price: productToEdit?.price || "",
         image: productToEdit?.image || "",
         description: productToEdit?.description || "",
@@ -182,7 +183,8 @@ export default function AddProductModal({
                     const oldImage = productToEdit.image || "";
                     const newImage = formData.image;
                     const newImageUrl = await add_image(newImage);
-
+                    await add_category(updatedProduct.category, updatedProduct.subcategory);
+                    a
                     if (newImageUrl) {
                         updatedProduct.image = newImage.name;
                         updatedProduct.imageUrl = newImageUrl;
@@ -195,6 +197,7 @@ export default function AddProductModal({
                     showPopup("success", "Product updated successfully!");
             } else {
                 const res = await add_product(updatedProduct);
+                await add_category(updatedProduct.category, updatedProduct.subcategory);
                 if (res.success) {
                     if (showPopup)
                         showPopup("success", "Product added successfully!");

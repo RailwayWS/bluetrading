@@ -4,8 +4,6 @@ import { InView } from "react-intersection-observer";
 import NewProduct from "../../components/New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
 import Confirmation from "../../components/popups/confirmation.jsx";
-import { delete_product } from "../../database/product_queries.js";
-import { delete_image } from "../../database/image_queries.js";
 import "./products.css";
 
 /* Dynamically import all product images */
@@ -39,6 +37,7 @@ const ProductImage = ({ src, alt, className }) => {
         </>
     );
 };
+
 function Products({ isAdmin }) {
     const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState("All");

@@ -1,6 +1,7 @@
 import { ProductContext } from "./productContext";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { get_products_page, get_all_categories, syncMissingCategories, delete_product } from "../database/product_queries";
+import { get_products_page, delete_product } from "../database/product_queries";
+import { syncMissingCategories, check_category, get_all_categories} from "../database/category_queries.js";
 import { backfillSearchTerms } from "../database/searchTermsHelper";
 import { resolveImageUrl, delete_image } from "../database/image_queries";
 import { db } from "../config/firebase";
@@ -30,7 +31,7 @@ export function ProductProvider({ children }) {
                 await backfillSearchTerms();
                 
                 // Then sync categories
-                await syncMissingCategories();
+                // await syncMissingCategories();
             } catch (e) {
                 console.error("Error during initialization: ", e);
             }
@@ -151,6 +152,7 @@ export function ProductProvider({ children }) {
             delete_image(imagePath); // Remove from Storage
             delete_product(productId); // Remove from Firestore
 
+            check_category(product.category, product.subcategory); // Check if category needs to be removed
             setProducts((prev) => prev.filter((product) => product.id !== productId));
             console.log(`Product ${productId} removed successfully`);
         } catch (error) {
