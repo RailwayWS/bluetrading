@@ -24,6 +24,7 @@ export default function AddProductModal({
     const isEditMode = !!productToEdit;
     const [newImage, setNewImage] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     //needed for css
     const handleClose = () => {
@@ -135,6 +136,9 @@ export default function AddProductModal({
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         // Clean up features and additional info (removes empty entries)
         const cleanedFeatures = features.filter((f) => f.trim() !== "");
         const cleanedInfo = {};
@@ -196,6 +200,7 @@ export default function AddProductModal({
                             "error",
                             res.error || "Failed to add product",
                         );
+                    setIsSubmitting(false);
                     return;
                 }
             }
@@ -208,6 +213,7 @@ export default function AddProductModal({
         } catch (err) {
             if (showPopup)
                 showPopup("error", err.message || "An error occurred");
+            setIsSubmitting(false);
         }
     };
 
@@ -512,8 +518,18 @@ export default function AddProductModal({
                         >
                             Cancel
                         </button>
-                        <button type="submit" className="btn-submit">
-                            {isEditMode ? "Update" : "Add Product"}
+                        <button
+                            type="submit"
+                            className={`btn-submit ${isSubmitting ? "is-submitting" : ""}`}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <div className="spinner"></div>
+                            ) : isEditMode ? (
+                                "Update"
+                            ) : (
+                                "Add Product"
+                            )}
                         </button>
                     </div>
                 </form>

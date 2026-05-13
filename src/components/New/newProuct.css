@@ -1,9 +1,12 @@
+/* --- Modernized Add Product Card --- */
 .new-product-card {
-    background: transparent;
-    border-radius: var(--radius-md, 8px);
-    border: 3px dashed var(--color-primary-light, #74b3ce);
+    background: rgba(255, 255, 255, 0.5); /* Slight white tint */
+    border-radius: var(--radius-md, 12px); /* Slightly softer corners */
+    /* Thinner, softer dashed border */
+    border: 2px dashed rgba(116, 179, 206, 0.4);
     overflow: hidden;
-    transition: all var(--transition-normal, 0.3s ease);
+    /* Custom cubic-bezier for a premium, snappy feel */
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -13,10 +16,13 @@
 }
 
 .new-product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+    transform: translateY(-6px);
     border-color: var(--color-primary, #1a4f8b);
-    background-color: rgba(26, 79, 139, 0.03);
+    background: #ffffff;
+    /* Modern, layered shadow for depth */
+    box-shadow:
+        0 20px 25px -5px rgba(26, 79, 139, 0.08),
+        0 10px 10px -5px rgba(26, 79, 139, 0.04);
 }
 
 .new-product-card__content {
@@ -24,42 +30,48 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1.25rem; /* Slightly tighter gap */
 }
 
+/* --- The Plus Circle --- */
 .new-product-card__plus-circle {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
-    border: 3px solid var(--color-primary-light, #74b3ce);
+    /* Soft background fill instead of a harsh border */
+    background: rgba(116, 179, 206, 0.15);
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all var(--transition-normal, 0.3s ease);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .new-product-card:hover .new-product-card__plus-circle {
     background-color: var(--color-primary, #1a4f8b);
-    border-color: var(--color-primary, #1a4f8b);
+    transform: scale(1.15); /* Scales up dynamically on hover */
+    box-shadow: 0 8px 16px rgba(26, 79, 139, 0.25); /* Subtle glow */
 }
 
+/* --- The Icon --- */
 .new-product-card__plus-icon {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     color: var(--color-primary-light, #74b3ce);
-    transition: all var(--transition-normal, 0.3s ease);
+    transition: color 0.3s ease;
 }
 
 .new-product-card:hover .new-product-card__plus-icon {
-    color: white;
+    color: #ffffff;
 }
 
+/* --- The Text --- */
 .new-product-card__text {
     font-family: var(--font-body, inherit);
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 600;
-    color: var(--color-primary-light, #74b3ce);
-    transition: color var(--transition-normal, 0.3s ease);
+    /* Neutral slate color looks more premium when resting */
+    color: #64748b;
+    transition: color 0.3s ease;
 }
 
 .new-product-card:hover .new-product-card__text {
