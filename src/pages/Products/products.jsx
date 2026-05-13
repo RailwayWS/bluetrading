@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { InView } from "react-intersection-observer";
 import NewProduct from "../../components/New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
+import Confirmation from "../../components/popups/confirmation.jsx";
 import "./products.css";
 
 /* Dynamically import all product images */
@@ -42,16 +43,18 @@ function Products({ isAdmin }) {
     const [activeSubcategory, setActiveSubcategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [openMenuId, setOpenMenuId] = useState(null);
+    const [productToDelete, setProductToDelete] = useState(null); // STATE FOR RUBBER
     const isLoadingMoreRef = useRef(false);
     const searchTimeoutRef = useRef(null);
-    
-    const { 
-        products, 
-        loadingProducts, 
-        loadMoreProducts, 
+
+    const {
+        products,
+        loadingProducts,
+        loadMoreProducts,
         hasMoreProducts,
         setCurrentFilters,
-        allCategories 
+        allCategories,
     } = useProduct();
 
     // Debounce search input (500ms)
@@ -80,6 +83,18 @@ function Products({ isAdmin }) {
         });
     }, [activeCategory, activeSubcategory, debouncedSearch, setCurrentFilters]);
 
+    // Close menu when clicking outside
+    useEffect(() => {
+        const closeMenu = () => setOpenMenuId(null);
+        document.addEventListener("click", closeMenu);
+        return () => document.removeEventListener("click", closeMenu);
+    }, []);
+
+    const handleMenuToggle = (e, productId) => {
+        e.stopPropagation();
+        setOpenMenuId(openMenuId === productId ? null : productId);
+    };
+
     const handleCategoryClick = (cat) => {
         setActiveCategory(cat);
         setActiveSubcategory("All");
@@ -98,7 +113,12 @@ function Products({ isAdmin }) {
 
     const handleLoadMore = useCallback(
         async (inView) => {
-            if (!inView || loadingProducts || isLoadingMoreRef.current || !hasMoreProducts) {
+            if (
+                !inView ||
+                loadingProducts ||
+                isLoadingMoreRef.current ||
+                !hasMoreProducts
+            ) {
                 return;
             }
 
@@ -112,6 +132,12 @@ function Products({ isAdmin }) {
         },
         [hasMoreProducts, loadMoreProducts, loadingProducts],
     );
+
+    const HandleDelete = () => {
+        //FOR RUBBER
+        // this function gets productToDelete.id
+        console.log("Deleted");
+    };
 
     return (
         <section className="products" id="products-section">
@@ -150,9 +176,6 @@ function Products({ isAdmin }) {
                                     onClick={() => handleCategoryClick("All")}
                                 >
                                     All Products
-                                    <span className="products__count">
-                                        {products.length}
-                                    </span>
                                 </button>
                             </li>
                             {Object.entries(categories).map(([cat, subs]) => (
@@ -162,13 +185,6 @@ function Products({ isAdmin }) {
                                         onClick={() => handleCategoryClick(cat)}
                                     >
                                         {cat}
-                                        <span className="products__count">
-                                            {
-                                                products.filter(
-                                                    (p) => p.category === cat,
-                                                ).length
-                                            }
-                                        </span>
                                     </button>
                                     <div
                                         className={`products__subcategory-wrapper ${activeCategory === cat ? "active" : ""}`}
@@ -201,6 +217,64 @@ function Products({ isAdmin }) {
                         {products.length > 0 ? (
                             products.map((product) => (
                                 <div className="product-card" key={product.id}>
+                                    {isAdmin && (
+                                        <div className="product-card__menu-container">
+                                            <button
+                                                className="product-card__menu-btn"
+                                                onClick={(e) =>
+                                                    handleMenuToggle(
+                                                        e,
+                                                        product.id,
+                                                    )
+                                                }
+                                                aria-label="Product options"
+                                            >
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    width="22"
+                                                    height="22"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2.5"
+                                                    fill="none"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                >
+                                                    <circle
+                                                        cx="12"
+                                                        cy="5"
+                                                        r="1.5"
+                                                    ></circle>
+                                                    <circle
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="1.5"
+                                                    ></circle>
+                                                    <circle
+                                                        cx="12"
+                                                        cy="19"
+                                                        r="1.5"
+                                                    ></circle>
+                                                </svg>
+                                            </button>
+
+                                            <div
+                                                className={`product-card__dropdown ${openMenuId === product.id ? "is-open" : ""}`}
+                                            >
+                                                <button
+                                                    className="product-card__dropdown-item delete"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setOpenMenuId(null);
+                                                        setProductToDelete(
+                                                            product,
+                                                        );
+                                                    }}
+                                                >
+                                                    Delete Product
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="product-card__image-wrap">
                                         <ProductImage
                                             src={product.imageUrl}
@@ -240,17 +314,25 @@ function Products({ isAdmin }) {
                             /* Fallback message if search yields no results */
                             <div className="products__no-results">
                                 <p>
-                                    No products found. Try adjusting your filters.
+                                    No products found. Try adjusting your
+                                    filters.
                                 </p>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
-            <InView
-                as="div"
-                onChange={handleLoadMore}
-                threshold={0}
+            <InView as="div" onChange={handleLoadMore} threshold={0} />
+
+            {/* Confirmation Modal for Deletion */}
+            <Confirmation
+                isOpen={!!productToDelete}
+                onClose={() => setProductToDelete(null)}
+                onConfirm={() => {
+                    HandleDelete(productToDelete.id);
+                    setProductToDelete(null);
+                }}
+                itemName={productToDelete?.name}
             />
         </section>
     );

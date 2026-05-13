@@ -181,11 +181,99 @@
     transition: all var(--transition-normal);
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .product-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
+}
+
+/* --- Modernized Menu Button --- */
+.product-card__menu-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+}
+
+.product-card__menu-btn {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        color 0.2s ease;
+}
+
+.product-card__menu-btn:hover {
+    color: var(--color-text);
+    transform: scale(1.1); /* Subtle grow effect on hover */
+}
+
+/* --- Smooth Dropdown with Glassmorphism --- */
+.product-card__dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    min-width: 140px;
+    padding: 6px;
+
+    /* Animation defaults (Hidden state) */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.95);
+    transform-origin: top right;
+    pointer-events: none; /* Prevents clicks when hidden */
+    transition:
+        opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+        visibility 0.25s;
+}
+
+/* Active state triggered by React class */
+.product-card__dropdown.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* --- Dropdown Items --- */
+.product-card__dropdown-item {
+    width: 100%;
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 4px;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+}
+
+.product-card__dropdown-item.delete {
+    color: #e53e3e;
+}
+
+.product-card__dropdown-item.delete:hover {
+    color: #c53030;
 }
 
 .product-card__image-wrap {

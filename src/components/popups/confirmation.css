@@ -1,0 +1,124 @@
+/* --- Overlay & Backdrop --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    /* Animation setup */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+.modal-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* --- Modal Container --- */
+.modal-content {
+    background: #ffffff;
+    border-radius: var(--radius-md, 12px);
+    width: 100%;
+    max-width: 400px;
+    padding: 24px;
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    /* Animation setup */
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.is-open .modal-content {
+    transform: translateY(0) scale(1);
+}
+
+/* --- Header & Icon --- */
+.modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0;
+}
+
+.modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: #dc2626; /* Dark red */
+    flex-shrink: 0;
+}
+
+.modal-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text, #111827);
+    margin: 0;
+}
+
+/* --- Body --- */
+.modal-body {
+    margin-bottom: 24px;
+    color: var(--color-text-light, #4b5563);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* --- Actions (Buttons) --- */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-cancel,
+.btn-confirm {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.btn-cancel:hover {
+    background: #f3f4f6;
+}
+
+.btn-confirm {
+    background: #dc2626;
+    border: 1px solid #dc2626;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
