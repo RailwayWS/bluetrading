@@ -7,7 +7,6 @@ import { add_product, edit_product } from "../../database/product_queries";
 import { add_image, delete_image } from "../../database/image_queries";
 import { add_category } from "../../database/category_queries";
 import Popup from "../popups/popups";
-import { variable } from "firebase/firestore/pipelines";
 
 export default function AddProductModal({
     onClose,
@@ -27,7 +26,7 @@ export default function AddProductModal({
     const [newImage, setNewImage] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectType, setSelectType] = useState("Single Product");
+    const [selectType, setSelectType] = useState(productToEdit?.type || "single");
 
     const handleTypeChange = (e) => {
         setSelectType(e.target.value);
@@ -167,6 +166,9 @@ export default function AddProductModal({
         if (isSubmitting) return;
         setIsSubmitting(true);
 
+        //other variables
+        let minVariantPrice = 0;
+
         // Clean up features and additional info (removes empty entries)
         const cleanedFeatures = features.filter((f) => f.trim() !== "");
         const cleanedInfo = {};
@@ -177,7 +179,7 @@ export default function AddProductModal({
         });
 
         const cleanedVariants = {};
-        if (selectType === "Product Variants") {
+        if (selectType === "variants") {
             variants.forEach((item) => {
                 if (item.key.trim() && item.value.trim()) {
                     cleanedVariants[item.key.trim()] = item.value.trim();
@@ -198,12 +200,12 @@ export default function AddProductModal({
         const updatedProduct = {
             ...formData,
             price:
-                selectType === "Single Product"
+                selectType === "single"
                     ? Number(formData.price)
                     : minVariantPrice,
             type: selectType,
             variants:
-                selectType === "Product Variants" ? cleanedVariants : null,
+                selectType === "variants" ? cleanedVariants : null,
             features: cleanedFeatures,
             additionalInfo: cleanedInfo,
             imageUrl: isEditMode
@@ -290,7 +292,7 @@ export default function AddProductModal({
             <div
                 className="add-modal-content"
                 onClick={(e) => e.stopPropagation()}
-            >
+            >   
                 <div className="modal-header-add">
                     <h2>{isEditMode ? "Edit Product" : "Add New Product"}</h2>
                     <button className="modal-close" onClick={handleClose}>
@@ -299,29 +301,31 @@ export default function AddProductModal({
                 </div>
 
                 <form className="modal-form" onSubmit={handleSubmit}>
-                    <div className="form-row">
-                        <label>
-                            <input
-                                type="radio"
-                                name="Type"
-                                value="Single Product"
-                                checked={selectType === "Single Product"}
-                                onChange={handleTypeChange}
-                            />{" "}
-                            Single Product
-                        </label>
+                    {isEditMode === false && (
+                        <div className="form-row">
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="Type"
+                                    value="single"
+                                    checked={selectType === "single"}
+                                    onChange={handleTypeChange}
+                                />{" "}
+                                Single Product
+                            </label>
 
-                        <label>
-                            <input
-                                type="radio"
-                                name="Type"
-                                value="Product Variants"
-                                checked={selectType === "Product Variants"}
-                                onChange={handleTypeChange}
-                            />{" "}
-                            Product Variants
-                        </label>
-                    </div>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="Type"
+                                    value="variants"
+                                    checked={selectType === "variants"}
+                                    onChange={handleTypeChange}
+                                />{" "}
+                                Product Variants
+                            </label>
+                        </div>
+                    )}
 
                     <div className="form-row">
                         <div className="form-group">
@@ -334,7 +338,7 @@ export default function AddProductModal({
                                 required
                             />
                         </div>
-                        {selectType === "Single Product" && (
+                        {selectType === "single" && (
                             <div className="form-group">
                                 <label>Price</label>
                                 <input
@@ -466,7 +470,7 @@ export default function AddProductModal({
                         </div>
                     </div>
 
-                    {selectType === "Product Variants" && (
+                    {selectType === "variants" && (
                         <div className="form-section">
                             <label className="section-label">Variants</label>
                             {variants.map((variant, index) => (
