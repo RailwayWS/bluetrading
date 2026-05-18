@@ -26,7 +26,9 @@ export default function AddProductModal({
     const [newImage, setNewImage] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectType, setSelectType] = useState(productToEdit?.type || "single");
+    const [selectType, setSelectType] = useState(
+        productToEdit?.type || "single",
+    );
 
     const handleTypeChange = (e) => {
         setSelectType(e.target.value);
@@ -204,8 +206,7 @@ export default function AddProductModal({
                     ? Number(formData.price)
                     : minVariantPrice,
             type: selectType,
-            variants:
-                selectType === "variants" ? cleanedVariants : null,
+            variants: selectType === "variants" ? cleanedVariants : null,
             features: cleanedFeatures,
             additionalInfo: cleanedInfo,
             imageUrl: isEditMode
@@ -292,7 +293,7 @@ export default function AddProductModal({
             <div
                 className="add-modal-content"
                 onClick={(e) => e.stopPropagation()}
-            >   
+            >
                 <div className="modal-header-add">
                     <h2>{isEditMode ? "Edit Product" : "Add New Product"}</h2>
                     <button className="modal-close" onClick={handleClose}>
