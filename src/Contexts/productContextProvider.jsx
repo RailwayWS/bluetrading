@@ -15,7 +15,6 @@ export function ProductProvider({ children }) {
         searchTerm: "",
     });
     const [allCategories, setAllCategories] = useState({});
-
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
     const lastVisibleRef = useRef(null);  // Firestore cursor for pagination

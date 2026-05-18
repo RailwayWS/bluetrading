@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import "./addProductModal.css";
 import deleteIcon from "../../assets/symbols/delete(1).png";
 import uploadIcon from "../../assets/symbols/upload.png";
-import productsData from "../../data/products.json";
 import { add_product, edit_product } from "../../database/product_queries";
 import { add_image, delete_image } from "../../database/image_queries";
 import { add_category } from "../../database/category_queries";
+import { useProduct } from "../../Contexts/productContext";
 import Popup from "../popups/popups";
 
 export default function AddProductModal({
@@ -29,6 +29,8 @@ export default function AddProductModal({
     const [selectType, setSelectType] = useState(
         productToEdit?.type || "single",
     );
+    const { products } = useProduct();
+
 
     const handleTypeChange = (e) => {
         setSelectType(e.target.value);
@@ -144,23 +146,23 @@ export default function AddProductModal({
 
     // get categories and subcategories from products data for dropdowns
     const categories = useMemo(() => {
-        const cats = productsData.map((p) => p.category);
+        const cats = products.map((p) => p.category);
         return [...new Set(cats)].filter(Boolean);
-    }, []);
+    }, [products]);
 
     const [isCustomCategory, setIsCustomCategory] = useState(false);
     const [isCustomSubcategory, setIsCustomSubcategory] = useState(false);
 
     const subcategories = useMemo(() => {
-        let filtered = productsData;
+        let filtered = products;
         if (formData.category && !isCustomCategory) {
-            filtered = productsData.filter(
+            filtered = products.filter(
                 (p) => p.category === formData.category,
             );
         }
         const subcats = filtered.map((p) => p.subcategory);
         return [...new Set(subcats)].filter(Boolean);
-    }, [formData.category, isCustomCategory]);
+    }, [formData.category, isCustomCategory, products]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
