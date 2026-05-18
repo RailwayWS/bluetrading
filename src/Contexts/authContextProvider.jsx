@@ -7,30 +7,32 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [isAnon, setIsAnon] = useState(false);
 
-    useEffect(() => {
-        const auth = getAuth();
-        
-        signInAnonymously(auth).then(() => {
-            setIsAnon(true);
-            console.log("Signed in anonymously");
-        }).catch((error) => {
-            console.error("Error signing in anonymously:", error);
-        });
-    }, []);
 
     useEffect(() => {
         const auth = getAuth();
 
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user && !user.isAnonymous) {
-                setIsAnon(false);
-                setIsAdmin(true);
+            if (user) {
+                if (!user.isAnonymous) {
+                    console.log("User is signed in:", user);
+                    setIsAdmin(true);
+                    setIsAnon(false);
+                }
+                if (user.isAnonymous) {
+                    console.log("User is signed in anonymously:", user);
+                    setIsAnon(true);
+                    setIsAdmin(false);
+                }
+                
             } else {
                 setIsAdmin(false);
 
-                if (user && user.isAnonymous) {
+                signInAnonymously(auth).then(() => {
+                    console.log("Signed in anonymously");
                     setIsAnon(true);
-                }
+                }).catch((error) => {
+                    console.error("Error signing in anonymously:", error);
+                });
             }
             setLoading(false);
         });
@@ -49,7 +51,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ isAdmin, loading, setLoading, logout }}>
+        <AuthContext.Provider value={{ isAdmin, loading, setLoading, logout, isAnon }}>
             {children}
         </AuthContext.Provider>
     );
