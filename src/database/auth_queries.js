@@ -1,4 +1,4 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously } from "firebase/auth";
 
 
 export function sign_up(email, password) {
@@ -17,8 +17,21 @@ export function sign_up(email, password) {
   });
 }
 
+export function anon_sign_in() {
+    const auth = getAuth();
+
+    return signInAnonymously(auth).then(() => {
+        console.log("Signed in anonymously");
+        return { success: true };
+    }).catch((error) => {
+        console.error("Error signing in anonymously:", error);
+        return { success: false, error: error.message };
+    });
+}
+
 export function sign_in(email, password) {
     const auth = getAuth();
+
     return signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         const user = userCredential.user;

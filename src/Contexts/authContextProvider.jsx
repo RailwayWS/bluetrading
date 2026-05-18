@@ -1,19 +1,38 @@
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "firebase/auth";
 import { useState, useEffect } from "react";
 import { AuthContext } from "./authContext";
 
 export function AuthProvider({ children }) {
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isAnon, setIsAnon] = useState(false);
+
 
     useEffect(() => {
         const auth = getAuth();
-        
+
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-                setIsAdmin(true);
+                if (!user.isAnonymous) {
+                    console.log("User is signed in:", user);
+                    setIsAdmin(true);
+                    setIsAnon(false);
+                }
+                if (user.isAnonymous) {
+                    console.log("User is signed in anonymously:", user);
+                    setIsAnon(true);
+                    setIsAdmin(false);
+                }
+                
             } else {
                 setIsAdmin(false);
+
+                signInAnonymously(auth).then(() => {
+                    console.log("Signed in anonymously");
+                    setIsAnon(true);
+                }).catch((error) => {
+                    console.error("Error signing in anonymously:", error);
+                });
             }
             setLoading(false);
         });
@@ -32,7 +51,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ isAdmin, loading, setLoading, logout }}>
+        <AuthContext.Provider value={{ isAdmin, loading, setLoading, logout, isAnon }}>
             {children}
         </AuthContext.Provider>
     );
