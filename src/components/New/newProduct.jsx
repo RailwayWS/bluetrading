@@ -7,7 +7,7 @@ import { PopupContainer } from "../popups/popups";
 export default function NewProduct() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [popups, setPopups] = useState([]);
-    const { setCurrentFilters, allCategories, checkNewProduct } = useProduct();
+    const { setCurrentFilters, checkNewProduct } = useProduct();
 
     const addPopup = (type, message) => {
         const popupId = Date.now() + Math.random();

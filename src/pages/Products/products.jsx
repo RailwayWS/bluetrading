@@ -6,16 +6,6 @@ import { useProduct } from "../../Contexts/productContext.js";
 import Confirmation from "../../components/popups/confirmation.jsx";
 import "./products.css";
 
-/* Dynamically import all product images */
-const imageModules = import.meta.glob("../../assets/products/*.png", {
-    eager: true,
-});
-const images = {};
-for (const path in imageModules) {
-    const filename = path.split("/").pop();
-    images[filename] = imageModules[path].default;
-}
-
 // wrapper component that handles its own image loading state
 const ProductImage = ({ src, alt, className }) => {
     const [isLoaded, setIsLoaded] = useState(false);
