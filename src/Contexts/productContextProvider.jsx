@@ -1,7 +1,7 @@
 import { ProductContext } from "./productContext";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { get_products_page, delete_product, edit_product, get_product_by_id} from "../database/product_queries";
-import { check_category, get_all_categories} from "../database/category_queries.js";
+import { add_category, check_category, get_all_categories} from "../database/category_queries.js";
 import { backfillSearchTerms } from "../database/searchTermsHelper";
 import { resolveImageUrl, delete_image } from "../database/image_queries";
 import { db } from "../config/firebase";
@@ -187,6 +187,7 @@ export function ProductProvider({ children }) {
         edit_product(productId, updatedData).then(() => {
             
             // If category or subcategory changed, we may need to update allCategories
+            // Purely removes old category/ subcategory
             if (updatedData.category && (updatedData.category !== oldProduct.category || updatedData.subcategory !== oldProduct.subcategory)) {
                 console.log("Category changed, checking if we need to update allCategories...");
                 // If category changed, we may need to update allCategories
@@ -209,6 +210,14 @@ export function ProductProvider({ children }) {
                 });
             }
 
+            if (!(updatedData.subcategory in allCategories[updatedData.category])) {
+                add_category(updatedData.category, updatedData.subcategory).then(() => {
+                    setAllCategories((prev) => ({
+                        ...prev,
+                        [updatedData.category]: [...(prev[updatedData.category] || []), updatedData.subcategory],
+                    }));
+                });
+            }
             console.log(`Product ${productId} edited successfully`);
         }).catch((error) => {
             console.error(`Failed to edit product ${productId}:`, error);

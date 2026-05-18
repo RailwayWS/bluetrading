@@ -45,6 +45,7 @@ export async function add_product(product) {
             return { success: false, error: "Product with this name already exists" };
         }
 
+        console.log(product.type);
         const searchTerms = generateSearchTerms(product.name);
 
         const docRef = await addDoc(collection(db, "products"), {
@@ -58,7 +59,7 @@ export async function add_product(product) {
             features : product.features,
             additionalInfo : product.additionalInfo,
             variants: product.variants || null,
-            type: product.type || product.variants ? "variants" : "single",
+            type: product.type,
             searchTerms: searchTerms
         });
         
@@ -86,7 +87,7 @@ export async function edit_product(productId, product) {
             features : product.features,
             additionalInfo : product.additionalInfo,
             variants: product.variants || null,
-            type: product.type || product.variants ? "variants" : "single",
+            type: product.type,
             searchTerms: searchTerms
         }, { merge: true });
         

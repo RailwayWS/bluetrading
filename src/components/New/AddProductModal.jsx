@@ -52,6 +52,7 @@ export default function AddProductModal({
         price: productToEdit?.price || "",
         image: productToEdit?.image || "",
         description: productToEdit?.description || "",
+        type: productToEdit?.type || "single",
     });
 
     const [imagePreview, setImagePreview] = useState(null);
