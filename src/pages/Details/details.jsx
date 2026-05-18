@@ -51,6 +51,7 @@ function Details({ isAdmin }) {
     const [isEditing, setIsEditing] = useState(false);
     const [popups, setPopups] = useState([]);
     const { products, loadingProducts, setCurrentFilters } = useProduct();
+    const [activeVariant, setActiveVariant] = useState(null);
 
     const addPopup = (type, message) => {
         const popupId = Date.now() + Math.random();
@@ -60,6 +61,13 @@ function Details({ isAdmin }) {
     const removePopup = (id) => {
         setPopups((prev) => prev.filter((p) => p.id !== id));
     };
+
+    // Reset the active variant whenever the product changes
+    useEffect(() => {
+        if (product) {
+            setActiveVariant(null);
+        }
+    }, [product?.id]);
 
     useEffect(() => {
         if (loadingProducts) return;
@@ -114,7 +122,12 @@ function Details({ isAdmin }) {
     /* Open edit modal if navigated here via the Edit button */
     useEffect(() => {
         // Wait until the product is fully loaded from the database
-        if (location.state?.openEditModal && isAdmin && product?.id === id && !product?.objectID) {
+        if (
+            location.state?.openEditModal &&
+            isAdmin &&
+            product?.id === id &&
+            !product?.objectID
+        ) {
             setIsEditing(true);
             navigate(location.pathname, { replace: true, state: {} });
         }
@@ -136,9 +149,18 @@ function Details({ isAdmin }) {
 
     const formatPrice = (price) => {
         return (
-            "R " + price.toLocaleString("en-ZA", { minimumFractionDigits: 2 })
+            "R " +
+            Number(price).toLocaleString("en-ZA", { minimumFractionDigits: 2 })
         );
     };
+
+    const displayPrice =
+        activeVariant && product.variants
+            ? product.variants[activeVariant]
+            : product.price;
+
+    const hasVariants =
+        product.variants && Object.keys(product.variants).length > 0;
 
     return (
         <div className="details">
@@ -163,12 +185,40 @@ function Details({ isAdmin }) {
                         </span>
                         <h1 className="details__name">{product.name}</h1>
                         <p className="details__price">
-                            {formatPrice(product.price)}
+                            {/* updated to use display price and not product.price */}
+                            {formatPrice(displayPrice)}
                         </p>
 
                         <p className="details__description">
                             {product.description}
                         </p>
+
+                        {hasVariants && (
+                            <div className="details__variants-section">
+                                <span className="details__variants-label">
+                                    Select Option:
+                                </span>
+                                <div className="details__variants-pills">
+                                    {Object.entries(product.variants).map(
+                                        ([key, value]) => (
+                                            <button
+                                                key={key}
+                                                className={`details__variant-pill ${
+                                                    activeVariant === key
+                                                        ? "details__variant-pill--active"
+                                                        : ""
+                                                }`}
+                                                onClick={() =>
+                                                    setActiveVariant(key)
+                                                }
+                                            >
+                                                {key}
+                                            </button>
+                                        ),
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="details__buttons">
                             <button
@@ -292,18 +342,19 @@ function Details({ isAdmin }) {
                             <div className="details__tab-panel">
                                 <table className="details__spec-table">
                                     <tbody>
-                                        {Object.entries(
-                                            product.additionalInfo,
-                                        ).map(([key, value]) => (
-                                            <tr key={key}>
-                                                <td className="details__spec-key">
-                                                    {key}
-                                                </td>
-                                                <td className="details__spec-value">
-                                                    {value}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {product.additionalInfo &&
+                                            Object.entries(
+                                                product.additionalInfo,
+                                            ).map(([key, value]) => (
+                                                <tr key={key}>
+                                                    <td className="details__spec-key">
+                                                        {key}
+                                                    </td>
+                                                    <td className="details__spec-value">
+                                                        {value}
+                                                    </td>
+                                                </tr>
+                                            ))}
                                     </tbody>
                                 </table>
                             </div>

@@ -183,11 +183,24 @@ export default function AddProductModal({
                     cleanedVariants[item.key.trim()] = item.value.trim();
                 }
             });
+
+            // Convert the object values into an array
+            const variantPrices = Object.values(cleanedVariants).map(Number);
+
+            // Filter out any NaN
+            if (variantPrices.length > 0) {
+                const validPrices = variantPrices.filter((n) => !isNaN(n));
+                minVariantPrice =
+                    validPrices.length > 0 ? Math.min(...validPrices) : 0;
+            }
         }
 
         const updatedProduct = {
             ...formData,
-            price: Number(formData.price),
+            price:
+                selectType === "Single Product"
+                    ? Number(formData.price)
+                    : minVariantPrice,
             type: selectType,
             variants:
                 selectType === "Product Variants" ? cleanedVariants : null,
