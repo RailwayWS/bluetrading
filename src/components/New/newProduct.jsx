@@ -7,7 +7,7 @@ import { PopupContainer } from "../popups/popups";
 export default function NewProduct() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [popups, setPopups] = useState([]);
-    const { setCurrentFilters } = useProduct();
+    const { setCurrentFilters, allCategories, checkNewProduct } = useProduct();
 
     const addPopup = (type, message) => {
         const popupId = Date.now() + Math.random();
@@ -25,6 +25,7 @@ export default function NewProduct() {
     const handleSaveProduct = (productData) => {
         console.log("New Product Event Handled");
         console.log("Product Data:", productData);
+        checkNewProduct(productData);
         // Force a data refresh by giving currentFilters a new object reference
         setCurrentFilters((prev) => ({ ...prev }));
     };

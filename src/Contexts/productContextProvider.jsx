@@ -182,6 +182,23 @@ export function ProductProvider({ children }) {
         }
     };
 
+    // Sync states with database for categories when a new product is added.. and whatnot
+    function checkNewProduct(newProduct) {
+        if (!(newProduct.category in allCategories)) {
+            setAllCategories((prev) => ({
+                ...prev,
+                [newProduct.category]: newProduct.subcategory ? [newProduct.subcategory] : [],
+            }));
+        } else if (newProduct.subcategory && !allCategories[newProduct.category].includes(newProduct.subcategory)) {
+            setAllCategories((prev) => ({
+                ...prev,
+                [newProduct.category]: [...prev[newProduct.category], newProduct.subcategory],
+            }));
+        }
+
+        return;
+    }
+
     return (
         <ProductContext.Provider value={{ 
                 products,
@@ -191,7 +208,9 @@ export function ProductProvider({ children }) {
                 currentFilters,
                 setCurrentFilters,
                 allCategories,
-                removeProduct }}>
+                setAllCategories,
+                removeProduct,
+                checkNewProduct }}>
 			{children}
 		</ProductContext.Provider>
 	);
