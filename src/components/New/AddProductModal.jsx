@@ -5,8 +5,9 @@ import uploadIcon from "../../assets/symbols/upload.png";
 import productsData from "../../data/products.json";
 import { add_product, edit_product } from "../../database/product_queries";
 import { add_image, delete_image } from "../../database/image_queries";
-import { add_category} from "../../database/category_queries";
+import { add_category } from "../../database/category_queries";
 import Popup from "../popups/popups";
+import { variable } from "firebase/firestore/pipelines";
 
 export default function AddProductModal({
     onClose,
@@ -26,6 +27,11 @@ export default function AddProductModal({
     const [newImage, setNewImage] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectType, setSelectType] = useState("Single Product");
+
+    const handleTypeChange = (e) => {
+        setSelectType(e.target.value);
+    };
 
     //needed for css
     const handleClose = () => {
@@ -49,6 +55,14 @@ export default function AddProductModal({
     const maxImageSize = 1 * 1024 * 1024; // 1MB
 
     //additional fields
+    const [variants, setVariants] = useState(
+        productToEdit?.variants
+            ? Object.entries(productToEdit.variants).map(([key, value]) => ({
+                  key,
+                  value,
+              }))
+            : [],
+    );
     const [features, setFeatures] = useState(productToEdit?.features || []);
     const [additionalInfo, setAdditionalInfo] = useState(
         productToEdit?.additionalInfo
@@ -67,7 +81,10 @@ export default function AddProductModal({
                 if (file.size > maxImageSize) {
                     // File exceeds size limit, show error and reset
                     if (showPopup) {
-                        showPopup("error", "Image size exceeds 1MB. Please choose a smaller file.");
+                        showPopup(
+                            "error",
+                            "Image size exceeds 1MB. Please choose a smaller file.",
+                        );
                     }
                     files[0] = null; // Clear the file input
                     setImagePreview(null);
@@ -85,6 +102,16 @@ export default function AddProductModal({
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
     };
+
+    // NEW VARIANT HANDLERS
+    const handleVariantChange = (index, field, value) => {
+        const newVariants = [...variants];
+        newVariants[index][field] = value;
+        setVariants(newVariants);
+    };
+    const addVariant = () => setVariants([...variants, { key: "", value: "" }]);
+    const removeVariant = (index) =>
+        setVariants(variants.filter((_, i) => i !== index));
 
     const handleFeatureChange = (index, value) => {
         const newFeatures = [...features];
@@ -149,9 +176,34 @@ export default function AddProductModal({
             }
         });
 
+        const cleanedVariants = {};
+        if (selectType === "Product Variants") {
+            variants.forEach((item) => {
+                if (item.key.trim() && item.value.trim()) {
+                    cleanedVariants[item.key.trim()] = item.value.trim();
+                }
+            });
+
+            // Convert the object values into an array
+            const variantPrices = Object.values(cleanedVariants).map(Number);
+
+            // Filter out any NaN
+            if (variantPrices.length > 0) {
+                const validPrices = variantPrices.filter((n) => !isNaN(n));
+                minVariantPrice =
+                    validPrices.length > 0 ? Math.min(...validPrices) : 0;
+            }
+        }
+
         const updatedProduct = {
             ...formData,
-            price: Number(formData.price),
+            price:
+                selectType === "Single Product"
+                    ? Number(formData.price)
+                    : minVariantPrice,
+            type: selectType,
+            variants:
+                selectType === "Product Variants" ? cleanedVariants : null,
             features: cleanedFeatures,
             additionalInfo: cleanedInfo,
             imageUrl: isEditMode
@@ -183,8 +235,11 @@ export default function AddProductModal({
                     const oldImage = productToEdit.image || "";
                     const newImage = formData.image;
                     const newImageUrl = await add_image(newImage);
-                    await add_category(updatedProduct.category, updatedProduct.subcategory);
-                    a
+                    await add_category(
+                        updatedProduct.category,
+                        updatedProduct.subcategory,
+                    );
+
                     if (newImageUrl) {
                         updatedProduct.image = newImage.name;
                         updatedProduct.imageUrl = newImageUrl;
@@ -197,7 +252,10 @@ export default function AddProductModal({
                     showPopup("success", "Product updated successfully!");
             } else {
                 const res = await add_product(updatedProduct);
-                await add_category(updatedProduct.category, updatedProduct.subcategory);
+                await add_category(
+                    updatedProduct.category,
+                    updatedProduct.subcategory,
+                );
                 if (res.success) {
                     if (showPopup)
                         showPopup("success", "Product added successfully!");
@@ -242,6 +300,30 @@ export default function AddProductModal({
 
                 <form className="modal-form" onSubmit={handleSubmit}>
                     <div className="form-row">
+                        <label>
+                            <input
+                                type="radio"
+                                name="Type"
+                                value="Single Product"
+                                checked={selectType === "Single Product"}
+                                onChange={handleTypeChange}
+                            />{" "}
+                            Single Product
+                        </label>
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="Type"
+                                value="Product Variants"
+                                checked={selectType === "Product Variants"}
+                                onChange={handleTypeChange}
+                            />{" "}
+                            Product Variants
+                        </label>
+                    </div>
+
+                    <div className="form-row">
                         <div className="form-group">
                             <label>Product Name</label>
                             <input
@@ -252,16 +334,18 @@ export default function AddProductModal({
                                 required
                             />
                         </div>
-                        <div className="form-group">
-                            <label>Price</label>
-                            <input
-                                type="number"
-                                name="price"
-                                value={formData.price}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
+                        {selectType === "Single Product" && (
+                            <div className="form-group">
+                                <label>Price</label>
+                                <input
+                                    type="number"
+                                    name="price"
+                                    value={formData.price}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-row">
@@ -381,6 +465,54 @@ export default function AddProductModal({
                             )}
                         </div>
                     </div>
+
+                    {selectType === "Product Variants" && (
+                        <div className="form-section">
+                            <label className="section-label">Variants</label>
+                            {variants.map((variant, index) => (
+                                <div key={index} className="dynamic-row">
+                                    <input
+                                        type="text"
+                                        value={variant.key}
+                                        onChange={(e) =>
+                                            handleVariantChange(
+                                                index,
+                                                "key",
+                                                e.target.value,
+                                            )
+                                        }
+                                        placeholder="Item size"
+                                    />
+                                    <input
+                                        type="number"
+                                        value={variant.value}
+                                        onChange={(e) =>
+                                            handleVariantChange(
+                                                index,
+                                                "value",
+                                                e.target.value,
+                                            )
+                                        }
+                                        placeholder="Item Price"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn-remove"
+                                        onClick={() => removeVariant(index)}
+                                    >
+                                        <img src={deleteIcon} alt="Delete" />
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                className="btn-add"
+                                onClick={addVariant}
+                            >
+                                + Add Variant
+                            </button>
+                        </div>
+                    )}
 
                     <div className="form-group">
                         <label>Product Image</label>
