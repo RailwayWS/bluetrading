@@ -29,7 +29,7 @@ export default function AddProductModal({
     const [selectType, setSelectType] = useState(
         productToEdit?.type || "single",
     );
-    const { products } = useProduct();
+    const { allCategories } = useProduct();
 
 
     const handleTypeChange = (e) => {
@@ -144,25 +144,21 @@ export default function AddProductModal({
         setAdditionalInfo(additionalInfo.filter((_, i) => i !== index));
     };
 
-    // get categories and subcategories from products data for dropdowns
+    // get categories and subcategories from the shared category state
     const categories = useMemo(() => {
-        const cats = products.map((p) => p.category);
-        return [...new Set(cats)].filter(Boolean);
-    }, [products]);
+        return Object.keys(allCategories || {}).filter(Boolean);
+    }, [allCategories]);
 
     const [isCustomCategory, setIsCustomCategory] = useState(false);
     const [isCustomSubcategory, setIsCustomSubcategory] = useState(false);
 
     const subcategories = useMemo(() => {
-        let filtered = products;
-        if (formData.category && !isCustomCategory) {
-            filtered = products.filter(
-                (p) => p.category === formData.category,
-            );
+        if (!formData.category || isCustomCategory) {
+            return [];
         }
-        const subcats = filtered.map((p) => p.subcategory);
-        return [...new Set(subcats)].filter(Boolean);
-    }, [formData.category, isCustomCategory, products]);
+
+        return (allCategories?.[formData.category] || []).filter(Boolean);
+    }, [formData.category, isCustomCategory, allCategories]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -373,9 +369,11 @@ export default function AddProductModal({
                                         className="btn-remove"
                                         onClick={() => {
                                             setIsCustomCategory(false);
+                                            setIsCustomSubcategory(false);
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 category: "",
+                                                subcategory: "",
                                             }));
                                         }}
                                         title="Cancel new category"
@@ -390,6 +388,7 @@ export default function AddProductModal({
                                     onChange={(e) => {
                                         if (e.target.value === "ADD_NEW") {
                                             setIsCustomCategory(true);
+                                            setIsCustomSubcategory(true);
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 category: "",
