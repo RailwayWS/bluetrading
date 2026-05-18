@@ -119,6 +119,7 @@ export async function check_category(category, subcategory) {
 }
 
 export async function syncMissingCategories() {
+
     try {
         // Fetch all categories from categories collection
         const categoriesRef = collection(db, "categories");

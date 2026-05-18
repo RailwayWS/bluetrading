@@ -184,7 +184,7 @@ export default function AddProductModal({
                     const newImage = formData.image;
                     const newImageUrl = await add_image(newImage);
                     await add_category(updatedProduct.category, updatedProduct.subcategory);
-                    a
+                    
                     if (newImageUrl) {
                         updatedProduct.image = newImage.name;
                         updatedProduct.imageUrl = newImageUrl;

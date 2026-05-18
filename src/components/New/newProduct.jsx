@@ -24,6 +24,7 @@ export default function NewProduct() {
 
     const handleSaveProduct = (productData) => {
         console.log("New Product Event Handled");
+        console.log("Product Data:", productData);
         // Force a data refresh by giving currentFilters a new object reference
         setCurrentFilters((prev) => ({ ...prev }));
     };

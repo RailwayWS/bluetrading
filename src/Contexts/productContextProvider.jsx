@@ -152,7 +152,28 @@ export function ProductProvider({ children }) {
             delete_image(imagePath); // Remove from Storage
             delete_product(productId); // Remove from Firestore
 
-            check_category(product.category, product.subcategory); // Check if category needs to be removed
+            const category = product.category;
+            const subcategory = product.subcategory;
+
+            // Check if category needs to be removed
+            check_category(product.category, product.subcategory).then((result) => {
+                if (result.removedCategory) {
+                    setAllCategories((prev) => {
+                        const updated = { ...prev };
+                        delete updated[category];
+                        return updated;
+                    });
+                } else if (result.removedSubcategory) {
+                    setAllCategories((prev) => {
+                        const updated = { ...prev };
+                        if (updated[category]) {
+                            updated[category] = updated[category].filter(sub => sub !== subcategory);
+                        }   
+                        return updated;
+                    });
+                }
+            });
+
             setProducts((prev) => prev.filter((product) => product.id !== productId));
             console.log(`Product ${productId} removed successfully`);
         } catch (error) {
