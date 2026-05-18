@@ -19,6 +19,7 @@ export function sign_up(email, password) {
 
 export function sign_in(email, password) {
     const auth = getAuth();
+
     return signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         const user = userCredential.user;
