@@ -57,6 +57,8 @@ export async function add_product(product) {
             subcategory: product.subcategory,
             features : product.features,
             additionalInfo : product.additionalInfo,
+            variants: product.variants || null,
+            type: product.type || product.variants ? "variants" : "single",
             searchTerms: searchTerms
         });
         
@@ -83,6 +85,8 @@ export async function edit_product(productId, product) {
             subcategory: product.subcategory,
             features : product.features,
             additionalInfo : product.additionalInfo,
+            variants: product.variants || null,
+            type: product.type || product.variants ? "variants" : "single",
             searchTerms: searchTerms
         }, { merge: true });
         
