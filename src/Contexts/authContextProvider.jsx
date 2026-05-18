@@ -4,8 +4,8 @@ import { AuthContext } from "./authContext";
 
 export function AuthProvider({ children }) {
     const [isAdmin, setIsAdmin] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [isAnon, setIsAnon] = useState(false);
+    const [loading, setLoading] = useState(true);
 
 
     useEffect(() => {
@@ -23,18 +23,18 @@ export function AuthProvider({ children }) {
                     setIsAnon(true);
                     setIsAdmin(false);
                 }
-                
+                setLoading(false);   
             } else {
                 setIsAdmin(false);
 
                 signInAnonymously(auth).then(() => {
                     console.log("Signed in anonymously");
+                    setLoading(false);
                     setIsAnon(true);
                 }).catch((error) => {
                     console.error("Error signing in anonymously:", error);
                 });
             }
-            setLoading(false);
         });
 
         return unsubscribe;
