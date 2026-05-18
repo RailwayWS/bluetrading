@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import "./addProductModal.css";
 import deleteIcon from "../../assets/symbols/delete(1).png";
 import uploadIcon from "../../assets/symbols/upload.png";
-import { add_product, edit_product } from "../../database/product_queries";
+import { add_product } from "../../database/product_queries";
 import { add_image, delete_image } from "../../database/image_queries";
 import { add_category } from "../../database/category_queries";
 import { useProduct } from "../../Contexts/productContext";
@@ -29,7 +29,7 @@ export default function AddProductModal({
     const [selectType, setSelectType] = useState(
         productToEdit?.type || "single",
     );
-    const { allCategories } = useProduct();
+    const { allCategories, editProduct } = useProduct();
 
 
     const handleTypeChange = (e) => {
@@ -248,7 +248,8 @@ export default function AddProductModal({
                     }
                 }
 
-                await edit_product(productToEdit.id, updatedProduct);
+
+                await editProduct(productToEdit.id, updatedProduct);
                 if (showPopup)
                     showPopup("success", "Product updated successfully!");
             } else {

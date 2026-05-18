@@ -1,6 +1,6 @@
 import { ProductContext } from "./productContext";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { get_products_page, delete_product } from "../database/product_queries";
+import { get_products_page, delete_product, edit_product, get_product_by_id} from "../database/product_queries";
 import { check_category, get_all_categories} from "../database/category_queries.js";
 import { backfillSearchTerms } from "../database/searchTermsHelper";
 import { resolveImageUrl, delete_image } from "../database/image_queries";
@@ -181,6 +181,42 @@ export function ProductProvider({ children }) {
         }
     };
 
+    async function editProduct(productId, updatedData) {
+        const oldProduct = await get_product_by_id(productId);
+
+        edit_product(productId, updatedData).then(() => {
+            
+            // If category or subcategory changed, we may need to update allCategories
+            if (updatedData.category && (updatedData.category !== oldProduct.category || updatedData.subcategory !== oldProduct.subcategory)) {
+                console.log("Category changed, checking if we need to update allCategories...");
+                // If category changed, we may need to update allCategories
+                check_category(oldProduct.category, oldProduct.subcategory).then((result) => {
+                    if (result.removedCategory) {
+                    setAllCategories((prev) => {
+                        const updated = { ...prev };
+                        delete updated[oldProduct.category];
+                        return updated;
+                    });
+                    } else if (result.removedSubcategory) {
+                        setAllCategories((prev) => {
+                            const updated = { ...prev };
+                            if (updated[oldProduct.category]) {
+                                updated[oldProduct.category] = updated[oldProduct.category].filter(sub => sub !== oldProduct.subcategory);
+                            }   
+                            return updated;
+                        });
+                    }
+                });
+            }
+
+            console.log(`Product ${productId} edited successfully`);
+        }).catch((error) => {
+            console.error(`Failed to edit product ${productId}:`, error);
+            throw error;
+        });
+    }
+        
+
     // Sync states with database for categories when a new product is added.. and whatnot
     function checkNewProduct(newProduct) {
         if (!(newProduct.category in allCategories)) {
@@ -209,6 +245,7 @@ export function ProductProvider({ children }) {
                 allCategories,
                 setAllCategories,
                 removeProduct,
+                editProduct,
                 checkNewProduct }}>
 			{children}
 		</ProductContext.Provider>
