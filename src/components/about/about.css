@@ -379,3 +379,60 @@
 .about__description {
     white-space: pre-line;
 }
+
+.about__partners-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--color-text, #111827);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+/* --- The Uppercase Subtitle / Text --- */
+.about__partners-text {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary, #2d6a4f);
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0 auto; /* Centers the flex container */
+    max-width: fit-content;
+}
+
+/* The horizontal accent lines flanking the text */
+.about__partners-text::before,
+.about__partners-text::after {
+    content: "";
+    display: block;
+    height: 2px;
+    width: 40px;
+    background: var(--color-primary, #2d6a4f);
+    opacity: 0.25; /* Keeps them subtle so they don't overpower the text */
+    border-radius: 2px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .about__partners {
+        padding: 2.5rem 1.5rem;
+        margin-top: 3rem;
+    }
+
+    .about__partners-title {
+        font-size: 1.75rem;
+    }
+
+    .about__partners-text {
+        font-size: 0.8rem;
+        letter-spacing: 1.5px;
+    }
+
+    .about__partners-text::before,
+    .about__partners-text::after {
+        width: 25px;
+    }
+}

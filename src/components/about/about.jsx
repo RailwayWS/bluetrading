@@ -2,7 +2,6 @@ import React from "react";
 import { useState } from "react";
 import "./about.css";
 import about_img from "../../assets/hero-slide-1.png";
-import partner_logo from "../../assets/partner.jpg";
 
 const initialAboutContent = {
     label: "Who we are",
@@ -15,6 +14,8 @@ const initialAboutContent = {
     stat2Text: "Quality Focused",
     badgeNumber: "10",
     badgeText: "Years of\nExcellence",
+    partnerTitle: "Contracted marketers & distributors For",
+    partnerText: "Geo-Line Dam Lining Solutions",
 };
 
 const About = ({ isAdmin }) => {
@@ -248,16 +249,40 @@ const About = ({ isAdmin }) => {
                 </div>
 
                 <div className="about__partners">
-                    <p className="about__partners-title">
-                        Contracted marketers & distributors For
-                    </p>
-                    <div className="about__partners-logo-wrapper">
-                        <img
-                            src={partner_logo}
-                            alt="Geo-Line Dam Lining Solutions"
-                            className="about__partners-logo"
-                        />
-                    </div>
+                    {isEditing ? (
+                        <div>
+                            <input
+                                className="about__editable-field about__partner-title-edit"
+                                value={aboutContent.partnerTitle}
+                                onChange={(e) =>
+                                    handleAboutContentChange(
+                                        "partnerTitle",
+                                        e.target.value,
+                                    )
+                                }
+                            />
+                            <input
+                                className="about__editable-field about__partner-text-edit"
+                                value={aboutContent.partnerText}
+                                onChange={(e) =>
+                                    handleAboutContentChange(
+                                        "partnerText",
+                                        e.target.value,
+                                    )
+                                }
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            <p className="about__partners-title">
+                                {aboutContent.partnerTitle}
+                            </p>
+
+                            <p className="about__partners-text">
+                                {aboutContent.partnerText}
+                            </p>
+                        </>
+                    )}
                 </div>
             </div>
         </section>
