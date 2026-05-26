@@ -74,7 +74,7 @@ function AppContent() {
                 className={`back-to-top ${isVisible ? "back-to-top--visible" : ""}`}
                 aria-label="Back to top"
             >
-                ↑
+                ↑ 
             </button>
         </div>
     );

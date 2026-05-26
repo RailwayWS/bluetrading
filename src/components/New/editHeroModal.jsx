@@ -58,11 +58,11 @@ function EditHeroModal({ initialSlides, onClose, onSave }) {
                                 <label>Subtitle (Top text)</label>
                                 <input
                                     type="text"
-                                    value={slide.subtitle}
+                                    value={slide.sub_title}
                                     onChange={(e) =>
                                         handleSlideChange(
                                             index,
-                                            "subtitle",
+                                            "sub_title",
                                             e.target.value,
                                         )
                                     }
@@ -74,11 +74,11 @@ function EditHeroModal({ initialSlides, onClose, onSave }) {
                             <div className="form-group">
                                 <label>Main Title</label>
                                 <textarea
-                                    value={slide.title}
+                                    value={slide.main_title}
                                     onChange={(e) =>
                                         handleSlideChange(
                                             index,
-                                            "title",
+                                            "main_title",
                                             e.target.value,
                                         )
                                     }

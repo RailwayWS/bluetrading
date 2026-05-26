@@ -1,36 +1,96 @@
 import React from "react";
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import "./about.css";
 import about_img from "../../assets/hero-slide-1.png";
+import { get_about_us, update_about_us, get_stats, update_stats, get_partners, update_partners } from "../../database/front_page_queries";
 
 const initialAboutContent = {
-    label: "Who we are",
-    heading: "Reliable solutions, built to last.",
-    description:
-        'Water is the lifeblood of your operation. We specialize in supplying industry-leading irrigation equipment and heavy-duty dam liners ("damsakke") designed to withstand the toughest conditions.\n\nOur goal is simple: to provide the high-quality infrastructure you need to efficiently store, manage, and distribute your water. As dedicated marketers and distributors, we source only the most dependable products on the market.',
-    stat1Number: "500+",
-    stat1Text: "Clients Supplied",
-    stat2Number: "100%",
-    stat2Text: "Quality Focused",
-    badgeNumber: "10",
-    badgeText: "Years of\nExcellence",
-    partnerTitle: "Contracted marketers & distributors For",
-    partnerText: "Geo-Line Dam Lining Solutions",
+    intro : {
+        sub_title: "Who we are",
+        main_title: "Reliable solutions, built to last.",
+        body:
+            'Water is the lifeblood of your operation. We specialize in supplying industry-leading irrigation equipment and heavy-duty dam liners ("damsakke") designed to withstand the toughest conditions.\n\nOur goal is simple: to provide the high-quality infrastructure you need to efficiently store, manage, and distribute your water. As dedicated marketers and distributors, we source only the most dependable products on the market.',
+    },
+    stats : {
+        stat_1: "500+",
+        stat_1_name: "Clients Supplied",
+        stat_2: "100%",
+        stat_2_name: "Quality Focused",
+        stat_3: "10",
+        stat_3_name: "Years of\nExcellence",
+    },
+    partners: {
+        main_title: "Contracted marketers & distributors For",
+        partner_1: "Geo-Line Dam Lining Solutions",
+    }
 };
 
 const About = ({ isAdmin }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [aboutContent, setAboutContent] = useState(initialAboutContent);
+    const [aboutContent, setAboutContent] = useState(initialAboutContent.intro);
+    const [stats, setStats] = useState(initialAboutContent.stats);
+    const [partners, setPartners] = useState(initialAboutContent.partners);
 
-    const handleAboutContentChange = (field, value) => {
-        setAboutContent((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
+    useEffect(() => {
+        const fetchAboutContent = async () => {
+            const result_about = await get_about_us();
+            const result_stats = await get_stats();
+            const result_partners = await get_partners();
+            
+            if (result_about) {
+                console.log("Fetched about content:", result_about.data);
+                setAboutContent(result_about.data);
+            }
+            if (result_stats) {
+                console.log("Fetched stats:", result_stats.data);
+                setStats(result_stats.data);
+            }
+            if (result_partners) {
+                console.log("Fetched partners:", result_partners.data);
+                setPartners(result_partners.data);
+            }
+        };
+        fetchAboutContent();
+    }, []);
+
+    const handleAboutContentChange = (documentName, field, value) => {
+        if (documentName === "about_us") {
+            setAboutContent((prev) => ({
+                ...prev,
+                [field]: value,
+            }));
+        }
+
+        if (documentName === "stats") {
+            setStats((prev) => ({
+                ...prev,
+                [field]: value,
+            }));
+        }
+
+        if (documentName === "partners") {
+            setPartners((prev) => ({
+                ...prev,
+                [field]: value,
+            }));
+        }
     };
 
     const handleSave = () => {
-        // FOR RUBBER
+        const saveContent = async () => {
+            const [aboutResult, statsResult, partnersResult] = await Promise.all([
+                update_about_us(aboutContent),
+                update_stats(stats),
+                update_partners(partners),
+            ]);
+
+            if (aboutResult.success && statsResult.success && partnersResult.success) {
+                alert("About section updated successfully!");
+            } else {
+                alert("Failed to update about section");
+            }   
+        };
+        saveContent();
         setIsEditing(false);
     };
 
@@ -63,17 +123,18 @@ const About = ({ isAdmin }) => {
                     {isEditing ? (
                         <input
                             className="about__editable-field about__label-edit"
-                            value={aboutContent.label}
+                            value={aboutContent.sub_title}
                             onChange={(e) =>
                                 handleAboutContentChange(
-                                    "label",
+                                    "about_us",
+                                    "sub_title",
                                     e.target.value,
                                 )
                             }
                         />
                     ) : (
                         <span className="about__label">
-                            {aboutContent.label}
+                            {aboutContent.sub_title}
                         </span>
                     )}
 
@@ -81,10 +142,11 @@ const About = ({ isAdmin }) => {
                     {isEditing ? (
                         <textarea
                             className="about__editable-field about__heading-edit"
-                            value={aboutContent.heading}
+                            value={aboutContent.main_title}
                             onChange={(e) =>
                                 handleAboutContentChange(
-                                    "heading",
+                                    "about_us",
+                                    "main_title",
                                     e.target.value,
                                 )
                             }
@@ -92,7 +154,7 @@ const About = ({ isAdmin }) => {
                         />
                     ) : (
                         <h2 className="about__heading">
-                            {aboutContent.heading}
+                            {aboutContent.main_title}
                         </h2>
                     )}
 
@@ -100,10 +162,11 @@ const About = ({ isAdmin }) => {
                     {isEditing ? (
                         <textarea
                             className="about__editable-field about__description-edit"
-                            value={aboutContent.description}
+                            value={aboutContent.body}
                             onChange={(e) =>
                                 handleAboutContentChange(
-                                    "description",
+                                    "about_us",
+                                    "body",
                                     e.target.value,
                                 )
                             }
@@ -111,7 +174,7 @@ const About = ({ isAdmin }) => {
                         />
                     ) : (
                         <p className="about__description">
-                            {aboutContent.description}
+                            {aboutContent.body}
                         </p>
                     )}
 
@@ -122,20 +185,22 @@ const About = ({ isAdmin }) => {
                                 <>
                                     <input
                                         className="about__editable-field"
-                                        value={aboutContent.stat1Number}
+                                        value={stats.stat_1}
                                         onChange={(e) =>
                                             handleAboutContentChange(
-                                                "stat1Number",
+                                                "stats",
+                                                "stat_1",
                                                 e.target.value,
                                             )
                                         }
                                     />
                                     <input
                                         className="about__editable-field"
-                                        value={aboutContent.stat1Text}
+                                        value={stats.stat_1_name}
                                         onChange={(e) =>
                                             handleAboutContentChange(
-                                                "stat1Text",
+                                                "stats",
+                                                "stat_1_name",
                                                 e.target.value,
                                             )
                                         }
@@ -144,10 +209,10 @@ const About = ({ isAdmin }) => {
                             ) : (
                                 <>
                                     <h3 className="about__stat-number">
-                                        {aboutContent.stat1Number}
+                                        {stats.stat_1}
                                     </h3>
                                     <p className="about__stat-text">
-                                        {aboutContent.stat1Text}
+                                        {stats.stat_1_name}
                                     </p>
                                 </>
                             )}
@@ -158,20 +223,22 @@ const About = ({ isAdmin }) => {
                                 <>
                                     <input
                                         className="about__editable-field"
-                                        value={aboutContent.stat2Number}
+                                        value={stats.stat_2}
                                         onChange={(e) =>
                                             handleAboutContentChange(
-                                                "stat2Number",
+                                                "stats",
+                                                "stat_2",
                                                 e.target.value,
                                             )
                                         }
                                     />
                                     <input
                                         className="about__editable-field"
-                                        value={aboutContent.stat2Text}
+                                        value={stats.stat_2_name}
                                         onChange={(e) =>
                                             handleAboutContentChange(
-                                                "stat2Text",
+                                                "stats",
+                                                "stat_2_name",
                                                 e.target.value,
                                             )
                                         }
@@ -180,10 +247,10 @@ const About = ({ isAdmin }) => {
                             ) : (
                                 <>
                                     <h3 className="about__stat-number">
-                                        {aboutContent.stat2Number}
+                                        {stats.stat_2}
                                     </h3>
                                     <p className="about__stat-text">
-                                        {aboutContent.stat2Text}
+                                        {stats.stat_2_name}
                                     </p>
                                 </>
                             )}
@@ -210,10 +277,11 @@ const About = ({ isAdmin }) => {
                                     <input
                                         className="about__editable-field"
                                         style={{ textAlign: "center" }}
-                                        value={aboutContent.badgeNumber}
+                                        value={stats.stat_3}
                                         onChange={(e) =>
                                             handleAboutContentChange(
-                                                "badgeNumber",
+                                                "stats",
+                                                "stat_3",
                                                 e.target.value,
                                             )
                                         }
@@ -221,10 +289,11 @@ const About = ({ isAdmin }) => {
                                     <textarea
                                         className="about__editable-field"
                                         style={{ textAlign: "center" }}
-                                        value={aboutContent.badgeText}
+                                        value={stats.stat_3_name}
                                         onChange={(e) =>
                                             handleAboutContentChange(
-                                                "badgeText",
+                                                "stats",
+                                                "stat_3_name",
                                                 e.target.value,
                                             )
                                         }
@@ -234,13 +303,13 @@ const About = ({ isAdmin }) => {
                             ) : (
                                 <>
                                     <span className="badge-number">
-                                        {aboutContent.badgeNumber}
+                                        {stats.stat_3}
                                     </span>
                                     <span
                                         className="badge-text"
                                         style={{ whiteSpace: "pre-line" }}
                                     >
-                                        {aboutContent.badgeText}
+                                        {stats.stat_3_name}
                                     </span>
                                 </>
                             )}
@@ -253,20 +322,22 @@ const About = ({ isAdmin }) => {
                         <div>
                             <input
                                 className="about__editable-field about__partner-title-edit"
-                                value={aboutContent.partnerTitle}
+                                value={partners.main_title}
                                 onChange={(e) =>
                                     handleAboutContentChange(
-                                        "partnerTitle",
+                                        "partners",
+                                        "main_title",
                                         e.target.value,
                                     )
                                 }
                             />
                             <input
                                 className="about__editable-field about__partner-text-edit"
-                                value={aboutContent.partnerText}
+                                value={partners.partner_1}
                                 onChange={(e) =>
                                     handleAboutContentChange(
-                                        "partnerText",
+                                        "partners",
+                                        "partner_1",
                                         e.target.value,
                                     )
                                 }
@@ -275,11 +346,11 @@ const About = ({ isAdmin }) => {
                     ) : (
                         <>
                             <p className="about__partners-title">
-                                {aboutContent.partnerTitle}
+                                {partners.main_title}
                             </p>
 
                             <p className="about__partners-text">
-                                {aboutContent.partnerText}
+                                {partners.partner_1}
                             </p>
                         </>
                     )}

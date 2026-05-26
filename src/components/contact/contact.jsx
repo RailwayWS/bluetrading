@@ -1,41 +1,54 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./contact.css";
+import { get_contact, update_contact } from "../../database/front_page_queries";
 
-const initialContactDetails = {
-    phone: "+27 (0) 21 123 4567",
-    email: "sales@yourclientdomain.co.za",
-    address: "123 Agri Park, Industrial Area\nStellenbosch, 7600",
-};
-
-const initialIntroText = {
-    label: "Get In Touch",
-    heading: "Ready to upgrade your water infrastructure?",
-    description:
+const initialContactContent = {
+    top_title: "Get In Touch",
+    main_title: "Ready to upgrade your water infrastructure?",
+    sub_title:
         "Whether you need a quote on heavy-duty dam liners or advice on your next big irrigation project, our team is ready to help.",
+    email: "sales@yourclientdomain.co.za",
+    phone_number: "+27 (0) 21 123 4567",
+    location: "123 Agri Park, Industrial Area\nStellenbosch, 7600",
 };
 
 const Contact = ({ isAdmin }) => {
-    const [contactDetails, setContactDetails] = useState(initialContactDetails);
-    const [introText, setIntroText] = useState(initialIntroText);
+    const [contactContent, setContactContent] = useState(initialContactContent);
     const [isEditing, setIsEditing] = useState(false);
 
-    const handleDetailChange = (field, value) => {
-        setContactDetails((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    };
+    useEffect(() => {
+        const fetchContactContent = async () => {
+            const result = await get_contact();
 
-    const handleIntroTextChange = (field, value) => {
-        setIntroText((prev) => ({
+            if (result) {
+                console.log("Fetched contact content:", result.data);
+                setContactContent(result.data);
+            }
+        };
+
+        fetchContactContent();
+    }, []);
+
+    const handleContactContentChange = (field, value) => {
+        setContactContent((prev) => ({
             ...prev,
             [field]: value,
         }));
     };
 
     const handleSave = () => {
-        // FOR RUBBER
+        const saveContent = async () => {
+            const result = await update_contact(contactContent);
+
+            if (result.success) {
+                alert("Contact section updated successfully!");
+            } else {
+                alert("Failed to update contact section: " + result.error);
+            }
+        };
+
+        saveContent();
         setIsEditing(false);
     };
 
@@ -65,45 +78,53 @@ const Contact = ({ isAdmin }) => {
                 )}
                 <div className="contact__header">
                     {isEditing ? (
-                        <textarea
+                        <input
                             className="contact__editable-field contact__label-edit"
-                            value={introText.label}
+                            value={contactContent.top_title}
                             onChange={(e) =>
-                                handleIntroTextChange("label", e.target.value)
-                            }
-                        />
-                    ) : (
-                        <span className="contact__label">
-                            {introText.label}
-                        </span>
-                    )}
-                    {isEditing ? (
-                        <textarea
-                            className="contact__editable-field contact__heading-edit"
-                            value={introText.heading}
-                            onChange={(e) =>
-                                handleIntroTextChange("heading", e.target.value)
-                            }
-                        />
-                    ) : (
-                        <h2 className="contact__heading">
-                            {introText.heading}
-                        </h2>
-                    )}
-                    {isEditing ? (
-                        <textarea
-                            className="contact__editable-field contact__description-edit"
-                            value={introText.description}
-                            onChange={(e) =>
-                                handleIntroTextChange(
-                                    "description",
+                                handleContactContentChange(
+                                    "top_title",
                                     e.target.value,
                                 )
                             }
                         />
                     ) : (
+                        <span className="contact__label">
+                            {contactContent.top_title}
+                        </span>
+                    )}
+                    {isEditing ? (
+                        <textarea
+                            className="contact__editable-field contact__heading-edit"
+                            value={contactContent.main_title}
+                            onChange={(e) =>
+                                handleContactContentChange(
+                                    "main_title",
+                                    e.target.value,
+                                )
+                            }
+                            rows={2}
+                        />
+                    ) : (
+                        <h2 className="contact__heading">
+                            {contactContent.main_title}
+                        </h2>
+                    )}
+                    {isEditing ? (
+                        <textarea
+                            className="contact__editable-field contact__description-edit"
+                            value={contactContent.sub_title}
+                            onChange={(e) =>
+                                handleContactContentChange(
+                                    "sub_title",
+                                    e.target.value,
+                                )
+                            }
+                            rows={4}
+                        />
+                    ) : (
                         <p className="contact__description">
-                            {introText.description}
+                            {contactContent.sub_title}
                         </p>
                     )}
                 </div>
@@ -130,19 +151,18 @@ const Contact = ({ isAdmin }) => {
                             <div className="contact__details">
                                 <h3>Call Us</h3>
                                 {isEditing ? (
-                                    <textarea
+                                    <input
                                         className="contact__editable-field"
-                                        value={contactDetails.phone}
+                                        value={contactContent.phone_number}
                                         onChange={(e) =>
-                                            handleDetailChange(
-                                                "phone",
+                                            handleContactContentChange(
+                                                "phone_number",
                                                 e.target.value,
                                             )
                                         }
-                                        rows={1}
                                     />
                                 ) : (
-                                    <p>{contactDetails.phone}</p>
+                                    <p>{contactContent.phone_number}</p>
                                 )}
                             </div>
                         </div>
@@ -167,19 +187,18 @@ const Contact = ({ isAdmin }) => {
                             <div className="contact__details">
                                 <h3>Email Us</h3>
                                 {isEditing ? (
-                                    <textarea
+                                    <input
                                         className="contact__editable-field"
-                                        value={contactDetails.email}
+                                        value={contactContent.email}
                                         onChange={(e) =>
-                                            handleDetailChange(
+                                            handleContactContentChange(
                                                 "email",
                                                 e.target.value,
                                             )
                                         }
-                                        rows={1}
                                     />
                                 ) : (
-                                    <p>{contactDetails.email}</p>
+                                    <p>{contactContent.email}</p>
                                 )}
                             </div>
                         </div>
@@ -206,10 +225,10 @@ const Contact = ({ isAdmin }) => {
                                 {isEditing ? (
                                     <textarea
                                         className="contact__editable-field"
-                                        value={contactDetails.address}
+                                        value={contactContent.location}
                                         onChange={(e) =>
-                                            handleDetailChange(
-                                                "address",
+                                            handleContactContentChange(
+                                                "location",
                                                 e.target.value,
                                             )
                                         }
@@ -217,7 +236,7 @@ const Contact = ({ isAdmin }) => {
                                     />
                                 ) : (
                                     <p className="contact__address-text">
-                                        {contactDetails.address}
+                                        {contactContent.location}
                                     </p>
                                 )}
                             </div>
