@@ -45,7 +45,11 @@
 .about__heading-highlight {
     color: var(--color-primary, #4a90e2);
     /* Optional sleek gradient text effect */
-    background: linear-gradient(120deg, var(--color-primary) 0%, var(--color-accent, #8e44ad) 100%);
+    background: linear-gradient(
+        120deg,
+        var(--color-primary) 0%,
+        var(--color-accent, #8e44ad) 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -109,7 +113,7 @@
 
 /* Sleek offset background square */
 .about__image-wrapper::before {
-    content: '';
+    content: "";
     position: absolute;
     top: -20px;
     right: -20px;
@@ -228,7 +232,7 @@
         left: 10px;
         padding: 12px 16px;
     }
-    
+
     .badge-number {
         font-size: 2rem;
     }
@@ -265,7 +269,9 @@
     height: auto;
     opacity: 0.85; /* Slight transparency for a sleek, integrated look */
     transition: all 0.3s ease;
-    filter: grayscale(100%); /* Optional: makes it black/white to match a modern theme */
+    filter: grayscale(
+        100%
+    ); /* Optional: makes it black/white to match a modern theme */
 }
 
 /* Brings full color and opacity back when hovered */
@@ -273,4 +279,103 @@
     opacity: 1;
     filter: grayscale(0%);
     transform: translateY(-2px);
+}
+
+/* --- Admin Edit Controls --- */
+.about__admin-controls {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: auto;
+
+    padding: 10px 0px;
+    width: 100%;
+}
+
+.about__admin-status {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-right: auto;
+}
+
+.about__admin-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.about__btn-edit {
+    background-color: white;
+    color: var(--color-text, #333);
+    border: 1px solid var(--color-border, #ccc);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.about__btn-edit:hover {
+    background-color: #f1f5f9;
+    color: var(--color-primary, #2d6a4f);
+}
+
+.about__btn-save {
+    background-color: var(--color-primary, #2d6a4f);
+    color: white;
+    box-shadow: 0 2px 4px rgba(45, 106, 79, 0.2);
+}
+
+.about__btn-save:hover {
+    background-color: var(--color-primary-dark, #1b4332);
+    transform: translateY(-1px);
+}
+
+/* --- Editable Fields Styles --- */
+.about__editable-field {
+    width: 100%;
+    background-color: rgba(45, 106, 79, 0.03);
+    border: 1px dashed var(--color-primary, #2d6a4f);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--color-text, #333333);
+    resize: vertical;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.about__editable-field:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-style: solid;
+    border-color: var(--color-primary, #2d6a4f);
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
+}
+
+/* Specific text formatting to match existing headers/paragraphs */
+.about__label-edit {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-primary, #2d6a4f);
+    text-transform: uppercase;
+}
+
+.about__heading-edit {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.about__description-edit {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Preserves line breaks for standard users */
+.about__description {
+    white-space: pre-line;
 }
