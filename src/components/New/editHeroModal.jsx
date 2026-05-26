@@ -8,7 +8,7 @@ function EditHeroModal({ initialSlides, onClose, onSave }) {
 
     const fileInputRefs = useRef([]);
 
-    // NEW FUNCS FOR THE RUBBER TO SHIT ON: handleClose, slideChange, ImageUpload, Submit
+    // NEW FUNCS FOR THE RUBBER TO SHIT ON: handleClose, slideChange, Submit
 
     const handleClose = () => {
         setIsClosing(true);
@@ -21,14 +21,6 @@ function EditHeroModal({ initialSlides, onClose, onSave }) {
         const newSlides = [...slides];
         newSlides[index][field] = value;
         setSlides(newSlides);
-    };
-
-    const handleImageUpload = (index, e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            handleSlideChange(index, "image", imageUrl);
-        }
     };
 
     const handleSubmit = (e) => {
@@ -59,47 +51,6 @@ function EditHeroModal({ initialSlides, onClose, onSave }) {
                                 <span className="section-label">
                                     Slide {index + 1}
                                 </span>
-                            </div>
-
-                            {/* Image Upload Dropzone */}
-                            <div className="form-group">
-                                <label>Background Image</label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden-file-input"
-                                    ref={(el) =>
-                                        (fileInputRefs.current[index] = el)
-                                    }
-                                    onChange={(e) =>
-                                        handleImageUpload(index, e)
-                                    }
-                                />
-                                <div
-                                    className="image-upload-dropzone"
-                                    onClick={() =>
-                                        fileInputRefs.current[index].click()
-                                    }
-                                >
-                                    {slide.image ? (
-                                        <div className="image-preview-container">
-                                            <img
-                                                src={slide.image}
-                                                alt={`Slide ${index + 1}`}
-                                                className="image-preview"
-                                            />
-                                            <div className="image-preview-overlay">
-                                                <span>
-                                                    Click to change image
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="upload-placeholder">
-                                            <span>+ Click to upload image</span>
-                                        </div>
-                                    )}
-                                </div>
                             </div>
 
                             {/* Text Inputs */}
