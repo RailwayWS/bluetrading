@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import heroSlide1 from "../../assets/hero1.webp";
 import heroSlide2 from "../../assets/hero2.webp";
+import EditHeroModal from "../New/editHeroModal.jsx"; // YES I ADDED MORE MODALS :)
 import "./hero.css";
 
-const slides = [
+const initialSlides = [
     {
         image: heroSlide2,
         subtitle: "TRUSTED FARMING PARTNER",
@@ -17,9 +18,13 @@ const slides = [
     },
 ];
 
-function Hero() {
+function Hero({ isAdmin }) {
+    const [slides, setSlides] = useState(initialSlides); // FOR RUBBER. INITIAL SLIDES IS HARDCODED (SEE ABOVE). IT WANTS TO LIVE IN DB. DOESNT WISH TO LIVE ON FRONTEND.
+
+    //NO TOUCHY THESE STATES. THEY DO THE SLIDE TRANSITION MAGIC. THEY ARE NOT FOR THE RUBBER MAN
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,6 +38,12 @@ function Hero() {
 
         return () => clearInterval(interval);
     }, []);
+
+    const handleSaveSlides = (updatedSlides) => {
+        // FOR THE RUBBER MAN
+        setSlides(updatedSlides);
+        setCurrentSlide(0); // reset to first slide
+    };
 
     return (
         <section className="hero" id="hero-section">
@@ -60,9 +71,20 @@ function Hero() {
                         </span>
                     ))}
                 </h1>
-                <button className="hero__cta" onClick={() => navigate('/products')}>
+                <button
+                    className="hero__cta"
+                    onClick={() => navigate("/products")}
+                >
                     View Products
                 </button>
+                {isAdmin && (
+                    <button
+                        className="hero__admin-edit-btn"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        Edit Hero Section
+                    </button>
+                )}
             </div>
 
             <div className="hero__indicators">
@@ -81,6 +103,13 @@ function Hero() {
                     />
                 ))}
             </div>
+            {isModalOpen && (
+                <EditHeroModal
+                    initialSlides={slides}
+                    onClose={() => setIsModalOpen(false)}
+                    onSave={handleSaveSlides}
+                />
+            )}
         </section>
     );
 }

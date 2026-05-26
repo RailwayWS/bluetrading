@@ -48,18 +48,21 @@ function AppContent() {
                     path="/"
                     element={
                         <>
-                            <Hero />
-                            <About />
-                            <Contact />
+                            <Hero isAdmin={isAdmin} />
+                            <About isAdmin={isAdmin} />
+                            <Contact isAdmin={isAdmin} />
                         </>
                     }
                 />
-                <Route path="/products" element={<Products isAdmin={isAdmin} />} />
-                <Route path="/product/:id" element={<Details isAdmin={isAdmin} />} />
                 <Route
-                    path="/admin"
-                    element={<Login />}
+                    path="/products"
+                    element={<Products isAdmin={isAdmin} />}
                 />
+                <Route
+                    path="/product/:id"
+                    element={<Details isAdmin={isAdmin} />}
+                />
+                <Route path="/admin" element={<Login />} />
             </Routes>
             {isAdmin && (
                 <button onClick={handleLogout} className="end-session-btn">
