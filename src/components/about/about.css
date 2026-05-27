@@ -436,3 +436,7 @@
         width: 25px;
     }
 }
+
+.about__btn-cancel {
+    margin-right: 10px;
+}

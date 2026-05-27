@@ -137,7 +137,7 @@ const About = ({ isAdmin }) => {
                             {isEditing ? (
                                 <>
                                     <button
-                                        className="about__admin-btn about__btn-save"
+                                        className="about__admin-btn about__btn-cancel"
                                         onClick={handleClose}
                                     >
                                         Cancel

@@ -68,7 +68,7 @@ const Contact = ({ isAdmin }) => {
                         {isEditing ? (
                             <>
                                 <button
-                                    className="contact__admin-btn contact__btn-save"
+                                    className="contact__admin-btn contact__btn-cancel"
                                     onClick={handleClose}
                                 >
                                     Cancel
