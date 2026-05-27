@@ -137,10 +137,6 @@ function Hero({ isAdmin }) {
                         initialSlides={slides}
                         onClose={() => setIsModalOpen(false)}
                         onSave={handleSaveSlides}
-                        onCancel={() => {
-                            setIsModalOpen(false);
-                            handleCancel();
-                        }}
                     />
                 )}
             </section>
