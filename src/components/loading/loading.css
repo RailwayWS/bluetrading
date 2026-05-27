@@ -1,0 +1,61 @@
+/* Container locks to the full screen and centers everything */
+.loading-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8fafc; /* Very soft, clean off-white */
+    z-index: 9999;
+}
+
+/* Modern, smooth spinner using agricultural green */
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    /* The faint background track of the circle */
+    border: 4px solid rgba(46, 125, 50, 0.15);
+    /* The animated solid green section */
+    border-top-color: #2e7d32;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 24px;
+}
+
+/* Clean, pulsing text */
+.loading-text {
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #475569; /* Soft slate grey */
+    letter-spacing: 0.5px;
+    animation: pulse 2s ease-in-out infinite;
+    margin: 0;
+}
+
+/* Animations */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+}

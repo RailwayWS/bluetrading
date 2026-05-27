@@ -1,27 +1,18 @@
 import React, { useEffect } from "react";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+import "./loading.css";
 
 const Loading = () => {
     useEffect(() => {
-        NProgress.start(); // Start the progress bar
-
-        return () => {
-            NProgress.done(); // Cleanup in case the component unmounts
-        };
+        NProgress.start();
+        return () => NProgress.done();
     }, []);
 
     return (
-        <div
-            style={{
-                minHeight: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 9999,
-            }}
-        >
-            <h2>Loading content...</h2>
+        <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <h2 className="loading-text">Preparing your experience...</h2>
         </div>
     );
 };
