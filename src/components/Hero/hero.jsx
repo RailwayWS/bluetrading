@@ -28,11 +28,6 @@ function Hero({ isAdmin }) {
     const [loading, setLoading] = useState(false);
 
     //NO TOUCHY THESE STATES. THEY DO THE SLIDE TRANSITION MAGIC. THEY ARE NOT FOR THE RUBBER MAN
-    // MR WIFE, PLEASE ADD LOADING THINGY
-
-    // THANK YOU
-
-    // bitch <3
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,10 +55,10 @@ function Hero({ isAdmin }) {
             }
         }
         fetchSlides();
-    }, []);
+    }, [isModalOpen]);
 
-    const handleSaveSlides = (updatedSlides, isSubmitting) => {
-        if (!isSubmitting) return;
+    const handleSaveSlides = (updatedSlides) => {
+        console.log("Saving slides");
         const updateSlides = async () => {
             await update_hero_slides({
                 hero_1: updatedSlides[0],
