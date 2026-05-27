@@ -3,28 +3,13 @@ import { useNavigate } from "react-router-dom";
 import heroSlide1 from "../../assets/hero1.webp";
 import heroSlide2 from "../../assets/hero2.webp";
 import EditHeroModal from "../New/editHeroModal.jsx"; // YES I ADDED MORE MODALS :)  bad janus
-import {
-    get_hero_slides,
-    update_hero_slides,
-} from "../../database/front_page_queries.js";
+import { get_hero_slides } from "../../database/front_page_queries.js";
 import "./hero.css";
-import Loading from "../loading/loading.jsx";
-
-const initialSlides = [
-    {
-        sub_title: "",
-        main_title: "",
-    },
-    {
-        sub_title: "",
-        main_title: "",
-    },
-];
 
 const slide_images = [{ image: heroSlide1 }, { image: heroSlide2 }];
 
-function Hero({ isAdmin }) {
-    const [slides, setSlides] = useState(initialSlides); // FOR RUBBER. INITIAL SLIDES IS HARDCODED (SEE ABOVE). IT WANTS TO LIVE IN DB. DOESNT WISH TO LIVE ON FRONTEND.
+function Hero({ isAdmin, slidesData }) {
+    const [slides, setSlides] = useState(slidesData); // FOR RUBBER. INITIAL SLIDES IS HARDCODED (SEE ABOVE). IT WANTS TO LIVE IN DB. DOESNT WISH TO LIVE ON FRONTEND.
     const [loading, setLoading] = useState(false);
 
     //NO TOUCHY THESE STATES. THEY DO THE SLIDE TRANSITION MAGIC. THEY ARE NOT FOR THE RUBBER MAN
@@ -45,18 +30,6 @@ function Hero({ isAdmin }) {
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        async function fetchSlides() {
-            const response = await get_hero_slides();
-            if (response.data) {
-                console.log(response.data);
-                setSlides([response.data.hero_1, response.data.hero_2]);
-                setLoading(false);
-            }
-        }
-        fetchSlides();
-    }, [isModalOpen]);
-
     const handleSaveSlides = (updatedSlides) => {
         console.log("Saving slides");
         const updateSlides = async () => {
@@ -72,7 +45,6 @@ function Hero({ isAdmin }) {
 
     return (
         <>
-            {loading && <Loading />}
             <section className="hero" id="hero-section">
                 {slide_images.map((slide, index) => (
                     <div

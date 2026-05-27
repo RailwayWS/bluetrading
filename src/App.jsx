@@ -11,10 +11,18 @@ import { ProductProvider } from "./Contexts/productContextProvider.jsx";
 import Navbar from "./components/Navbar/navbar.jsx";
 import About from "./components/about/about.jsx";
 import Contact from "./components/contact/contact.jsx";
+import Loading from "./components/loading/loading.jsx";
+import { get_hero_slides } from "./database/front_page_queries.js";
 
 function AppContent() {
     const [isVisible, setIsVisible] = useState(false);
     const { isAdmin, logout } = useAuth();
+
+    const [isAppLoading, setIsAppLoading] = useState(true);
+    const [heroSlides, setHeroSlides] = useState([
+        { sub_title: "", main_title: "" },
+        { sub_title: "", main_title: "" },
+    ]);
 
     const toggleVisibility = () => {
         if (window.pageYOffset > 300) {
@@ -36,9 +44,25 @@ function AppContent() {
     };
 
     useEffect(() => {
+        async function fetchSlides() {
+            const response = await get_hero_slides();
+            if (response.data) {
+                console.log(response.data);
+                setHeroSlides([response.data.hero_1, response.data.hero_2]);
+                setIsAppLoading(false);
+            }
+        }
+        fetchSlides();
+    }, []);
+
+    useEffect(() => {
         window.addEventListener("scroll", toggleVisibility);
         return () => window.removeEventListener("scroll", toggleVisibility);
     }, []);
+
+    if (isAppLoading) {
+        return <Loading />;
+    }
 
     return (
         <div className="app">
@@ -48,7 +72,7 @@ function AppContent() {
                     path="/"
                     element={
                         <>
-                            <Hero isAdmin={isAdmin} />
+                            <Hero isAdmin={isAdmin} slidesData={heroSlides} />
                             <About isAdmin={isAdmin} />
                             <Contact isAdmin={isAdmin} />
                         </>
@@ -74,7 +98,7 @@ function AppContent() {
                 className={`back-to-top ${isVisible ? "back-to-top--visible" : ""}`}
                 aria-label="Back to top"
             >
-                ↑ 
+                ↑
             </button>
         </div>
     );
