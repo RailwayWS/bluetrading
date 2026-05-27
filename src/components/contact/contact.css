@@ -351,3 +351,11 @@
 .contact__address-text {
     white-space: pre-line;
 }
+
+.contact__btn-cancel {
+    margin-right: 10px;
+    background-color: transparent;
+    color: var(--color-primary, #2d6a4f);
+    box-shadow: 0 2px 4px rgba(45, 106, 79, 0.2);
+    border: 1px solid var(--color-primary, #2d6a4f);
+}
