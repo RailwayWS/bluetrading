@@ -72,7 +72,7 @@ function AppContent() {
                     path="/"
                     element={
                         <>
-                            <Hero isAdmin={isAdmin} slidesData={heroSlides} />
+                            <Hero isAdmin={isAdmin} slidesData={heroSlides} setSlides={setHeroSlides} />
                             <About isAdmin={isAdmin} />
                             <Contact isAdmin={isAdmin} />
                         </>

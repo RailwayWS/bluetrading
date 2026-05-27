@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import heroSlide1 from "../../assets/hero1.webp";
 import heroSlide2 from "../../assets/hero2.webp";
 import EditHeroModal from "../New/editHeroModal.jsx"; // YES I ADDED MORE MODALS :)  bad janus
-import { get_hero_slides } from "../../database/front_page_queries.js";
+import { get_hero_slides, update_hero_slides } from "../../database/front_page_queries.js";
 import "./hero.css";
 
 const slide_images = [{ image: heroSlide1 }, { image: heroSlide2 }];
 
 function Hero({ isAdmin, slidesData }) {
     const [slides, setSlides] = useState(slidesData); // FOR RUBBER. INITIAL SLIDES IS HARDCODED (SEE ABOVE). IT WANTS TO LIVE IN DB. DOESNT WISH TO LIVE ON FRONTEND.
-    const [loading, setLoading] = useState(false);
 
     //NO TOUCHY THESE STATES. THEY DO THE SLIDE TRANSITION MAGIC. THEY ARE NOT FOR THE RUBBER MAN
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -18,6 +17,19 @@ function Hero({ isAdmin, slidesData }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        async function fetchSlides() {
+            const response = await get_hero_slides();
+            if (response.data) {
+                console.log(response.data);
+                setSlides([response.data.hero_1, response.data.hero_2]);
+            }
+        }
+        if (isAdmin) {
+            fetchSlides();
+        }
+    }, [isModalOpen, isAdmin]);
+    
     useEffect(() => {
         const interval = setInterval(() => {
             setIsTransitioning(true);
