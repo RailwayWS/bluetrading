@@ -1,17 +1,23 @@
 import React from "react";
-import { useState , useEffect} from "react";
+import { useState, useEffect } from "react";
 import "./about.css";
 import about_img from "../../assets/hero-slide-1.png";
-import { get_about_us, update_about_us, get_stats, update_stats, get_partners, update_partners } from "../../database/front_page_queries";
+import {
+    get_about_us,
+    update_about_us,
+    get_stats,
+    update_stats,
+    get_partners,
+    update_partners,
+} from "../../database/front_page_queries";
 
 const initialAboutContent = {
-    intro : {
+    intro: {
         sub_title: "Who we are",
         main_title: "Reliable solutions, built to last.",
-        body:
-            'Water is the lifeblood of your operation. We specialize in supplying industry-leading irrigation equipment and heavy-duty dam liners ("damsakke") designed to withstand the toughest conditions.\n\nOur goal is simple: to provide the high-quality infrastructure you need to efficiently store, manage, and distribute your water. As dedicated marketers and distributors, we source only the most dependable products on the market.',
+        body: 'Water is the lifeblood of your operation. We specialize in supplying industry-leading irrigation equipment and heavy-duty dam liners ("damsakke") designed to withstand the toughest conditions.\n\nOur goal is simple: to provide the high-quality infrastructure you need to efficiently store, manage, and distribute your water. As dedicated marketers and distributors, we source only the most dependable products on the market.',
     },
-    stats : {
+    stats: {
         stat_1: "500+",
         stat_1_name: "Clients Supplied",
         stat_2: "100%",
@@ -22,7 +28,7 @@ const initialAboutContent = {
     partners: {
         main_title: "Contracted marketers & distributors For",
         partner_1: "Geo-Line Dam Lining Solutions",
-    }
+    },
 };
 
 const About = ({ isAdmin }) => {
@@ -36,7 +42,7 @@ const About = ({ isAdmin }) => {
             const result_about = await get_about_us();
             const result_stats = await get_stats();
             const result_partners = await get_partners();
-            
+
             if (result_about) {
                 console.log("Fetched about content:", result_about.data);
                 setAboutContent(result_about.data);
@@ -78,20 +84,48 @@ const About = ({ isAdmin }) => {
 
     const handleSave = () => {
         const saveContent = async () => {
-            const [aboutResult, statsResult, partnersResult] = await Promise.all([
-                update_about_us(aboutContent),
-                update_stats(stats),
-                update_partners(partners),
-            ]);
+            const [aboutResult, statsResult, partnersResult] =
+                await Promise.all([
+                    update_about_us(aboutContent),
+                    update_stats(stats),
+                    update_partners(partners),
+                ]);
 
-            if (aboutResult.success && statsResult.success && partnersResult.success) {
+            if (
+                aboutResult.success &&
+                statsResult.success &&
+                partnersResult.success
+            ) {
                 alert("About section updated successfully!");
             } else {
                 alert("Failed to update about section");
-            }   
+            }
         };
         saveContent();
         setIsEditing(false);
+    };
+
+    const handleClose = async () => {
+        setIsEditing(false);
+        const fetchAboutContent = async () => {
+            const result_about = await get_about_us();
+            const result_stats = await get_stats();
+            const result_partners = await get_partners();
+
+            if (result_about) {
+                console.log("Fetched about content:", result_about.data);
+                setAboutContent(result_about.data);
+            }
+            if (result_stats) {
+                console.log("Fetched stats:", result_stats.data);
+                setStats(result_stats.data);
+            }
+            if (result_partners) {
+                console.log("Fetched partners:", result_partners.data);
+                setPartners(result_partners.data);
+            }
+        };
+        fetchAboutContent();
     };
 
     return (
@@ -102,6 +136,12 @@ const About = ({ isAdmin }) => {
                         <div className="about__admin-controls">
                             {isEditing ? (
                                 <>
+                                    <button
+                                        className="about__admin-btn about__btn-save"
+                                        onClick={handleClose}
+                                    >
+                                        Cancel
+                                    </button>
                                     <button
                                         className="about__admin-btn about__btn-save"
                                         onClick={handleSave}

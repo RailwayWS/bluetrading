@@ -52,6 +52,14 @@ const Contact = ({ isAdmin }) => {
         setIsEditing(false);
     };
 
+    const handleClose = async () => {
+        setIsEditing(false);
+        const result = await get_contact();
+        if (result) {
+            setContactContent(result.data);
+        }
+    };
+
     return (
         <section id="contact" className="contact">
             <div className="contact__container">
@@ -59,6 +67,13 @@ const Contact = ({ isAdmin }) => {
                     <div>
                         {isEditing ? (
                             <>
+                                <button
+                                    className="contact__admin-btn contact__btn-save"
+                                    onClick={handleClose}
+                                >
+                                    Cancel
+                                </button>
+
                                 <button
                                     className="contact__admin-btn contact__btn-save"
                                     onClick={handleSave}

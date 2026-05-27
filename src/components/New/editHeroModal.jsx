@@ -34,6 +34,13 @@ function EditHeroModal({ initialSlides, onClose, onSave }) {
         }, 600);
     };
 
+    const handleCancel = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            onClose();
+        }, 250);
+    };
+
     return (
         <div className={`add-modal-overlay ${isClosing ? "closing" : ""}`}>
             <div className="add-modal-content">
@@ -98,7 +105,7 @@ function EditHeroModal({ initialSlides, onClose, onSave }) {
                         <button
                             type="button"
                             className="btn-cancel"
-                            onClick={handleClose}
+                            onClick={handleCancel}
                         >
                             Cancel
                         </button>
