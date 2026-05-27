@@ -8,15 +8,16 @@ import {
     update_hero_slides,
 } from "../../database/front_page_queries.js";
 import "./hero.css";
+import Loading from "../loading/loading.jsx";
 
 const initialSlides = [
     {
-        sub_title: "TRUSTED FARMING PARTNER",
-        main_title: "Irrigation & Dam\nSolutions",
+        sub_title: "",
+        main_title: "",
     },
     {
-        sub_title: "BEST AGRICULTURAL EQUIPMENT",
-        main_title: "Quality Agricultural\nFarming Equipment",
+        sub_title: "",
+        main_title: "",
     },
 ];
 
@@ -24,7 +25,7 @@ const slide_images = [{ image: heroSlide1 }, { image: heroSlide2 }];
 
 function Hero({ isAdmin }) {
     const [slides, setSlides] = useState(initialSlides); // FOR RUBBER. INITIAL SLIDES IS HARDCODED (SEE ABOVE). IT WANTS TO LIVE IN DB. DOESNT WISH TO LIVE ON FRONTEND.
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     //NO TOUCHY THESE STATES. THEY DO THE SLIDE TRANSITION MAGIC. THEY ARE NOT FOR THE RUBBER MAN
     // MR WIFE, PLEASE ADD LOADING THINGY
@@ -75,83 +76,80 @@ function Hero({ isAdmin }) {
     };
 
     return (
-        <div>
-            {loading ? (
-                <div className="hero__loading">Loading...</div>
-            ) : (
-                <section className="hero" id="hero-section">
-                    {slide_images.map((slide, index) => (
-                        <div
+        <>
+            {loading && <Loading />}
+            <section className="hero" id="hero-section">
+                {slide_images.map((slide, index) => (
+                    <div
+                        key={index}
+                        className={`hero__slide ${index === currentSlide ? "hero__slide--active" : ""} ${isTransitioning && index === currentSlide ? "hero__slide--exiting" : ""}`}
+                        style={{ backgroundImage: `url(${slide.image})` }}
+                    />
+                ))}
+
+                <div className="hero__overlay" />
+
+                <div
+                    className={`hero__content ${isTransitioning ? "hero__content--fading" : ""}`}
+                >
+                    <span className="hero__subtitle">
+                        {slides[currentSlide].sub_title}
+                    </span>
+                    <h1 className="hero__title">
+                        {slides[currentSlide].main_title
+                            .split("\n")
+                            .map((line, i) => (
+                                <span key={i}>
+                                    {line}
+                                    {i === 0 && <br />}
+                                </span>
+                            ))}
+                    </h1>
+                    <button
+                        className="hero__cta"
+                        onClick={() => navigate("/products")}
+                    >
+                        View Products
+                    </button>
+                    {isAdmin && (
+                        <button
+                            className="hero__admin-edit-btn"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Edit Hero Section
+                        </button>
+                    )}
+                </div>
+
+                <div className="hero__indicators">
+                    {slides.map((_, index) => (
+                        <button
                             key={index}
-                            className={`hero__slide ${index === currentSlide ? "hero__slide--active" : ""} ${isTransitioning && index === currentSlide ? "hero__slide--exiting" : ""}`}
-                            style={{ backgroundImage: `url(${slide.image})` }}
+                            className={`hero__indicator ${index === currentSlide ? "hero__indicator--active" : ""}`}
+                            onClick={() => {
+                                setIsTransitioning(true);
+                                setTimeout(() => {
+                                    setCurrentSlide(index);
+                                    setIsTransitioning(false);
+                                }, 400);
+                            }}
+                            aria-label={`Go to slide ${index + 1}`}
                         />
                     ))}
-
-                    <div className="hero__overlay" />
-
-                    <div
-                        className={`hero__content ${isTransitioning ? "hero__content--fading" : ""}`}
-                    >
-                        <span className="hero__subtitle">
-                            {slides[currentSlide].sub_title}
-                        </span>
-                        <h1 className="hero__title">
-                            {slides[currentSlide].main_title
-                                .split("\n")
-                                .map((line, i) => (
-                                    <span key={i}>
-                                        {line}
-                                        {i === 0 && <br />}
-                                    </span>
-                                ))}
-                        </h1>
-                        <button
-                            className="hero__cta"
-                            onClick={() => navigate("/products")}
-                        >
-                            View Products
-                        </button>
-                        {isAdmin && (
-                            <button
-                                className="hero__admin-edit-btn"
-                                onClick={() => setIsModalOpen(true)}
-                            >
-                                Edit Hero Section
-                            </button>
-                        )}
-                    </div>
-
-                    <div className="hero__indicators">
-                        {slides.map((_, index) => (
-                            <button
-                                key={index}
-                                className={`hero__indicator ${index === currentSlide ? "hero__indicator--active" : ""}`}
-                                onClick={() => {
-                                    setIsTransitioning(true);
-                                    setTimeout(() => {
-                                        setCurrentSlide(index);
-                                        setIsTransitioning(false);
-                                    }, 400);
-                                }}
-                                aria-label={`Go to slide ${index + 1}`}
-                            />
-                        ))}
-                    </div>
-                    {isModalOpen && (
-                        <EditHeroModal
-                            initialSlides={slides}
-                            onClose={() => setIsModalOpen(false)}
-                            onSave={handleSaveSlides}
-                            onCancel={() => {
-                                setIsModalOpen(false);
-                                handleCancel();
-                            }}
-                        />
-                    )}
-                </section>
-            )}
-        </div>
+                </div>
+                {isModalOpen && (
+                    <EditHeroModal
+                        initialSlides={slides}
+                        onClose={() => setIsModalOpen(false)}
+                        onSave={handleSaveSlides}
+                        onCancel={() => {
+                            setIsModalOpen(false);
+                            handleCancel();
+                        }}
+                    />
+                )}
+            </section>
+        </>
     );
 }
 
