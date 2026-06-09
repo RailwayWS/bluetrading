@@ -53,7 +53,7 @@ function Details({ isAdmin }) {
     const { products, loadingProducts, setCurrentFilters } = useProduct();
     const [activeVariant, setActiveVariant] = useState(null);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-    
+
     //close lightbox on Escape key press
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -173,6 +173,9 @@ function Details({ isAdmin }) {
 
     const hasVariants =
         product.variants && Object.keys(product.variants).length > 0;
+
+    const hasAdditionalInfo = 
+        product.additionalInfo && Object.keys(product.additionalInfo).length > 0;
 
     return (
         <div className="details">
@@ -321,12 +324,14 @@ function Details({ isAdmin }) {
                         >
                             Description
                         </button>
-                        <button
-                            className={`details__tab ${activeTab === "additional" ? "details__tab--active" : ""}`}
-                            onClick={() => setActiveTab("additional")}
-                        >
-                            Additional Information
-                        </button>
+                        {hasAdditionalInfo && (
+                            <button
+                                className={`details__tab ${activeTab === "additional" ? "details__tab--active" : ""}`}
+                                onClick={() => setActiveTab("additional")}
+                            >
+                                Additional Information
+                            </button>
+                        )}
                     </div>
 
                     <div className="details__tab-content">
