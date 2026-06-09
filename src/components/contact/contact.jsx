@@ -17,6 +17,7 @@ const initialContactContent = {
 const Contact = ({ isAdmin }) => {
     const [contactContent, setContactContent] = useState(initialContactContent);
     const [isEditing, setIsEditing] = useState(false);
+    const [formResult, setFormResult] = useState("");
 
     const { loading } = useAuth();
     useEffect(() => {
@@ -61,6 +62,38 @@ const Contact = ({ isAdmin }) => {
         const result = await get_contact();
         if (result) {
             setContactContent(result.data);
+        }
+    };
+
+    //web3forms stuff
+    const onSubmit = async (event) => {
+        event.preventDefault();
+        setFormResult("Sending...");
+        
+        const formData = new FormData(event.target);
+        formData.append("access_key", "32a22725-789f-44cb-a209-759936a28d28");
+
+        try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                setFormResult("Form Submitted Successfully!");
+                event.target.reset(); // Clear the form
+                
+                // Optional: Clear the success message after 5 seconds
+                setTimeout(() => setFormResult(""), 5000);
+            } else {
+                console.error("Form error:", data);
+                setFormResult("Error sending message. Please try again.");
+            }
+        } catch (error) {
+            console.error("Submission failed:", error);
+            setFormResult("Error sending message. Please try again.");
         }
     };
 
@@ -266,7 +299,7 @@ const Contact = ({ isAdmin }) => {
                     <div className="contact__form-wrapper">
                         <form
                             className="contact__form"
-                            onSubmit={(e) => e.preventDefault()}
+                            onSubmit={onSubmit}
                         >
                             <div className="form__row">
                                 <div className="form__group">
@@ -279,6 +312,7 @@ const Contact = ({ isAdmin }) => {
                                     <input
                                         type="text"
                                         id="name"
+                                        name="name" 
                                         className="form__input"
                                         placeholder="John Doe"
                                         required
@@ -294,6 +328,7 @@ const Contact = ({ isAdmin }) => {
                                     <input
                                         type="email"
                                         id="email"
+                                        name="email"
                                         className="form__input"
                                         placeholder="john@farm.co.za"
                                         required
@@ -311,6 +346,7 @@ const Contact = ({ isAdmin }) => {
                                 <input
                                     type="text"
                                     id="subject"
+                                    name="subject"
                                     className="form__input"
                                     placeholder="E.g., Quote for 500m Dam Liner"
                                     required
@@ -326,6 +362,7 @@ const Contact = ({ isAdmin }) => {
                                 </label>
                                 <textarea
                                     id="message"
+                                    name="message"
                                     className="form__textarea"
                                     placeholder="Tell us about your project requirements..."
                                     required
@@ -335,9 +372,22 @@ const Contact = ({ isAdmin }) => {
                             <button
                                 type="submit"
                                 className="contact__submit-btn"
+                                disabled={formResult === "Sending..."}
                             >
-                                Send Message
+                                {formResult === "Sending..." ? "Sending..." : "Send Message"}
                             </button>
+                            
+                            {formResult && formResult !== "Sending..." && (
+                                <div style={{ 
+                                    marginTop: "15px", 
+                                    fontSize: "0.95rem", 
+                                    fontWeight: "600",
+                                    color: formResult.includes("Error") ? "#e53e3e" : "#2D6A4F",
+                                    textAlign: "center"
+                                }}>
+                                    {formResult}
+                                </div>
+                            )}
                         </form>
                     </div>
                 </div>
