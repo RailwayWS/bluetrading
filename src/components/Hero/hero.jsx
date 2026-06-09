@@ -5,7 +5,7 @@ import heroSlide2 from "../../assets/hero2.webp";
 import EditHeroModal from "../New/editHeroModal.jsx"; // YES I ADDED MORE MODALS :)  bad janus
 import { get_hero_slides, update_hero_slides } from "../../database/front_page_queries.js";
 import "./hero.css";
-import { useAuth } from "../../Contexts/authContextProvider.jsx";
+// import { useAuth } from "../../Contexts/authContextProvider.jsx";
 
 const slide_images = [{ image: heroSlide1 }, { image: heroSlide2 }];
 
@@ -18,7 +18,7 @@ function Hero({ isAdmin, slidesData }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    const { loading } = useAuth();
+    // const { loading } = useAuth();
 
     useEffect(() => {
         async function fetchSlides() {
