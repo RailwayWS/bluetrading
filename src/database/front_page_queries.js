@@ -5,7 +5,9 @@ import {
     setDoc,
 } from "firebase/firestore";
 
+
 async function get_home_page_document(documentId) {
+
     try {
         const documentRef = doc(db, "home_page", documentId);
         const documentSnapshot = await getDoc(documentRef);

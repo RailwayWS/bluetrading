@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 // import {process} from "process";
@@ -45,5 +45,15 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Cloud Firestore and get a reference to the service
 export const auth = getAuth(app);
+
+setPersistence(auth, browserSessionPersistence)
+    .then(() => {
+        // Persistence is now set to session. 
+        // Your subsequent signInAnonymously(auth) calls will work in Incognito.
+    })
+    .catch((error) => {
+        console.error("Auth persistence failed to set:", error);
+    });
+
 export const db = getFirestore(app);
 export const storage = getStorage(app);

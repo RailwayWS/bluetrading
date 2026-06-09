@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import "./contact.css";
 import { get_contact, update_contact } from "../../database/front_page_queries";
+import { useAuth } from "../../Contexts/authContext.js";
 
 const initialContactContent = {
     top_title: "Get In Touch",
@@ -17,6 +18,7 @@ const Contact = ({ isAdmin }) => {
     const [contactContent, setContactContent] = useState(initialContactContent);
     const [isEditing, setIsEditing] = useState(false);
 
+    const { loading } = useAuth();
     useEffect(() => {
         const fetchContactContent = async () => {
             const result = await get_contact();
@@ -27,8 +29,10 @@ const Contact = ({ isAdmin }) => {
             }
         };
 
-        fetchContactContent();
-    }, []);
+        if (!loading) {
+            fetchContactContent();
+        }
+    }, [loading]);
 
     const handleContactContentChange = (field, value) => {
         setContactContent((prev) => ({

@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
                 setLoading(false);   
             } else {
                 setIsAdmin(false);
-
+                console.log("No user is signed in, signing in anonymously...");
                 signInAnonymously(auth).then(() => {
                     console.log("Signed in anonymously");
                     setLoading(false);

@@ -12,6 +12,7 @@ import {
 } from "../../database/front_page_queries";
 
 import AboutImg from "../../assets/AboutImg.png";
+import { useAuth } from "../../Contexts/authContext.js";
 
 const initialAboutContent = {
     intro: {
@@ -39,6 +40,8 @@ const About = ({ isAdmin }) => {
     const [stats, setStats] = useState(initialAboutContent.stats);
     const [partners, setPartners] = useState(initialAboutContent.partners);
 
+    const { loading } = useAuth();
+
     useEffect(() => {
         const fetchAboutContent = async () => {
             const result_about = await get_about_us();
@@ -58,8 +61,11 @@ const About = ({ isAdmin }) => {
                 setPartners(result_partners.data);
             }
         };
-        fetchAboutContent();
-    }, []);
+        if (!loading) {
+            fetchAboutContent();
+        }
+        
+    }, [loading]);
 
     const handleAboutContentChange = (documentName, field, value) => {
         if (documentName === "about_us") {
