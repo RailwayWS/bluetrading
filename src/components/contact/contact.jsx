@@ -303,6 +303,8 @@ const Contact = ({ isAdmin }) => {
                         >
                             <div className="form__row">
                                 <div className="form__group">
+                                    {/* Web3Forms Spam Honeypot - Bots will fill this out, humans won't see it */}
+                                    <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} />
                                     <label
                                         htmlFor="name"
                                         className="form__label"
