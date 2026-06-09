@@ -177,6 +177,14 @@ function Details({ isAdmin }) {
     const hasAdditionalInfo = 
         product.additionalInfo && Object.keys(product.additionalInfo).length > 0;
 
+    const sortedVariants = hasVariants
+        ? Object.entries(product.variants).sort(([keyA], [keyB]) => {
+              const numA = parseInt(keyA.replace(/,/g, ''), 10) || 0;
+              const numB = parseInt(keyB.replace(/,/g, ''), 10) || 0;
+              return numA - numB;
+          })
+        : [];
+
     return (
         <div className="details">
             <PopupContainer popups={popups} removePopup={removePopup} />
@@ -226,7 +234,7 @@ function Details({ isAdmin }) {
                                     Select Option:
                                 </span>
                                 <div className="details__variants-pills">
-                                    {Object.entries(product.variants).map(
+                                    {sortedVariants.map(
                                         ([key, value]) => (
                                             <button
                                                 key={key}

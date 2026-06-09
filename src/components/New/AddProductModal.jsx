@@ -61,10 +61,18 @@ export default function AddProductModal({
     //additional fields
     const [variants, setVariants] = useState(
         productToEdit?.variants
-            ? Object.entries(productToEdit.variants).map(([key, value]) => ({
-                  key,
-                  value,
-              }))
+            ? Object.entries(productToEdit.variants)
+
+                  .sort(([keyA], [keyB]) => {
+                      const numA = parseInt(keyA.replace(/,/g, ''), 10) || 0;
+                      const numB = parseInt(keyB.replace(/,/g, ''), 10) || 0;
+                      return numA - numB;
+                  })
+
+                  .map(([key, value]) => ({
+                      key,
+                      value,
+                  }))
             : [],
     );
     const [features, setFeatures] = useState(productToEdit?.features || []);
@@ -328,30 +336,7 @@ export default function AddProductModal({
                         </div>
                     )}
 
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label>Product Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-                        {selectType === "single" && (
-                            <div className="form-group">
-                                <label>Price</label>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    value={formData.price}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                        )}
-                    </div>
+                    
 
                     <div className="form-row">
                         <div className="form-group">
@@ -474,6 +459,30 @@ export default function AddProductModal({
                         </div>
                     </div>
 
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label>Product Name</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        {selectType === "single" && (
+                            <div className="form-group">
+                                <label>Price (optional)</label>
+                                <input
+                                    type="number"
+                                    name="price"
+                                    value={formData.price}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     {selectType === "variants" && (
                         <div className="form-section">
                             <label className="section-label">Variants</label>
@@ -501,7 +510,7 @@ export default function AddProductModal({
                                                 e.target.value,
                                             )
                                         }
-                                        placeholder="Item Price"
+                                        placeholder="Item Price (optional)"
                                     />
                                     <button
                                         type="button"

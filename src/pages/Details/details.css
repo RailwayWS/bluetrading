@@ -502,12 +502,12 @@
 }
 
 .details__variant-pill {
-    padding: 8px 16px;
+    padding: 6px 10px;
     border-radius: 50px; /* Makes it a pill shape */
     border: 2px solid #ddd;
     background-color: transparent;
     color: #333;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
