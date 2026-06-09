@@ -71,7 +71,7 @@ const Contact = ({ isAdmin }) => {
         setFormResult("Sending...");
         
         const formData = new FormData(event.target);
-        formData.append("access_key", "32a22725-789f-44cb-a209-759936a28d28");
+        formData.append("access_key", "15df6873-ac63-4fb0-b961-dc1859129216");
 
         try {
             const response = await fetch("https://api.web3forms.com/submit", {
