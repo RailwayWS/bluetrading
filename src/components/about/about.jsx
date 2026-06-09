@@ -11,6 +11,8 @@ import {
     update_partners,
 } from "../../database/front_page_queries";
 
+import AboutImg from "../../assets/AboutImg.png";
+
 const initialAboutContent = {
     intro: {
         sub_title: "Who we are",
@@ -301,7 +303,7 @@ const About = ({ isAdmin }) => {
                 <div className="about__visual">
                     <div className="about__image-wrapper">
                         <img
-                            src={about_img}
+                            src={AboutImg}
                             alt="Modern office workspace"
                             className="about__image"
                         />

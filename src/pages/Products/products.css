@@ -278,9 +278,12 @@
 }
 
 .product-card__image {
-    width: 80%;
-    height: 100%;
+    max-width: 80%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
+    border-radius: 12px;
     transition: transform var(--transition-normal);
 }
 

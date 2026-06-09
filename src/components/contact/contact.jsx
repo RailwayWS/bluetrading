@@ -166,7 +166,7 @@ const Contact = ({ isAdmin }) => {
                             <div className="contact__details">
                                 <h3>Call Us</h3>
                                 {isEditing ? (
-                                    <input
+                                    <textarea
                                         className="contact__editable-field"
                                         value={contactContent.phone_number}
                                         onChange={(e) =>
@@ -177,7 +177,7 @@ const Contact = ({ isAdmin }) => {
                                         }
                                     />
                                 ) : (
-                                    <p>{contactContent.phone_number}</p>
+                                    <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{contactContent.phone_number}</p>
                                 )}
                             </div>
                         </div>
