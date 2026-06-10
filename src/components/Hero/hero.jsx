@@ -1,134 +1,154 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import heroSlide1 from "../../assets/hero1.webp";
-import heroSlide2 from "../../assets/hero2.webp";
-import EditHeroModal from "../New/editHeroModal.jsx"; // YES I ADDED MORE MODALS :)  bad janus
-import { get_hero_slides, update_hero_slides } from "../../database/front_page_queries.js";
+import heroSlide1 from "../../assets/hero2.webp";
+import {
+  get_hero_slides,
+  update_hero_slides,
+} from "../../database/front_page_queries.js";
 import "./hero.css";
-// import { useAuth } from "../../Contexts/authContextProvider.jsx";
-
-const slide_images = [{ image: heroSlide1 }, { image: heroSlide2 }];
+import { useAuth } from "../../Contexts/authContext.js";
 
 function Hero({ isAdmin, slidesData }) {
-    const [slides, setSlides] = useState(slidesData); // FOR RUBBER. INITIAL SLIDES IS HARDCODED (SEE ABOVE). IT WANTS TO LIVE IN DB. DOESNT WISH TO LIVE ON FRONTEND.
+  const [slide, setSlide] = useState(
+    slidesData[0] || { sub_title: "", main_title: "" },
+  );
+  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
-    //NO TOUCHY THESE STATES. THEY DO THE SLIDE TRANSITION MAGIC. THEY ARE NOT FOR THE RUBBER MAN
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [isTransitioning, setIsTransitioning] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const navigate = useNavigate();
+  const { loading } = useAuth();
 
-    // const { loading } = useAuth();
+  useEffect(() => {
+    async function fetchSlide() {
+      const response = await get_hero_slides();
+      if (response) {
+        setSlide(response.data.hero_1);
+      }
+    }
+    if (!loading) {
+      fetchSlide();
+    }
+  }, [loading]);
 
-    useEffect(() => {
-        async function fetchSlides() {
-            const response = await get_hero_slides();
-            if (response.data) {
-                console.log(response.data);
-                setSlides([response.data.hero_1, response.data.hero_2]);
-            }
-        }
-        if (isAdmin) {
-            fetchSlides();
-        }
-    }, [isModalOpen, isAdmin]);
-    
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setIsTransitioning(true);
-            setTimeout(() => {
-                setCurrentSlide((prev) => (prev + 1) % slides.length);
-                setIsTransitioning(false);
-            }, 800);
-        }, 8000);
+  const handleSlideChange = (field, value) => {
+    setSlide((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-        return () => clearInterval(interval);
-    }, []);
+  const handleSave = async () => {
+    const updatedSlide = async () => {
+      const result = await update_hero_slides({ hero_1: slide });
 
-    const handleSaveSlides = (updatedSlides) => {
-        console.log("Saving slides");
-        const updateSlides = async () => {
-            await update_hero_slides({
-                hero_1: updatedSlides[0],
-                hero_2: updatedSlides[1],
-            });
-        };
-        updateSlides();
-        setSlides(updatedSlides);
-        setCurrentSlide(0); // reset to first slide
+      if (result.success || result.success === undefined) {
+        alert("Hero section updated successfully!");
+      } else {
+        alert("Failed to update hero section.");
+      }
     };
 
-    return (
-        <>
-            <section className="hero" id="hero-section">
-                {slide_images.map((slide, index) => (
-                    <div
-                        key={index}
-                        className={`hero__slide ${index === currentSlide ? "hero__slide--active" : ""} ${isTransitioning && index === currentSlide ? "hero__slide--exiting" : ""}`}
-                        style={{ backgroundImage: `url(${slide.image})` }}
-                    />
-                ))}
+    updatedSlide();
+    setIsEditing(false);
+  };
 
-                <div className="hero__overlay" />
+  const handleClose = async () => {
+    setIsEditing(false);
+    const response = await get_hero_slides();
+    if (response) {
+      setSlide(response.data.hero_1);
+    }
+  };
 
-                <div
-                    className={`hero__content ${isTransitioning ? "hero__content--fading" : ""}`}
-                >
-                    <span className="hero__subtitle">
-                        {slides[currentSlide].sub_title}
-                    </span>
-                    <h1 className="hero__title">
-                        {slides[currentSlide].main_title
-                            .split("\n")
-                            .map((line, i) => (
-                                <span key={i}>
-                                    {line}
-                                    {i === 0 && <br />}
-                                </span>
-                            ))}
-                    </h1>
-                    <button
-                        className="hero__cta"
-                        onClick={() => navigate("/products")}
-                    >
-                        View Products
-                    </button>
-                    {isAdmin && (
-                        <button
-                            className="hero__admin-edit-btn"
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            Edit Hero Section
-                        </button>
-                    )}
-                </div>
+  return (
+    <section className="hero" id="hero-section">
+      <div
+        className="hero__slide hero__slide--active"
+        style={{ backgroundImage: `url(${heroSlide1})` }}
+      />
 
-                <div className="hero__indicators">
-                    {slides.map((_, index) => (
-                        <button
-                            key={index}
-                            className={`hero__indicator ${index === currentSlide ? "hero__indicator--active" : ""}`}
-                            onClick={() => {
-                                setIsTransitioning(true);
-                                setTimeout(() => {
-                                    setCurrentSlide(index);
-                                    setIsTransitioning(false);
-                                }, 400);
-                            }}
-                            aria-label={`Go to slide ${index + 1}`}
-                        />
-                    ))}
-                </div>
-                {isModalOpen && (
-                    <EditHeroModal
-                        initialSlides={slides}
-                        onClose={() => setIsModalOpen(false)}
-                        onSave={handleSaveSlides}
-                    />
-                )}
-            </section>
-        </>
-    );
+      <div className="hero__overlay" />
+
+      {/* Admin Controls */}
+      {isAdmin && (
+        <div className="hero__admin-controls">
+          {isEditing ? (
+            <>
+              <button
+                className="contact__admin-btn contact__btn-cancel"
+                onClick={handleClose}
+              >
+                Cancel
+              </button>
+              <button
+                className="contact__admin-btn contact__btn-save"
+                onClick={handleSave}
+              >
+                Save Changes
+              </button>
+            </>
+          ) : (
+            <button
+              className="contact__admin-btn hero__btn-edit"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit Hero Section
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="hero__content">
+        {/* Subtitle */}
+        {isEditing ? (
+          <input
+            className="contact__editable-field hero__subtitle-edit"
+            value={slide.sub_title}
+            onChange={(e) => handleSlideChange("sub_title", e.target.value)}
+            placeholder="e.g. TRUSTED FARMING PARTNER"
+          />
+        ) : (
+          <span className="hero__subtitle">{slide.sub_title}</span>
+        )}
+
+        {/* Main Title */}
+        {isEditing ? (
+          <>
+            <textarea
+              className="contact__editable-field hero__title-edit"
+              value={slide.main_title}
+              onChange={(e) => handleSlideChange("main_title", e.target.value)}
+              rows={3}
+              placeholder="e.g. Irrigation & Dam\nSolutions"
+            />
+            <small
+              style={{
+                color: "rgba(255,255,255,0.7)",
+                display: "block",
+                marginTop: "-20px",
+                marginBottom: "30px",
+                letterSpacing: "1px",
+              }}
+            >
+              Press Enter to create a line break in the text.
+            </small>
+          </>
+        ) : (
+          <h1 className="hero__title">
+            {slide.main_title.split("\n").map((line, i) => (
+              <span key={i}>
+                {line}
+                {i === 0 && <br />}
+              </span>
+            ))}
+          </h1>
+        )}
+
+        <button className="hero__cta" onClick={() => navigate("/products")}>
+          View Products
+        </button>
+      </div>
+    </section>
+  );
 }
 
 export default Hero;
