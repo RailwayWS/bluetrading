@@ -6,6 +6,7 @@ import { backfillSearchTerms } from "../database/searchTermsHelper";
 import { resolveImageUrl, delete_image } from "../database/image_queries";
 import { db } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { useAuth } from "./authContext";
 
 export function ProductProvider({ children }) {
     const [products, setProducts] = useState([]);
@@ -23,12 +24,17 @@ export function ProductProvider({ children }) {
     const loadingProductsRef = useRef(true);
     const amountToLoad = 6;
 
+    const { loadingAuth } = useAuth();
+
     useEffect(() => {
+        if (loadingAuth) return; // Wait for auth to finish loading before initializing categories
+
         async function initializeCategories() {
             try {
                 // Run once on app startup to backfill any missing search terms
+                // mostly pointless, but might as well
+
                 await backfillSearchTerms();
-                
                 // Then sync categories
                 // await syncMissingCategories();
             } catch (e) {
@@ -39,9 +45,11 @@ export function ProductProvider({ children }) {
             setAllCategories(categories);
         }
         initializeCategories();
-    }, []);
+    }, [loadingAuth]);
 
     useEffect(() => {
+        if (loadingAuth) return;
+
         async function fetchProducts() {
             setLoadingProducts(true);
             loadingProductsRef.current = true;
@@ -62,7 +70,7 @@ export function ProductProvider({ children }) {
         }
 
         fetchProducts();
-    }, [currentFilters]);
+    }, [currentFilters, loadingAuth]);
 
     const loadMoreProducts = useCallback(async (pageSize = 1) => {
         if (

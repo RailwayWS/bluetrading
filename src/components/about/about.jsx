@@ -40,7 +40,7 @@ const About = ({ isAdmin }) => {
     const [stats, setStats] = useState(initialAboutContent.stats);
     const [partners, setPartners] = useState(initialAboutContent.partners);
 
-    const { loading } = useAuth();
+    const { loadingAuth } = useAuth();
 
     useEffect(() => {
         const fetchAboutContent = async () => {
@@ -61,11 +61,11 @@ const About = ({ isAdmin }) => {
                 setPartners(result_partners.data);
             }
         };
-        if (!loading) {
+        if (!loadingAuth) {
             fetchAboutContent();
         }
         
-    }, [loading]);
+    }, [loadingAuth]);
 
     const handleAboutContentChange = (documentName, field, value) => {
         if (documentName === "about_us") {

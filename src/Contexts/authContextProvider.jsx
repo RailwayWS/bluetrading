@@ -5,7 +5,7 @@ import { AuthContext } from "./authContext";
 export function AuthProvider({ children }) {
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAnon, setIsAnon] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loadingAuth, setLoading] = useState(true);
 
 
     useEffect(() => {
@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ isAdmin, loading, setLoading, logout, isAnon }}>
+        <AuthContext.Provider value={{ isAdmin, loading: loadingAuth, setLoading, logout, isAnon }}>
             {children}
         </AuthContext.Provider>
     );

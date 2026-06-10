@@ -16,7 +16,7 @@ import { get_hero_slides } from "./database/front_page_queries.js";
 
 function AppContent() {
     const [isVisible, setIsVisible] = useState(false);
-    const { isAdmin, logout, loading } = useAuth();
+    const { isAdmin, logout, loadingAuth } = useAuth();
 
     const [isAppLoading, setIsAppLoading] = useState(true);
     const [heroSlides, setHeroSlides] = useState([
@@ -52,10 +52,10 @@ function AppContent() {
                 setIsAppLoading(false);
             }
         }
-        if (!loading) {
+        if (!loadingAuth) {
             fetchSlides();
         }
-    }, [loading]);
+    }, [loadingAuth]);
 
     useEffect(() => {
         window.addEventListener("scroll", toggleVisibility);
