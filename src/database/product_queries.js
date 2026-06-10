@@ -5,6 +5,7 @@ import {
     getDocs,
     getDoc,
     addDoc,
+    updateDoc,
     deleteDoc,
     query,
     where,
@@ -76,7 +77,7 @@ export async function edit_product(productId, product) {
         const productRef = doc(db, "products", productId);
         const searchTerms = generateSearchTerms(product.name);
         
-        await setDoc(productRef, {
+        await updateDoc(productRef, {
             name: product.name,
             price: product.price,
             description: product.description,

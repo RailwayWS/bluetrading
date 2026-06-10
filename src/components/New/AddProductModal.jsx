@@ -259,7 +259,6 @@ export default function AddProductModal({
                     }
                 }
 
-
                 await editProduct(productToEdit.id, updatedProduct);
                 if (showPopup)
                     showPopup("success", "Product updated successfully!");
