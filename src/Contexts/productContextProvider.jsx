@@ -199,6 +199,7 @@ export function ProductProvider({ children }) {
                         return updated;
                     });
                     } else if (result.removedSubcategory) {
+                        console.log("Subcategory removed, updating allCategories...");
                         setAllCategories((prev) => {
                             const updated = { ...prev };
                             if (updated[oldProduct.category]) {
@@ -210,7 +211,9 @@ export function ProductProvider({ children }) {
                 });
             }
 
-            if (!(updatedData.subcategory in allCategories[updatedData.category])) {
+            if (!allCategories[updatedData.category].includes(updatedData.subcategory)) {
+                console.log(`Subcategory ${updatedData.subcategory} not found in allCategories for category ${allCategories[updatedData.category]}, adding it...`);
+
                 add_category(updatedData.category, updatedData.subcategory).then(() => {
                     setAllCategories((prev) => ({
                         ...prev,

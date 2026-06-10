@@ -245,10 +245,12 @@ export default function AddProductModal({
                     const oldImage = productToEdit.image || "";
                     const newImage = formData.image;
                     const newImageUrl = await add_image(newImage);
-                    await add_category(
-                        updatedProduct.category,
-                        updatedProduct.subcategory,
-                    );
+                    if (productToEdit.category !== updatedProduct.category) {
+                        await add_category(
+                            updatedProduct.category,
+                            updatedProduct.subcategory,
+                        );
+                    }
 
                     if (newImageUrl) {
                         updatedProduct.image = newImage.name;
