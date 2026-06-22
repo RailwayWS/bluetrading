@@ -5,7 +5,7 @@ import { AuthContext } from "./authContext";
 export function AuthProvider({ children }) {
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAnon, setIsAnon] = useState(false);
-    const [loadingAuth, setLoading] = useState(true);
+    const [loadingAuth, setLoadingAuth] = useState(true);
 
 
     useEffect(() => {
@@ -17,19 +17,20 @@ export function AuthProvider({ children }) {
                     console.log("User is signed in:", user);
                     setIsAdmin(true);
                     setIsAnon(false);
+                    setLoadingAuth(false);
                 }
                 if (user.isAnonymous) {
                     console.log("User is signed in anonymously:", user);
                     setIsAnon(true);
                     setIsAdmin(false);
+                    setLoadingAuth(false);
                 }
-                setLoading(false);   
             } else {
                 setIsAdmin(false);
                 console.log("No user is signed in, signing in anonymously...");
                 signInAnonymously(auth).then(() => {
                     console.log("Signed in anonymously");
-                    setLoading(false);
+                    setLoadingAuth(false);
                     setIsAnon(true);
                 }).catch((error) => {
                     console.error("Error signing in anonymously:", error);
@@ -51,7 +52,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ isAdmin, loading: loadingAuth, setLoading, logout, isAnon }}>
+        <AuthContext.Provider value={{ isAdmin, loadingAuth, logout, isAnon }}>
             {children}
         </AuthContext.Provider>
     );
