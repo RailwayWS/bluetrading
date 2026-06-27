@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sign_in } from "../../database/auth_queries.js";
-import { useAuth } from "../../Contexts/authContext.js";
+// import { useAuth } from "../../Contexts/authContext.js";
 import "./login.css";
 import bgImage from "../../assets/hero2.webp";
 
@@ -12,7 +12,8 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
 
-    const { loading, setLoading } = useAuth();
+    const [loading, setLoading] = useState(false);
+    // const { loading, setLoading } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,7 +22,7 @@ export default function Login() {
 
         try {
             const result = await sign_in(email, password);
-            
+
             if (result.success) {
                 navigate("/");
             } else {
