@@ -10,3 +10,14 @@ Contracted marketers & distributors For Geo line - this part must be added
 
 https://www.huskyportable.com/
 https://oneclarion.com/
+
+
+
+
+font change
+hero images and about images change
+collage in home page
+add a warning when no pic is added for adding products
+when about isi clicked must scroll down to about (click on about when in products)
+more emails in cintact us section just like phone numbers
+cellphone number field in contct us on the right
