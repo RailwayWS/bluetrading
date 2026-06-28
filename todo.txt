@@ -14,11 +14,14 @@ https://oneclarion.com/
 
 
 
-font change
+font change (client will send font)
 hero images and about images change (client will send pics)
-collage in home page
-add a warning when no pic is added for adding products
-when about isi clicked must scroll down to about (click on about when in products)
+collage in home page (client will send pics)
+
+display variants short description in details
+Dont display price when its 0
+
 more emails in cintact us section just like phone numbers
 cellphone number field in contct us on the right
+
 new about page - change current about to what we do and new about to who we are (this new page must also be editable)

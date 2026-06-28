@@ -31,7 +31,6 @@ export default function AddProductModal({
     );
     const { allCategories, editProduct } = useProduct();
 
-
     const handleTypeChange = (e) => {
         setSelectType(e.target.value);
     };
@@ -57,21 +56,21 @@ export default function AddProductModal({
 
     const [imagePreview, setImagePreview] = useState(null);
     const maxImageSize = 1 * 1024 * 1024; // 1MB
+    const [imageError, setImageError] = useState("");
 
     //additional fields
     const [variants, setVariants] = useState(
         productToEdit?.variants
             ? Object.entries(productToEdit.variants)
-
                   .sort(([keyA], [keyB]) => {
-                      const numA = parseInt(keyA.replace(/,/g, ''), 10) || 0;
-                      const numB = parseInt(keyB.replace(/,/g, ''), 10) || 0;
+                      const numA = parseInt(keyA.replace(/,/g, ""), 10) || 0;
+                      const numB = parseInt(keyB.replace(/,/g, ""), 10) || 0;
                       return numA - numB;
                   })
-
-                  .map(([key, value]) => ({
+                  .map(([key, val]) => ({
                       key,
-                      value,
+                      shortDesc: typeof val === "object" ? val.shortDesc : "",
+                      value: typeof val === "object" ? val.price : val,
                   }))
             : [],
     );
@@ -91,16 +90,13 @@ export default function AddProductModal({
             const file = files[0];
             if (file) {
                 if (file.size > maxImageSize) {
-                    // File exceeds size limit, show error and reset
-                    if (showPopup) {
-                        showPopup(
-                            "error",
-                            "Image size exceeds 1MB. Please choose a smaller file.",
-                        );
-                    }
-                    files[0] = null; // Clear the file input
+                    setImageError(
+                        "Image size exceeds 1MB. Please choose a smaller file.",
+                    );
+                    files[0] = null;
                     setImagePreview(null);
                 } else {
+                    setImageError("");
                     const imageUrl = URL.createObjectURL(file);
                     setNewImage(true);
                     console.log("Selected image file:", file.name);
@@ -121,7 +117,8 @@ export default function AddProductModal({
         newVariants[index][field] = value;
         setVariants(newVariants);
     };
-    const addVariant = () => setVariants([...variants, { key: "", value: "" }]);
+    const addVariant = () =>
+        setVariants([...variants, { key: "", shortDesc: "", value: "" }]);
     const removeVariant = (index) =>
         setVariants(variants.filter((_, i) => i !== index));
 
@@ -173,7 +170,19 @@ export default function AddProductModal({
         e.preventDefault();
 
         if (isSubmitting) return;
+
+        const hasExistingImage =
+            isEditMode && (productToEdit?.imageUrl || productToEdit?.image);
+        const hasNewImage =
+            formData.image && typeof formData.image === "object";
+
+        if (!hasExistingImage && !hasNewImage) {
+            setImageError("Please add a product image before saving.");
+            return;
+        }
+
         setIsSubmitting(true);
+        setImageError("");
 
         //other variables
         let minVariantPrice = 0;
@@ -190,15 +199,18 @@ export default function AddProductModal({
         const cleanedVariants = {};
         if (selectType === "variants") {
             variants.forEach((item) => {
-                if (item.key.trim() && item.value.trim()) {
-                    cleanedVariants[item.key.trim()] = item.value.trim();
+                if (item.key.trim()) {
+                    cleanedVariants[item.key.trim()] = {
+                        price: item.value.toString().trim(),
+                        shortDesc: item.shortDesc?.trim() || "",
+                    };
                 }
             });
 
-            // Convert the object values into an array
-            const variantPrices = Object.values(cleanedVariants).map(Number);
+            const variantPrices = Object.values(cleanedVariants).map((v) =>
+                Number(v.price),
+            );
 
-            // Filter out any NaN
             if (variantPrices.length > 0) {
                 const validPrices = variantPrices.filter((n) => !isNaN(n));
                 minVariantPrice =
@@ -336,8 +348,6 @@ export default function AddProductModal({
                             </label>
                         </div>
                     )}
-
-                    
 
                     <div className="form-row">
                         <div className="form-group">
@@ -488,7 +498,10 @@ export default function AddProductModal({
                         <div className="form-section">
                             <label className="section-label">Variants</label>
                             {variants.map((variant, index) => (
-                                <div key={index} className="dynamic-row">
+                                <div
+                                    key={index}
+                                    className="dynamic-row variant-row"
+                                >
                                     <input
                                         type="text"
                                         value={variant.key}
@@ -500,6 +513,20 @@ export default function AddProductModal({
                                             )
                                         }
                                         placeholder="Item size"
+                                        className="variant-input-size"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={variant.shortDesc || ""}
+                                        onChange={(e) =>
+                                            handleVariantChange(
+                                                index,
+                                                "shortDesc",
+                                                e.target.value,
+                                            )
+                                        }
+                                        placeholder="Short description"
+                                        className="variant-input-desc"
                                     />
                                     <input
                                         type="number"
@@ -511,7 +538,8 @@ export default function AddProductModal({
                                                 e.target.value,
                                             )
                                         }
-                                        placeholder="Item Price (optional)"
+                                        placeholder="Price"
+                                        className="variant-input-price"
                                     />
                                     <button
                                         type="button"
@@ -542,7 +570,6 @@ export default function AddProductModal({
                                 accept="image/*"
                                 onChange={handleChange}
                                 className="hidden-file-input"
-                                required={!isEditMode}
                             />
                             <label
                                 htmlFor="imageUpload"
@@ -575,6 +602,18 @@ export default function AddProductModal({
                                 )}
                             </label>
                         </div>
+                        {imageError && (
+                            <p
+                                style={{
+                                    color: "red",
+                                    fontSize: "0.85rem",
+                                    marginTop: "8px",
+                                    fontWeight: "500",
+                                }}
+                            >
+                                {imageError}
+                            </p>
+                        )}
                     </div>
 
                     <div className="form-group">

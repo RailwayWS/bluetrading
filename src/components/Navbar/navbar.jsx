@@ -1,8 +1,34 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./navbar.css";
 
 const Navbar = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleScrollToSection = (e, sectionId) => {
+        e.preventDefault();
+
+        if (location.pathname !== "/") {
+            navigate("/");
+
+            setTimeout(() => {
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    element.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                    });
+                }
+            }, 150);
+        } else {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
+    };
+
     return (
         <nav className="navbar">
             <div className="navbar__container">
@@ -22,14 +48,19 @@ const Navbar = () => {
                         </Link>
                     </li>
                     <li className="navbar__item">
-                        <a href="/bluetrading/#about" className="navbar__link">
+                        <a
+                            href="#about"
+                            className="navbar__link"
+                            onClick={(e) => handleScrollToSection(e, "about")}
+                        >
                             About
                         </a>
                     </li>
                     <li className="navbar__item">
                         <a
-                            href="/bluetrading/#contact"
+                            href="#contact"
                             className="navbar__link"
+                            onClick={(e) => handleScrollToSection(e, "contact")}
                         >
                             Contact
                         </a>

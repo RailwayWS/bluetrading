@@ -16,7 +16,7 @@
     background: var(--color-bg-card, #ffffff);
     border-radius: var(--radius-md, 8px);
     width: 90%;
-    max-width: 630px;
+    max-width: 750px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.2));
@@ -205,7 +205,6 @@
     background: var(--color-primary-dark, #1b4332);
 }
 
-/* --- Button Disabled State --- */
 .btn-submit:disabled,
 .btn-submit.is-submitting {
     background: var(--color-text-light, #999999);
@@ -252,7 +251,6 @@
     }
 }
 
-/* Scrollbar styles for the modal */
 .modal-content::-webkit-scrollbar {
     width: 8px;
 }
@@ -267,7 +265,6 @@
     background: var(--color-text-muted, #999999);
 }
 
-/* Image Upload specific styles */
 .hidden-file-input {
     display: none;
 }
@@ -350,7 +347,6 @@
     color: var(--color-text, #333333);
 }
 
-/* --- Add these Animation Keyframes anywhere in your file --- */
 @keyframes overlayFadeIn {
     from {
         opacity: 0;
@@ -391,7 +387,6 @@
     }
 }
 
-/* --- Update your existing Overlay --- */
 .add-modal-overlay {
     position: fixed;
     top: 0;
@@ -404,34 +399,27 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
-
-    /* Add the entry animation here */
     animation: overlayFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Add the exit animation class */
 .add-modal-overlay.closing {
     animation: overlayFadeOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* --- Update your existing Modal Content --- */
 .add-modal-content {
     background: var(--color-bg-card, #ffffff);
     border-radius: var(--radius-md, 8px);
     width: 90%;
-    max-width: 630px;
+    max-width: 750px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.2));
     display: flex;
     flex-direction: column;
     padding: 0 10px 10px 10px;
-
-    /* Add the entry animation here */
     animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Add the exit animation class tied to the parent overlay */
 .add-modal-overlay.closing .add-modal-content {
     animation: modalSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -453,7 +441,7 @@
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #64748b; /* Muted text color */
+    color: #64748b;
     transition: all 0.3s ease;
     user-select: none;
     display: flex;
@@ -464,7 +452,7 @@
 
 .modal-form label:has(input[type="radio"]:checked) {
     background-color: #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* Modern elevation shadow */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     color: #111111b9;
 }
 
@@ -473,4 +461,33 @@
     opacity: 0;
     width: 0;
     height: 0;
+}
+
+/* --- Variant Row Custom Sizing --- */
+.variant-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+/* We use flex: none to stop the default .dynamic-row flex behavior from fighting us */
+.variant-row input.variant-input-size {
+    width: 25%;
+    flex: none;
+}
+
+.variant-row input.variant-input-desc {
+    width: 45%;
+    flex: none;
+}
+
+.variant-row input.variant-input-price {
+    width: 20%;
+    flex: none;
+}
+
+/* Ensure the delete button never squishes */
+.variant-row .btn-remove {
+    flex-shrink: 0;
 }

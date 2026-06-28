@@ -53,6 +53,7 @@ function Details({ isAdmin }) {
     const { products, loadingProducts, setCurrentFilters } = useProduct();
     const [activeVariant, setActiveVariant] = useState(null);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+    const [productCode, setProductCode] = useState("123XYZ"); // NEW STATE FOR RUBBER
 
     //close lightbox on Escape key press
     useEffect(() => {
@@ -112,8 +113,6 @@ function Details({ isAdmin }) {
             (p) => p.category === product.category && p.id !== product.id,
         );
 
-        console.log(filtered.length);
-
         if (filtered.length >= minRelated) {
             setRelatedProducts(filtered);
         } else {
@@ -168,19 +167,29 @@ function Details({ isAdmin }) {
 
     const displayPrice =
         activeVariant && product.variants
-            ? product.variants[activeVariant]
+            ? typeof product.variants[activeVariant] === "object"
+                ? product.variants[activeVariant].price
+                : product.variants[activeVariant]
             : product.price;
+
+    const activeShortDesc =
+        activeVariant &&
+        product.variants &&
+        typeof product.variants[activeVariant] === "object"
+            ? product.variants[activeVariant].shortDesc
+            : null;
 
     const hasVariants =
         product.variants && Object.keys(product.variants).length > 0;
 
-    const hasAdditionalInfo = 
-        product.additionalInfo && Object.keys(product.additionalInfo).length > 0;
+    const hasAdditionalInfo =
+        product.additionalInfo &&
+        Object.keys(product.additionalInfo).length > 0;
 
     const sortedVariants = hasVariants
         ? Object.entries(product.variants).sort(([keyA], [keyB]) => {
-              const numA = parseInt(keyA.replace(/,/g, ''), 10) || 0;
-              const numB = parseInt(keyB.replace(/,/g, ''), 10) || 0;
+              const numA = parseInt(keyA.replace(/,/g, ""), 10) || 0;
+              const numB = parseInt(keyB.replace(/,/g, ""), 10) || 0;
               return numA - numB;
           })
         : [];
@@ -193,7 +202,7 @@ function Details({ isAdmin }) {
             <section className="details__hero">
                 <div className="details__hero-inner">
                     <div className="details__image-col">
-                        <div 
+                        <div
                             className="details__image-wrap"
                             onClick={() => setIsLightboxOpen(true)}
                             title="Click to zoom"
@@ -204,9 +213,23 @@ function Details({ isAdmin }) {
                                 className="details__image"
                             />
                             <div className="details__zoom-hint">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
                                     <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    <line
+                                        x1="21"
+                                        y1="21"
+                                        x2="16.65"
+                                        y2="16.65"
+                                    ></line>
                                     <line x1="11" y1="8" x2="11" y2="14"></line>
                                     <line x1="8" y1="11" x2="14" y2="11"></line>
                                 </svg>
@@ -219,10 +242,25 @@ function Details({ isAdmin }) {
                             {product.category} &middot; {product.subcategory}
                         </span>
                         <h1 className="details__name">{product.name}</h1>
-                        <p className="details__price">
-                            {/* updated to use display price and not product.price */}
-                            {formatPrice(displayPrice)}
-                        </p>
+
+                        {Number(displayPrice) > 0 && (
+                            <p className="details__price">
+                                {formatPrice(displayPrice)}
+                            </p>
+                        )}
+
+                        {activeShortDesc && (
+                            <p
+                                className="details__short-desc"
+                                style={{
+                                    fontWeight: 500,
+                                    color: "var(--color-text-light)",
+                                    marginBottom: "1rem",
+                                }}
+                            >
+                                {activeShortDesc}
+                            </p>
+                        )}
 
                         <p className="details__description">
                             {product.description}
@@ -234,23 +272,21 @@ function Details({ isAdmin }) {
                                     Select Option:
                                 </span>
                                 <div className="details__variants-pills">
-                                    {sortedVariants.map(
-                                        ([key, value]) => (
-                                            <button
-                                                key={key}
-                                                className={`details__variant-pill ${
-                                                    activeVariant === key
-                                                        ? "details__variant-pill--active"
-                                                        : ""
-                                                }`}
-                                                onClick={() =>
-                                                    setActiveVariant(key)
-                                                }
-                                            >
-                                                {key}
-                                            </button>
-                                        ),
-                                    )}
+                                    {sortedVariants.map(([key, value]) => (
+                                        <button
+                                            key={key}
+                                            className={`details__variant-pill ${
+                                                activeVariant === key
+                                                    ? "details__variant-pill--active"
+                                                    : ""
+                                            }`}
+                                            onClick={() =>
+                                                setActiveVariant(key)
+                                            }
+                                        >
+                                            {key}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         )}
@@ -301,6 +337,16 @@ function Details({ isAdmin }) {
                         </div>
 
                         <div className="details__meta">
+                            {productCode && (
+                                <div className="details__meta-item">
+                                    <span className="details__meta-label">
+                                        Product Code:
+                                    </span>
+                                    <span className="details__meta-value">
+                                        {productCode}
+                                    </span>
+                                </div>
+                            )}
                             <div className="details__meta-item">
                                 <span className="details__meta-label">
                                     Category:
@@ -437,9 +483,11 @@ function Details({ isAdmin }) {
                                         <h3 className="product-card__name">
                                             {rp.name}
                                         </h3>
-                                        <p className="product-card__price">
-                                            {formatPrice(rp.price)}
-                                        </p>
+                                        {Number(rp.price) > 0 && (
+                                            <p className="product-card__price">
+                                                {formatPrice(rp.price)}
+                                            </p>
+                                        )}
                                         <button
                                             className="product-card__btn"
                                             onClick={(e) => {
@@ -471,24 +519,36 @@ function Details({ isAdmin }) {
 
             {/* Lightbox Modal */}
             {isLightboxOpen && (
-                <div 
-                    className="details__lightbox" 
+                <div
+                    className="details__lightbox"
                     onClick={() => setIsLightboxOpen(false)}
                 >
-                    <div className="details__lightbox-content" onClick={(e) => e.stopPropagation()}>
-                        <button 
-                            className="details__lightbox-close" 
+                    <div
+                        className="details__lightbox-content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            className="details__lightbox-close"
                             onClick={() => setIsLightboxOpen(false)}
                         >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
                         </button>
-                        <img 
-                            src={product.imageUrl} 
-                            alt={product.name} 
-                            className="details__lightbox-img" 
+                        <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="details__lightbox-img"
                         />
                     </div>
                 </div>
