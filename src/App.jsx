@@ -8,6 +8,7 @@ import Loading from "./components/loading/loading.jsx";
 import { useAuth } from "./Contexts/authContext.js";
 import { AuthProvider } from "./Contexts/authContextProvider.jsx";
 import { ProductProvider } from "./Contexts/productContextProvider.jsx";
+import { PopupProvider } from "./Contexts/popupContextProvider.jsx";
 import { get_hero_slides } from "./database/front_page_queries.js";
 import "./App.css";
 
@@ -103,7 +104,9 @@ function App() {
     return (
         <AuthProvider>
             <ProductProvider>
-                <AppContent />
+                <PopupProvider>
+                    <AppContent />
+                </PopupProvider>
             </ProductProvider>
         </AuthProvider>
     );

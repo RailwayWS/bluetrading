@@ -7,6 +7,7 @@ import {
 } from "../../database/front_page_queries.js";
 import "./hero.css";
 import { useAuth } from "../../Contexts/authContext.js";
+import { usePopup } from "../../Contexts/popupContext.js";
 
 function Hero({ isAdmin, slidesData }) {
   const [slide, setSlide] = useState(
@@ -15,7 +16,8 @@ function Hero({ isAdmin, slidesData }) {
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
-  const { loading } = useAuth();
+  const { loadingAuth } = useAuth();
+  const { showPopup } = usePopup();
 
   useEffect(() => {
     async function fetchSlide() {
@@ -24,10 +26,10 @@ function Hero({ isAdmin, slidesData }) {
         setSlide(response.data.hero_1);
       }
     }
-    if (!loading) {
+    if (!loadingAuth) {
       fetchSlide();
     }
-  }, [loading]);
+  }, [loadingAuth]);
 
   const handleSlideChange = (field, value) => {
     setSlide((prev) => ({
@@ -41,9 +43,9 @@ function Hero({ isAdmin, slidesData }) {
       const result = await update_hero_slides({ hero_1: slide });
 
       if (result.success || result.success === undefined) {
-        alert("Hero section updated successfully!");
+        showPopup("success", "Hero section updated successfully!");
       } else {
-        alert("Failed to update hero section.");
+        showPopup("error", "Failed to update hero section.");
       }
     };
 

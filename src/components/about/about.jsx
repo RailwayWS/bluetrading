@@ -10,6 +10,7 @@ import {
 } from "../../database/front_page_queries";
 import AboutImg from "../../assets/AboutImg.png";
 import { useAuth } from "../../Contexts/authContext.js";
+import { usePopup } from "../../Contexts/popupContext.js";
 import { useReveal } from "../../hooks/useReveal.js";
 
 const initialAboutContent = {
@@ -39,6 +40,7 @@ const About = ({ isAdmin }) => {
     const [partners, setPartners] = useState(initialAboutContent.partners);
 
     const { loadingAuth } = useAuth();
+    const { showPopup } = usePopup();
     const { ref, revealClass } = useReveal();
 
     const fetchAboutContent = async () => {
@@ -94,9 +96,9 @@ const About = ({ isAdmin }) => {
                 statsResult.success &&
                 partnersResult.success
             ) {
-                alert("About section updated successfully!");
+                showPopup("success", "About section updated successfully!");
             } else {
-                alert("Failed to update about section");
+                showPopup("error", "Failed to update about section.");
             }
         };
         saveContent();

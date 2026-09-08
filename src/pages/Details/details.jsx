@@ -6,7 +6,6 @@ import {
 } from "../../database/product_queries";
 import { useProduct } from "../../Contexts/productContext";
 import AddProductModal from "../../components/New/AddProductModal";
-import { PopupContainer } from "../../components/popups/popups";
 import "./details.css";
 
 /* Dynamically import all product images */
@@ -49,11 +48,10 @@ function Details({ isAdmin }) {
     const [product, setProduct] = useState({ price: 0 });
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [popups, setPopups] = useState([]);
     const { products, loadingProducts, setCurrentFilters } = useProduct();
     const [activeVariant, setActiveVariant] = useState(null);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-    const [productCode, setProductCode] = useState("123XYZ"); // NEW STATE FOR RUBBER
+    const [productCode] = useState("123XYZ");
 
     //close lightbox on Escape key press
     useEffect(() => {
@@ -65,15 +63,6 @@ function Details({ isAdmin }) {
         }
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [isLightboxOpen]);
-
-    const addPopup = (type, message) => {
-        const popupId = Date.now() + Math.random();
-        setPopups((prev) => [...prev, { id: popupId, type, message }]);
-    };
-
-    const removePopup = (id) => {
-        setPopups((prev) => prev.filter((p) => p.id !== id));
-    };
 
     // Reset the active variant whenever the product changes
     useEffect(() => {
@@ -196,8 +185,6 @@ function Details({ isAdmin }) {
 
     return (
         <div className="details">
-            <PopupContainer popups={popups} removePopup={removePopup} />
-
             {/* Product Hero */}
             <section className="details__hero">
                 <div className="details__hero-inner">
@@ -504,7 +491,6 @@ function Details({ isAdmin }) {
                         setProduct({ ...updatedProduct, id: product.id });
                         setCurrentFilters((prev) => ({ ...prev }));
                     }}
-                    showPopup={addPopup}
                 />
             )}
 

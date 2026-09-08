@@ -1,30 +1,17 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./newProuct.css";
 import AddProductModal from "./AddProductModal";
 import { useProduct } from "../../Contexts/productContext.js";
-import { PopupContainer } from "../popups/popups";
 
 export default function NewProduct() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [popups, setPopups] = useState([]);
     const { setCurrentFilters, checkNewProduct } = useProduct();
-
-    const addPopup = (type, message) => {
-        const popupId = Date.now() + Math.random();
-        setPopups(prev => [...prev, { id: popupId, type, message }]);
-    };
-
-    const removePopup = (id) => {
-        setPopups(prev => prev.filter(p => p.id !== id));
-    };
 
     const handleAddProduct = () => {
         setIsModalOpen(true);
     };
 
     const handleSaveProduct = (productData) => {
-        console.log("New Product Event Handled");
-        console.log("Product Data:", productData);
         checkNewProduct(productData);
         // Force a data refresh by giving currentFilters a new object reference
         setCurrentFilters((prev) => ({ ...prev }));
@@ -32,7 +19,6 @@ export default function NewProduct() {
 
     return (
         <>
-            <PopupContainer popups={popups} removePopup={removePopup} />
             <div
                 className="new-product-card"
                 title="Add New Product"
@@ -65,7 +51,6 @@ export default function NewProduct() {
                 <AddProductModal
                     onClose={() => setIsModalOpen(false)}
                     onSave={handleSaveProduct}
-                    showPopup={addPopup}
                 />
             )}
         </>

@@ -3,6 +3,7 @@ import "./about.css";
 import whoWeAreImg from "../../assets/hero-slide-2.png";
 import { get_about_page, update_about_page } from "../../database/front_page_queries";
 import { useAuth } from "../../Contexts/authContext.js";
+import { usePopup } from "../../Contexts/popupContext.js";
 import { useReveal } from "../../hooks/useReveal.js";
 
 const initialContent = {
@@ -15,6 +16,7 @@ function AboutPage({ isAdmin }) {
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const { loadingAuth } = useAuth();
+    const { showPopup } = usePopup();
     const { ref, revealClass } = useReveal();
 
     useEffect(() => {
@@ -36,9 +38,9 @@ function AboutPage({ isAdmin }) {
     const handleSave = async () => {
         const result = await update_about_page(content);
         if (result.success) {
-            alert("About page updated successfully!");
+            showPopup("success", "About page updated successfully!");
         } else {
-            alert("Failed to update About page.");
+            showPopup("error", "Failed to update About page.");
         }
         setIsEditing(false);
     };

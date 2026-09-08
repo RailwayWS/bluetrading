@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from "react";
 import "./contact.css";
 import { get_contact, update_contact } from "../../database/front_page_queries";
 import { useAuth } from "../../Contexts/authContext.js";
+import { usePopup } from "../../Contexts/popupContext.js";
 import { useReveal } from "../../hooks/useReveal.js";
 import deleteIcon from "../../assets/symbols/delete(1).png";
 
@@ -59,6 +60,7 @@ function Contact({ isAdmin }) {
     const [isEditing, setIsEditing] = useState(false);
     const [formResult, setFormResult] = useState("");
     const { loadingAuth } = useAuth();
+    const { showPopup } = usePopup();
     const { ref, revealClass } = useReveal();
 
     useEffect(() => {
@@ -114,9 +116,9 @@ function Contact({ isAdmin }) {
             const result = await update_contact(cleaned);
             if (result.success) {
                 setContactContent(cleaned);
-                alert("Contact section updated successfully!");
+                showPopup("success", "Contact section updated successfully!");
             } else {
-                alert("Failed to update contact section: " + result.error);
+                showPopup("error", "Failed to update contact section: " + result.error);
             }
         };
 

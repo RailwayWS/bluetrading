@@ -6,14 +6,9 @@ import { add_product } from "../../database/product_queries";
 import { add_image, delete_image } from "../../database/image_queries";
 import { add_category } from "../../database/category_queries";
 import { useProduct } from "../../Contexts/productContext";
-import Popup from "../popups/popups";
+import { usePopup } from "../../Contexts/popupContext.js";
 
-export default function AddProductModal({
-    onClose,
-    onSave,
-    productToEdit,
-    showPopup,
-}) {
+export default function AddProductModal({ onClose, onSave, productToEdit }) {
     // Prevent background scrolling when modal is open
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -30,6 +25,7 @@ export default function AddProductModal({
         productToEdit?.type || "single",
     );
     const { allCategories, editProduct } = useProduct();
+    const { showPopup } = usePopup();
 
     const handleTypeChange = (e) => {
         setSelectType(e.target.value);
@@ -279,8 +275,7 @@ export default function AddProductModal({
                 }
 
                 await editProduct(productToEdit.id, updatedProduct);
-                if (showPopup)
-                    showPopup("success", "Product updated successfully!");
+                showPopup("success", "Product updated successfully!");
             } else {
                 const res = await add_product(updatedProduct);
                 await add_category(
@@ -288,14 +283,9 @@ export default function AddProductModal({
                     updatedProduct.subcategory,
                 );
                 if (res.success) {
-                    if (showPopup)
-                        showPopup("success", "Product added successfully!");
+                    showPopup("success", "Product added successfully!");
                 } else {
-                    if (showPopup)
-                        showPopup(
-                            "error",
-                            res.error || "Failed to add product",
-                        );
+                    showPopup("error", res.error || "Failed to add product");
                     setIsSubmitting(false);
                     return;
                 }
@@ -304,11 +294,10 @@ export default function AddProductModal({
             if (onSave) {
                 onSave(updatedProduct);
             }
-            // Close the modal directly after saving, letting popup survive in parent
+            // Close after saving — the popup lives in the shared provider, so it survives the unmount.
             handleClose();
         } catch (err) {
-            if (showPopup)
-                showPopup("error", err.message || "An error occurred");
+            showPopup("error", err.message || "An error occurred");
             setIsSubmitting(false);
         }
     };
