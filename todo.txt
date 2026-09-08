@@ -14,11 +14,10 @@ https://oneclarion.com/
 
 
 
-font change (client will send font)
+font change
 hero images and about images change (client will send pics)
 collage in home page (client will send pics)
 
-display variants short description in details
 Dont display price when its 0
 
 more emails in cintact us section just like phone numbers

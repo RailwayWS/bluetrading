@@ -1,18 +1,22 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import "./confirmation.css";
 
 const Confirmation = ({ isOpen, onClose, onConfirm, itemName }) => {
-    // Prevent background scrolling when modal is open
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
-        }
+        document.body.style.overflow = isOpen ? "hidden" : "unset";
         return () => {
             document.body.style.overflow = "unset";
         };
     }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, onClose]);
 
     return (
         <div

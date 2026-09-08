@@ -1,0 +1,133 @@
+import { useState, useEffect } from "react";
+import "./about.css";
+import whoWeAreImg from "../../assets/hero-slide-2.png";
+import { get_about_page, update_about_page } from "../../database/front_page_queries";
+import { useAuth } from "../../Contexts/authContext.js";
+import { useReveal } from "../../hooks/useReveal.js";
+
+const initialContent = {
+    sub_title: "Who We Are",
+    main_title: "A trusted name in agricultural infrastructure.",
+    body: "Blue Trading was founded to give Southern African farmers direct access to reliable, industry-leading irrigation and water storage equipment.\n\nWe work closely with manufacturers and distributors we trust, so every product we supply is built to perform in the field, season after season.",
+};
+
+function AboutPage({ isAdmin }) {
+    const [content, setContent] = useState(initialContent);
+    const [isEditing, setIsEditing] = useState(false);
+    const { loadingAuth } = useAuth();
+    const { ref, revealClass } = useReveal();
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            const result = await get_about_page();
+            if (result) {
+                setContent(result.data);
+            }
+        };
+        if (!loadingAuth) {
+            fetchContent();
+        }
+    }, [loadingAuth]);
+
+    const handleChange = (field, value) => {
+        setContent((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleSave = async () => {
+        const result = await update_about_page(content);
+        if (result.success) {
+            alert("About page updated successfully!");
+        } else {
+            alert("Failed to update About page.");
+        }
+        setIsEditing(false);
+    };
+
+    const handleClose = async () => {
+        setIsEditing(false);
+        const result = await get_about_page();
+        if (result) {
+            setContent(result.data);
+        }
+    };
+
+    return (
+        <section id="who-we-are" className="who-we-are">
+            <div ref={ref} className={`who-we-are__container ${revealClass}`}>
+                <div className="who-we-are__content">
+                    {isAdmin && (
+                        <div className="who-we-are__admin-controls">
+                            {isEditing ? (
+                                <>
+                                    <button
+                                        className="who-we-are__admin-btn who-we-are__btn-cancel"
+                                        onClick={handleClose}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="who-we-are__admin-btn who-we-are__btn-save"
+                                        onClick={handleSave}
+                                    >
+                                        Save Changes
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    className="who-we-are__admin-btn who-we-are__btn-edit"
+                                    onClick={() => setIsEditing(true)}
+                                >
+                                    Edit About Page
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {isEditing ? (
+                        <input
+                            className="who-we-are__editable-field who-we-are__label-edit"
+                            value={content.sub_title}
+                            onChange={(e) => handleChange("sub_title", e.target.value)}
+                        />
+                    ) : (
+                        <span className="who-we-are__label">{content.sub_title}</span>
+                    )}
+
+                    {isEditing ? (
+                        <textarea
+                            className="who-we-are__editable-field who-we-are__heading-edit"
+                            value={content.main_title}
+                            onChange={(e) => handleChange("main_title", e.target.value)}
+                            rows={2}
+                        />
+                    ) : (
+                        <h1 className="who-we-are__heading">{content.main_title}</h1>
+                    )}
+
+                    {isEditing ? (
+                        <textarea
+                            className="who-we-are__editable-field who-we-are__body-edit"
+                            value={content.body}
+                            onChange={(e) => handleChange("body", e.target.value)}
+                            rows={8}
+                        />
+                    ) : (
+                        <p className="who-we-are__body">{content.body}</p>
+                    )}
+                </div>
+
+                <div className="who-we-are__visual">
+                    <div className="who-we-are__image-wrapper">
+                        <img
+                            src={whoWeAreImg}
+                            alt="Blue Trading team at work"
+                            className="who-we-are__image"
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+export default AboutPage;

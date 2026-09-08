@@ -35,14 +35,21 @@ export default function AddProductModal({
         setSelectType(e.target.value);
     };
 
-    //needed for css
+    // Plays the closing animation, then tells the parent to unmount once it finishes.
     const handleClose = () => {
         setIsClosing(true);
-        // Wait for the CSS animation to finish before actually telling parent to close
         setTimeout(() => {
             onClose();
         }, 250);
     };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") handleClose();
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
     //main fields (if product data exists use it, otherwise default to empty strings)
     const [formData, setFormData] = useState({
         name: productToEdit?.name || "",

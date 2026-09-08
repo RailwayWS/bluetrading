@@ -210,7 +210,20 @@ function Products({ isAdmin }) {
                         {isAdmin && <NewProduct />}
                         {products.length > 0 ? (
                             products.map((product) => (
-                                <div className="product-card" key={product.id}>
+                                <div
+                                    className="product-card"
+                                    key={product.id}
+                                    onClick={() =>
+                                        navigate(`/product/${product.id || product.objectID}`)
+                                    }
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            navigate(`/product/${product.id || product.objectID}`);
+                                        }
+                                    }}
+                                >
                                     {isAdmin && (
                                         <div className="product-card__menu-container">
                                             <button
@@ -306,21 +319,11 @@ function Products({ isAdmin }) {
                                         <h3 className="product-card__name">
                                             {product.name}
                                         </h3>
-                                        <p className="product-card__price">
-                                            {formatPrice(product.price || 0)}
-                                        </p>
-                                        <div className="button-wrapper">
-                                            <button
-                                                className="product-card__btn"
-                                                onClick={() =>
-                                                    navigate(
-                                                        `/product/${product.id || product.objectID}`,
-                                                    )
-                                                }
-                                            >
-                                                More Detail
-                                            </button>
-                                        </div>
+                                        {Number(product.price) > 0 && (
+                                            <p className="product-card__price">
+                                                {formatPrice(product.price)}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             ))

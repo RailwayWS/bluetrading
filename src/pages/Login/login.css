@@ -78,6 +78,17 @@
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
+/* Some browsers repaint autofilled inputs solid white, which would otherwise
+   swallow the near-white glass styling (and the password toggle icon below). */
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover,
+.login-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset;
+    -webkit-text-fill-color: #ffffff;
+    caret-color: #ffffff;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 .login-button {
     background: #0f5132;
     color: white;
@@ -143,33 +154,32 @@
 
 .login-password-toggle {
     position: absolute;
-    right: 15px;
+    right: 10px;
     top: 50%;
-    transform: translateY(
-        -50%
-    ); /* This perfectly centers the icon vertically inside the input */
-    background: transparent;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 50%;
     border: none;
     cursor: pointer;
-    padding: 0;
+    padding: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     outline: none;
+    transition: background-color 0.2s ease;
+}
+
+.login-password-toggle:hover {
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .password-icon {
-    width: 22px;
-    height: 22px;
-    color: rgba(
-        255,
-        255,
-        255,
-        0.7
-    ); /* Slightly dimmed to match standard placeholder style */
-    transition:
-        color 0.2s ease,
-        transform 0.2s ease;
+    width: 20px;
+    height: 20px;
+    /* Fixed white-on-dark contrast so the icon stays visible no matter what
+       color the (possibly autofilled) input behind it renders as. */
+    color: #ffffff;
+    transition: transform 0.2s ease;
 }
 
 .login-password-toggle:hover .password-icon {

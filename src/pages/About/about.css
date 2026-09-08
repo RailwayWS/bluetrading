@@ -1,0 +1,213 @@
+/* ===== Who We Are Page ===== */
+.who-we-are {
+    padding: 160px 0 100px;
+    background-color: var(--color-bg, #ffffff);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.who-we-are__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.who-we-are__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.who-we-are__label {
+    font-family: var(--font-heading, sans-serif);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-primary, #1a1a1a);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: inline-block;
+}
+
+.who-we-are__heading {
+    font-family: var(--font-body, sans-serif);
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    color: var(--color-text, #111111);
+    line-height: 1.1;
+    margin-bottom: 24px;
+}
+
+.who-we-are__body {
+    font-family: var(--font-body, sans-serif);
+    font-size: 1.1rem;
+    color: var(--color-text-light, #555555);
+    line-height: 1.7;
+    max-width: 540px;
+    white-space: pre-line;
+}
+
+.who-we-are__visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.who-we-are__image-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 4/5;
+    border-radius: var(--radius-md, 16px);
+    z-index: 1;
+}
+
+.who-we-are__image-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--color-primary, #1a1a1a);
+    border-radius: var(--radius-md, 16px);
+    z-index: -1;
+    transition: transform 0.4s ease;
+}
+
+.who-we-are__visual:hover .who-we-are__image-wrapper::before {
+    transform: translate(-10px, 10px);
+}
+
+.who-we-are__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-md, 16px);
+    box-shadow: var(--shadow-md, 0 10px 30px rgba(0, 0, 0, 0.1));
+}
+
+/* --- Admin Edit Controls --- */
+.who-we-are__admin-controls {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    width: 100%;
+}
+
+.who-we-are__admin-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.who-we-are__btn-edit {
+    background-color: white;
+    color: var(--color-text, #333);
+    border: 1px solid var(--color-border, #ccc);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.who-we-are__btn-edit:hover {
+    background-color: #f1f5f9;
+    color: var(--color-primary, #2d6a4f);
+}
+
+.who-we-are__btn-save {
+    background-color: var(--color-primary, #2d6a4f);
+    color: white;
+    box-shadow: 0 2px 4px rgba(45, 106, 79, 0.2);
+}
+
+.who-we-are__btn-save:hover {
+    background-color: var(--color-primary-dark, #1b4332);
+    transform: translateY(-1px);
+}
+
+.who-we-are__btn-cancel {
+    background-color: transparent;
+    color: var(--color-primary, #2d6a4f);
+    border: 1px solid var(--color-primary, #2d6a4f);
+}
+
+/* --- Editable Fields --- */
+.who-we-are__editable-field {
+    width: 100%;
+    background-color: rgba(45, 106, 79, 0.03);
+    border: 1px dashed var(--color-primary, #2d6a4f);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--color-text, #333333);
+    resize: vertical;
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+}
+
+.who-we-are__editable-field:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-style: solid;
+    border-color: var(--color-primary, #2d6a4f);
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
+}
+
+.who-we-are__label-edit {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-primary, #2d6a4f);
+    text-transform: uppercase;
+}
+
+.who-we-are__heading-edit {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.who-we-are__body-edit {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 960px) {
+    .who-we-are__container {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .who-we-are__content {
+        text-align: center;
+        align-items: center;
+    }
+
+    .who-we-are__body {
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .who-we-are__image-wrapper {
+        max-width: 450px;
+    }
+}
+
+@media (max-width: 600px) {
+    .who-we-are {
+        padding: 130px 0 60px;
+    }
+
+    .who-we-are__heading {
+        font-size: 2.2rem;
+    }
+}

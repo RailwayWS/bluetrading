@@ -1,7 +1,5 @@
-import React from "react";
 import { useState, useEffect } from "react";
 import "./about.css";
-import about_img from "../../assets/hero-slide-1.png";
 import {
     get_about_us,
     update_about_us,
@@ -10,13 +8,13 @@ import {
     get_partners,
     update_partners,
 } from "../../database/front_page_queries";
-
 import AboutImg from "../../assets/AboutImg.png";
 import { useAuth } from "../../Contexts/authContext.js";
+import { useReveal } from "../../hooks/useReveal.js";
 
 const initialAboutContent = {
     intro: {
-        sub_title: "Who we are",
+        sub_title: "What we do",
         main_title: "Reliable solutions, built to last.",
         body: 'Water is the lifeblood of your operation. We specialize in supplying industry-leading irrigation equipment and heavy-duty dam liners ("damsakke") designed to withstand the toughest conditions.\n\nOur goal is simple: to provide the high-quality infrastructure you need to efficiently store, manage, and distribute your water. As dedicated marketers and distributors, we source only the most dependable products on the market.',
     },
@@ -41,30 +39,22 @@ const About = ({ isAdmin }) => {
     const [partners, setPartners] = useState(initialAboutContent.partners);
 
     const { loadingAuth } = useAuth();
+    const { ref, revealClass } = useReveal();
+
+    const fetchAboutContent = async () => {
+        const result_about = await get_about_us();
+        const result_stats = await get_stats();
+        const result_partners = await get_partners();
+
+        if (result_about) setAboutContent(result_about.data);
+        if (result_stats) setStats(result_stats.data);
+        if (result_partners) setPartners(result_partners.data);
+    };
 
     useEffect(() => {
-        const fetchAboutContent = async () => {
-            const result_about = await get_about_us();
-            const result_stats = await get_stats();
-            const result_partners = await get_partners();
-
-            if (result_about) {
-                console.log("Fetched about content:", result_about.data);
-                setAboutContent(result_about.data);
-            }
-            if (result_stats) {
-                console.log("Fetched stats:", result_stats.data);
-                setStats(result_stats.data);
-            }
-            if (result_partners) {
-                console.log("Fetched partners:", result_partners.data);
-                setPartners(result_partners.data);
-            }
-        };
         if (!loadingAuth) {
             fetchAboutContent();
         }
-        
     }, [loadingAuth]);
 
     const handleAboutContentChange = (documentName, field, value) => {
@@ -113,32 +103,14 @@ const About = ({ isAdmin }) => {
         setIsEditing(false);
     };
 
-    const handleClose = async () => {
+    const handleClose = () => {
         setIsEditing(false);
-        const fetchAboutContent = async () => {
-            const result_about = await get_about_us();
-            const result_stats = await get_stats();
-            const result_partners = await get_partners();
-
-            if (result_about) {
-                console.log("Fetched about content:", result_about.data);
-                setAboutContent(result_about.data);
-            }
-            if (result_stats) {
-                console.log("Fetched stats:", result_stats.data);
-                setStats(result_stats.data);
-            }
-            if (result_partners) {
-                console.log("Fetched partners:", result_partners.data);
-                setPartners(result_partners.data);
-            }
-        };
         fetchAboutContent();
     };
 
     return (
         <section id="about" className="about">
-            <div className="about__container">
+            <div ref={ref} className={`about__container ${revealClass}`}>
                 <div className="about__content">
                     {isAdmin && (
                         <div className="about__admin-controls">
@@ -167,7 +139,6 @@ const About = ({ isAdmin }) => {
                             )}
                         </div>
                     )}
-                    {/* Label */}
                     {isEditing ? (
                         <input
                             className="about__editable-field about__label-edit"
@@ -186,7 +157,6 @@ const About = ({ isAdmin }) => {
                         </span>
                     )}
 
-                    {/* Heading */}
                     {isEditing ? (
                         <textarea
                             className="about__editable-field about__heading-edit"
@@ -206,7 +176,6 @@ const About = ({ isAdmin }) => {
                         </h2>
                     )}
 
-                    {/* Description */}
                     {isEditing ? (
                         <textarea
                             className="about__editable-field about__description-edit"
@@ -226,7 +195,6 @@ const About = ({ isAdmin }) => {
                         </p>
                     )}
 
-                    {/* Stats */}
                     <div className="about__stats">
                         <div className="about__stat-item">
                             {isEditing ? (

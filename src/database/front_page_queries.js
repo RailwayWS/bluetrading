@@ -1,13 +1,7 @@
 import { db } from "./../config/firebase.js";
-import {
-    doc,
-    getDoc,
-    setDoc,
-} from "firebase/firestore";
-
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 async function get_home_page_document(documentId) {
-
     try {
         const documentRef = doc(db, "home_page", documentId);
         const documentSnapshot = await getDoc(documentRef);
@@ -16,10 +10,16 @@ async function get_home_page_document(documentId) {
             return null;
         }
 
-    console.log(`Fetched home page document ${documentId}:`, documentSnapshot.data());
+        console.log(
+            `Fetched home page document ${documentId}:`,
+            documentSnapshot.data(),
+        );
         return { id: documentSnapshot.id, data: documentSnapshot.data() };
     } catch (error) {
-        console.error(`Error fetching home page document ${documentId}:`, error);
+        console.error(
+            `Error fetching home page document ${documentId}:`,
+            error,
+        );
         return null;
     }
 }
@@ -30,7 +30,10 @@ async function update_home_page_document(documentId, data) {
         await setDoc(documentRef, data);
         return { success: true };
     } catch (error) {
-        console.error(`Error updating home page document ${documentId}:`, error);
+        console.error(
+            `Error updating home page document ${documentId}:`,
+            error,
+        );
         return { success: false, error: error.message };
     }
 }
@@ -40,9 +43,7 @@ export async function get_about_us() {
 }
 
 export async function update_about_us(data) {
-
     return update_home_page_document("about_us", data);
-
 }
 
 export async function get_contact() {
@@ -91,4 +92,13 @@ export async function get_hero_slides() {
 
 export async function update_hero_slides(data) {
     return update_home_page_document("hero_slides", data);
+}
+
+// added by claude. There is about section on home and a seperate about page. This is for the about page.
+export async function get_about_page() {
+    return get_home_page_document("about_page");
+}
+
+export async function update_about_page(data) {
+    return update_home_page_document("about_page", data);
 }

@@ -488,15 +488,6 @@ function Details({ isAdmin }) {
                                                 {formatPrice(rp.price)}
                                             </p>
                                         )}
-                                        <button
-                                            className="product-card__btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                navigate(`/product/${rp.id}`);
-                                            }}
-                                        >
-                                            More Detail
-                                        </button>
                                     </div>
                                 </div>
                             ))}
