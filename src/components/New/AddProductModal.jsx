@@ -7,6 +7,7 @@ import { add_image, delete_image } from "../../database/image_queries";
 import { add_category } from "../../database/category_queries";
 import { useProduct } from "../../Contexts/productContext";
 import { usePopup } from "../../Contexts/popupContext.js";
+import { convertImageToWebp } from "../../utils/convertImageToWebp.js";
 
 export default function AddProductModal({ onClose, onSave, productToEdit }) {
     // Prevent background scrolling when modal is open
@@ -58,8 +59,9 @@ export default function AddProductModal({ onClose, onSave, productToEdit }) {
     });
 
     const [imagePreview, setImagePreview] = useState(null);
-    const maxImageSize = 1 * 1024 * 1024; // 1MB
+    const maxImageSize = 1 * 1024 * 1024; // 1MB, checked after WebP conversion
     const [imageError, setImageError] = useState("");
+    const [isConvertingImage, setIsConvertingImage] = useState(false);
 
     //additional fields
     const [variants, setVariants] = useState(
@@ -87,24 +89,34 @@ export default function AddProductModal({ onClose, onSave, productToEdit }) {
     );
 
     // Handle input changes for main form fields
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         const { name, value, type, files } = e.target;
         if (type === "file") {
             const file = files[0];
             if (file) {
-                if (file.size > maxImageSize) {
+                setImageError("");
+                setIsConvertingImage(true);
+                try {
+                    const webpFile = await convertImageToWebp(file);
+                    if (webpFile.size > maxImageSize) {
+                        setImageError(
+                            "Image is still too large after compression. Please choose a smaller photo.",
+                        );
+                        setImagePreview(null);
+                    } else {
+                        const imageUrl = URL.createObjectURL(webpFile);
+                        setNewImage(true);
+                        setFormData((prev) => ({ ...prev, image: webpFile }));
+                        setImagePreview(imageUrl);
+                    }
+                } catch (err) {
+                    console.error("Error converting image: ", err);
                     setImageError(
-                        "Image size exceeds 1MB. Please choose a smaller file.",
+                        "Could not process that image. Please try a different file.",
                     );
-                    files[0] = null;
                     setImagePreview(null);
-                } else {
-                    setImageError("");
-                    const imageUrl = URL.createObjectURL(file);
-                    setNewImage(true);
-                    console.log("Selected image file:", file.name);
-                    setFormData((prev) => ({ ...prev, image: file }));
-                    setImagePreview(imageUrl);
+                } finally {
+                    setIsConvertingImage(false);
                 }
             } else {
                 setImagePreview(null);
@@ -172,7 +184,7 @@ export default function AddProductModal({ onClose, onSave, productToEdit }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (isSubmitting) return;
+        if (isSubmitting || isConvertingImage) return;
 
         const hasExistingImage =
             isEditMode && (productToEdit?.imageUrl || productToEdit?.image);
@@ -571,8 +583,13 @@ export default function AddProductModal({ onClose, onSave, productToEdit }) {
                                 htmlFor="imageUpload"
                                 className="image-upload-dropzone"
                             >
-                                {imagePreview ||
-                                (isEditMode && productToEdit?.imageUrl) ? (
+                                {isConvertingImage ? (
+                                    <div className="upload-placeholder">
+                                        <div className="spinner"></div>
+                                        <span>Compressing image…</span>
+                                    </div>
+                                ) : imagePreview ||
+                                  (isEditMode && productToEdit?.imageUrl) ? (
                                     <div className="image-preview-container">
                                         <img
                                             src={
@@ -713,7 +730,7 @@ export default function AddProductModal({ onClose, onSave, productToEdit }) {
                         <button
                             type="submit"
                             className={`btn-submit ${isSubmitting ? "is-submitting" : ""}`}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isConvertingImage}
                         >
                             {isSubmitting ? (
                                 <div className="spinner"></div>

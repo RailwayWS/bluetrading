@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./about.css";
-import AboutImg from "../../assets/AboutImg.png";
+import AboutImg from "../../assets/AboutImg.webp";
 import { useHomeContent } from "../../Contexts/homeContentContext.js";
 import { usePopup } from "../../Contexts/popupContext.js";
 import { useReveal } from "../../hooks/useReveal.js";
@@ -265,6 +265,8 @@ const About = ({ isAdmin }) => {
                             src={AboutImg}
                             alt="Modern office workspace"
                             className="about__image"
+                            loading="lazy"
+                            decoding="async"
                         />
                         <div className="about__experience-badge">
                             {isEditing ? (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./about.css";
-import whoWeAreImg from "../../assets/hero-slide-2.png";
+import whoWeAreImg from "../../assets/hero-slide-2.webp";
 import { useHomeContent } from "../../Contexts/homeContentContext.js";
 import { usePopup } from "../../Contexts/popupContext.js";
 import { useReveal } from "../../hooks/useReveal.js";
@@ -115,6 +115,8 @@ function AboutPage({ isAdmin }) {
                             src={whoWeAreImg}
                             alt="Blue Trading team at work"
                             className="who-we-are__image"
+                            loading="lazy"
+                            decoding="async"
                         />
                     </div>
                 </div>

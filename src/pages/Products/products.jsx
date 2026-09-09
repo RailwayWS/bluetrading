@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { InView } from "react-intersection-observer";
 import NewProduct from "../../components/New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
+import { usePopup } from "../../Contexts/popupContext.js";
 import Confirmation from "../../components/popups/confirmation.jsx";
 import ProductImage from "../../components/ProductImage/productImage.jsx";
 import "./products.css";
@@ -27,6 +28,7 @@ function Products({ isAdmin }) {
         allCategories,
         removeProduct
     } = useProduct();
+    const { showPopup } = usePopup();
 
     // Debounce search input (500ms)
     useEffect(() => {
@@ -104,12 +106,18 @@ function Products({ isAdmin }) {
         [hasMoreProducts, loadMoreProducts, loadingProducts],
     );
 
-    const HandleDelete = () => {
-        if (productToDelete) {
-            removeProduct(productToDelete.id);
-            setProductToDelete(null);
+    const HandleDelete = async () => {
+        if (!productToDelete) return;
+
+        const deletedProduct = productToDelete;
+        setProductToDelete(null);
+
+        try {
+            await removeProduct(deletedProduct.id);
+            showPopup("success", "Product deleted successfully!");
+        } catch (err) {
+            showPopup("error", err.message || "Failed to delete product");
         }
-        console.log("Deleted");
     };
 
     return (
