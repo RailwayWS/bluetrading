@@ -8,6 +8,8 @@ import Confirmation from "../../components/popups/confirmation.jsx";
 import ProductImage from "../../components/ProductImage/productImage.jsx";
 import "./products.css";
 
+const SKELETON_COUNT = 6; // matches the page size fetched per request
+
 function Products({ isAdmin }) {
     const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState("All");
@@ -195,7 +197,25 @@ function Products({ isAdmin }) {
                     {/* Product Grid */}
                     <div className="products__grid">
                         {isAdmin && <NewProduct />}
-                        {products.length > 0 ? (
+                        {loadingProducts ? (
+                            /* Placeholder cards while a search/filter/initial fetch is in flight —
+                               avoids the "No products found" flash before results arrive. */
+                            Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+                                <div
+                                    className="product-card product-card--skeleton"
+                                    key={`skeleton-${i}`}
+                                    aria-hidden="true"
+                                >
+                                    <div className="product-card__image-wrap">
+                                        <div className="product-card__skeleton-block product-card__skeleton-block--image" />
+                                    </div>
+                                    <div className="product-card__body">
+                                        <div className="product-card__skeleton-block product-card__skeleton-block--category" />
+                                        <div className="product-card__skeleton-block product-card__skeleton-block--name" />
+                                    </div>
+                                </div>
+                            ))
+                        ) : products.length > 0 ? (
                             products.map((product) => (
                                 <div
                                     className="product-card"
