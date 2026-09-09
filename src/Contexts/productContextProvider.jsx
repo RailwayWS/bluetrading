@@ -3,9 +3,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { get_products_page, delete_product, edit_product, get_product_by_id} from "../database/product_queries";
 import { add_category, check_category, get_all_categories} from "../database/category_queries.js";
 import { backfillSearchTerms } from "../database/searchTermsHelper";
-import { resolveImageUrl, delete_image } from "../database/image_queries";
-import { db } from "../config/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { hydrateProductImageUrls, delete_image } from "../database/image_queries";
 import { useAuth } from "./authContext";
 
 export function ProductProvider({ children }) {
@@ -109,7 +107,7 @@ export function ProductProvider({ children }) {
         }
     }, [currentFilters]);
     
-    // List of products that still needs their image URL resolved
+    // List of products that still need their image URL resolved
     const docsNeedingImageUrls = useMemo(
         () => {
             if (loadingProducts) return [];
@@ -118,7 +116,9 @@ export function ProductProvider({ children }) {
         [products, loadingProducts],
     );
 
-    // Finds and sets the image URL for products that don't have it yet.
+    // Resolves + persists image URLs for products that don't have one yet
+    // (max 6 Storage requests at a time), and reflects each one in local
+    // state as it resolves so the card updates without needing a reload.
     useEffect(() => {
         if (!docsNeedingImageUrls.length) {
             return;
@@ -126,23 +126,11 @@ export function ProductProvider({ children }) {
 
         let isCancelled = false;
 
-        docsNeedingImageUrls.forEach((product) => {
-            resolveImageUrl(product.image)
-                .then(async (url) => {
-                    console.log(`Resolved image URL for product ${product.id}: ${url}`);
-
-                    if (isCancelled || !url) {
-                        return;
-                    }
-
-                    const productRef = doc(db, "products", product.id);
-                    await setDoc(productRef, {
-                        imageUrl: url,
-                    }, { merge: true });
-                })
-                .catch((error) => {
-                    console.error(`Failed to update product ${product.id} with image URL`, error);
-                });
+        hydrateProductImageUrls(docsNeedingImageUrls, (_, updatedProduct) => {
+            if (isCancelled) return;
+            setProducts((prev) =>
+                prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)),
+            );
         });
 
         return () => {

@@ -6,10 +6,11 @@ import Collage from "./components/Collage/collage.jsx";
 import Navbar from "./components/Navbar/navbar.jsx";
 import Loading from "./components/loading/loading.jsx";
 import { useAuth } from "./Contexts/authContext.js";
+import { useHomeContent } from "./Contexts/homeContentContext.js";
 import { AuthProvider } from "./Contexts/authContextProvider.jsx";
 import { ProductProvider } from "./Contexts/productContextProvider.jsx";
 import { PopupProvider } from "./Contexts/popupContextProvider.jsx";
-import { get_hero_slides } from "./database/front_page_queries.js";
+import { HomeContentProvider } from "./Contexts/homeContentContextProvider.jsx";
 import "./App.css";
 
 // Route-level pages are lazy-loaded — nothing but the home route needs to be
@@ -21,26 +22,9 @@ const AboutPage = lazy(() => import("./pages/About/about"));
 const ContactPage = lazy(() => import("./pages/Contact/contact"));
 
 function AppContent() {
-    const { isAdmin, logout, loadingAuth } = useAuth();
+    const { isAdmin, logout } = useAuth();
+    const { loadingHomeContent } = useHomeContent();
     const [isVisible, setIsVisible] = useState(false);
-    const [isAppLoading, setIsAppLoading] = useState(true);
-    const [heroSlides, setHeroSlides] = useState([
-        { sub_title: "", main_title: "" },
-        { sub_title: "", main_title: "" },
-    ]);
-
-    useEffect(() => {
-        async function fetchSlides() {
-            const response = await get_hero_slides();
-            if (response.data) {
-                setHeroSlides([response.data.hero_1, response.data.hero_2]);
-                setIsAppLoading(false);
-            }
-        }
-        if (!loadingAuth) {
-            fetchSlides();
-        }
-    }, [loadingAuth]);
 
     useEffect(() => {
         const toggleVisibility = () => {
@@ -58,7 +42,7 @@ function AppContent() {
         await logout();
     };
 
-    if (isAppLoading) {
+    if (loadingHomeContent) {
         return <Loading />;
     }
 
@@ -71,7 +55,7 @@ function AppContent() {
                         path="/"
                         element={
                             <>
-                                <Hero isAdmin={isAdmin} slidesData={heroSlides} setSlides={setHeroSlides} />
+                                <Hero isAdmin={isAdmin} />
                                 <Collage />
                                 <About isAdmin={isAdmin} />
                             </>
@@ -105,7 +89,9 @@ function App() {
         <AuthProvider>
             <ProductProvider>
                 <PopupProvider>
-                    <AppContent />
+                    <HomeContentProvider>
+                        <AppContent />
+                    </HomeContentProvider>
                 </PopupProvider>
             </ProductProvider>
         </AuthProvider>

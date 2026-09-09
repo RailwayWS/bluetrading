@@ -4,29 +4,8 @@ import { InView } from "react-intersection-observer";
 import NewProduct from "../../components/New/newProduct";
 import { useProduct } from "../../Contexts/productContext.js";
 import Confirmation from "../../components/popups/confirmation.jsx";
+import ProductImage from "../../components/ProductImage/productImage.jsx";
 import "./products.css";
-
-// wrapper component that handles its own image loading state
-const ProductImage = ({ src, alt, className }) => {
-    const [isLoaded, setIsLoaded] = useState(false);
-
-    return (
-        <>
-            {/* The Skeleton Placeholder */}
-            {!isLoaded && <div className="skeleton skeleton-img"></div>}
-
-            {/* The Actual Image */}
-            <img
-                src={src}
-                alt={alt}
-                className={`${className} ${isLoaded ? "img-loaded" : "img-hidden"}`}
-                onLoad={() => setIsLoaded(true)}
-                loading="lazy"
-                decoding="async"
-            />
-        </>
-    );
-};
 
 function Products({ isAdmin }) {
     const navigate = useNavigate();
@@ -305,10 +284,11 @@ function Products({ isAdmin }) {
                                     <div className="product-card__image-wrap">
                                         <ProductImage
                                             src={product.imageUrl}
+                                            imagePath={product.image}
+                                            size="200x200"
                                             alt={product.name}
                                             className="product-card__image"
-                                            loading="lazy"
-                                            decoding="async"
+                                            context="grid"
                                         />
                                     </div>
                                     <div className="product-card__body">

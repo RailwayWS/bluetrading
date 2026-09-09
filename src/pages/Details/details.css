@@ -335,6 +335,7 @@
 }
 
 .details .product-card__image-wrap {
+    position: relative;
     background-color: var(--color-bg-light);
     padding: 20px;
     display: flex;

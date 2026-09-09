@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
     get_product_by_id,
@@ -6,39 +6,8 @@ import {
 } from "../../database/product_queries";
 import { useProduct } from "../../Contexts/productContext";
 import AddProductModal from "../../components/New/AddProductModal";
+import ProductImage from "../../components/ProductImage/productImage.jsx";
 import "./details.css";
-
-/* Dynamically import all product images */
-const imageModules = import.meta.glob("../../assets/products/*.png", {
-    eager: true,
-});
-const images = {};
-for (const path in imageModules) {
-    const filename = path.split("/").pop();
-    images[filename] = imageModules[path].default;
-}
-
-// wrapper component that handles its own image loading state
-const ProductImage = ({ src, alt, className }) => {
-    const [isLoaded, setIsLoaded] = useState(false);
-
-    return (
-        <>
-            {/* The Skeleton Placeholder */}
-            {!isLoaded && <div className="skeleton skeleton-img"></div>}
-
-            {/* The Actual Image */}
-            <img
-                src={src}
-                alt={alt}
-                className={`${className} ${isLoaded ? "img-loaded" : "img-hidden"}`}
-                onLoad={() => setIsLoaded(true)}
-                loading="lazy"
-                decoding="async"
-            />
-        </>
-    );
-};
 
 function Details({ isAdmin }) {
     const { id } = useParams();
@@ -198,6 +167,7 @@ function Details({ isAdmin }) {
                                 src={product.imageUrl}
                                 alt={product.name}
                                 className="details__image"
+                                context="detail"
                             />
                             <div className="details__zoom-hint">
                                 <svg
@@ -458,9 +428,11 @@ function Details({ isAdmin }) {
                                     <div className="product-card__image-wrap">
                                         <ProductImage
                                             src={rp.imageUrl}
+                                            imagePath={rp.image}
+                                            size="200x200"
                                             alt={rp.name}
                                             className="product-card__image"
-                                            loading="lazy"
+                                            context="related"
                                         />
                                     </div>
                                     <div className="product-card__body">

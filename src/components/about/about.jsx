@@ -1,15 +1,7 @@
 import { useState, useEffect } from "react";
 import "./about.css";
-import {
-    get_about_us,
-    update_about_us,
-    get_stats,
-    update_stats,
-    get_partners,
-    update_partners,
-} from "../../database/front_page_queries";
 import AboutImg from "../../assets/AboutImg.png";
-import { useAuth } from "../../Contexts/authContext.js";
+import { useHomeContent } from "../../Contexts/homeContentContext.js";
 import { usePopup } from "../../Contexts/popupContext.js";
 import { useReveal } from "../../hooks/useReveal.js";
 
@@ -34,30 +26,27 @@ const initialAboutContent = {
 };
 
 const About = ({ isAdmin }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [aboutContent, setAboutContent] = useState(initialAboutContent.intro);
-    const [stats, setStats] = useState(initialAboutContent.stats);
-    const [partners, setPartners] = useState(initialAboutContent.partners);
-
-    const { loadingAuth } = useAuth();
+    const { homeContent, updateSections, withDefault } = useHomeContent();
     const { showPopup } = usePopup();
     const { ref, revealClass } = useReveal();
 
-    const fetchAboutContent = async () => {
-        const result_about = await get_about_us();
-        const result_stats = await get_stats();
-        const result_partners = await get_partners();
+    const [isEditing, setIsEditing] = useState(false);
+    const [aboutContent, setAboutContent] = useState(
+        withDefault("about_us", initialAboutContent.intro),
+    );
+    const [stats, setStats] = useState(withDefault("stats", initialAboutContent.stats));
+    const [partners, setPartners] = useState(
+        withDefault("partners", initialAboutContent.partners),
+    );
 
-        if (result_about) setAboutContent(result_about.data);
-        if (result_stats) setStats(result_stats.data);
-        if (result_partners) setPartners(result_partners.data);
-    };
-
+    // Keep the local editing copy in sync with the shared content, but stop
+    // once the admin starts editing so their in-progress changes aren't overwritten.
     useEffect(() => {
-        if (!loadingAuth) {
-            fetchAboutContent();
-        }
-    }, [loadingAuth]);
+        if (isEditing) return;
+        setAboutContent(withDefault("about_us", initialAboutContent.intro));
+        setStats(withDefault("stats", initialAboutContent.stats));
+        setPartners(withDefault("partners", initialAboutContent.partners));
+    }, [homeContent, isEditing, withDefault]);
 
     const handleAboutContentChange = (documentName, field, value) => {
         if (documentName === "about_us") {
@@ -84,18 +73,13 @@ const About = ({ isAdmin }) => {
 
     const handleSave = () => {
         const saveContent = async () => {
-            const [aboutResult, statsResult, partnersResult] =
-                await Promise.all([
-                    update_about_us(aboutContent),
-                    update_stats(stats),
-                    update_partners(partners),
-                ]);
+            const result = await updateSections({
+                about_us: aboutContent,
+                stats,
+                partners,
+            });
 
-            if (
-                aboutResult.success &&
-                statsResult.success &&
-                partnersResult.success
-            ) {
+            if (result.success) {
                 showPopup("success", "About section updated successfully!");
             } else {
                 showPopup("error", "Failed to update about section.");
@@ -107,7 +91,6 @@ const About = ({ isAdmin }) => {
 
     const handleClose = () => {
         setIsEditing(false);
-        fetchAboutContent();
     };
 
     return (

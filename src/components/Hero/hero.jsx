@@ -1,64 +1,44 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import heroSlide1 from "../../assets/hero2.webp";
-import {
-  get_hero_slides,
-  update_hero_slides,
-} from "../../database/front_page_queries.js";
 import "./hero.css";
-import { useAuth } from "../../Contexts/authContext.js";
+import { useHomeContent } from "../../Contexts/homeContentContext.js";
 import { usePopup } from "../../Contexts/popupContext.js";
 
-function Hero({ isAdmin, slidesData }) {
-  const [slide, setSlide] = useState(
-    slidesData[0] || { sub_title: "", main_title: "" },
-  );
-  const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate();
+const emptySlide = { sub_title: "", main_title: "" };
 
-  const { loadingAuth } = useAuth();
+function Hero({ isAdmin }) {
+  const { homeContent, updateSection } = useHomeContent();
   const { showPopup } = usePopup();
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  const [slide, setSlide] = useState(homeContent.hero_1 || emptySlide);
 
+  // Keep the local editing copy in sync with the shared content, but stop
+  // once the admin starts editing so their in-progress changes aren't overwritten.
   useEffect(() => {
-    async function fetchSlide() {
-      const response = await get_hero_slides();
-      if (response) {
-        setSlide(response.data.hero_1);
-      }
+    if (!isEditing) {
+      setSlide(homeContent.hero_1 || emptySlide);
     }
-    if (!loadingAuth) {
-      fetchSlide();
-    }
-  }, [loadingAuth]);
+  }, [homeContent.hero_1, isEditing]);
 
   const handleSlideChange = (field, value) => {
-    setSlide((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setSlide((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = async () => {
-    const updatedSlide = async () => {
-      const result = await update_hero_slides({ hero_1: slide });
-
-      if (result.success || result.success === undefined) {
-        showPopup("success", "Hero section updated successfully!");
-      } else {
-        showPopup("error", "Failed to update hero section.");
-      }
-    };
-
-    updatedSlide();
+    const result = await updateSection("hero_1", slide);
+    if (result.success) {
+      showPopup("success", "Hero section updated successfully!");
+    } else {
+      showPopup("error", "Failed to update hero section.");
+    }
     setIsEditing(false);
   };
 
-  const handleClose = async () => {
+  const handleClose = () => {
+    setSlide(homeContent.hero_1 || emptySlide);
     setIsEditing(false);
-    const response = await get_hero_slides();
-    if (response) {
-      setSlide(response.data.hero_1);
-    }
   };
 
   return (
@@ -70,7 +50,6 @@ function Hero({ isAdmin, slidesData }) {
 
       <div className="hero__overlay" />
 
-      {/* Admin Controls */}
       {isAdmin && (
         <div className="hero__admin-controls">
           {isEditing ? (
@@ -90,7 +69,7 @@ function Hero({ isAdmin, slidesData }) {
             </>
           ) : (
             <button
-              className="contact__admin-btn hero__btn-edit"
+              className="contact__admin-btn contact__btn-edit"
               onClick={() => setIsEditing(true)}
             >
               Edit Hero Section
@@ -100,7 +79,6 @@ function Hero({ isAdmin, slidesData }) {
       )}
 
       <div className="hero__content">
-        {/* Subtitle */}
         {isEditing ? (
           <input
             className="contact__editable-field hero__subtitle-edit"
@@ -112,7 +90,6 @@ function Hero({ isAdmin, slidesData }) {
           <span className="hero__subtitle">{slide.sub_title}</span>
         )}
 
-        {/* Main Title */}
         {isEditing ? (
           <>
             <textarea

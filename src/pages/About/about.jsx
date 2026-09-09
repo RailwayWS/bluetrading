@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import "./about.css";
 import whoWeAreImg from "../../assets/hero-slide-2.png";
-import { get_about_page, update_about_page } from "../../database/front_page_queries";
-import { useAuth } from "../../Contexts/authContext.js";
+import { useHomeContent } from "../../Contexts/homeContentContext.js";
 import { usePopup } from "../../Contexts/popupContext.js";
 import { useReveal } from "../../hooks/useReveal.js";
 
@@ -13,30 +12,26 @@ const initialContent = {
 };
 
 function AboutPage({ isAdmin }) {
-    const [content, setContent] = useState(initialContent);
-    const [isEditing, setIsEditing] = useState(false);
-    const { loadingAuth } = useAuth();
+    const { updateSection, withDefault } = useHomeContent();
     const { showPopup } = usePopup();
     const { ref, revealClass } = useReveal();
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [content, setContent] = useState(withDefault("about_page", initialContent));
+
+    // Keep the local editing copy in sync with the shared content, but stop
+    // once the admin starts editing so their in-progress changes aren't overwritten.
     useEffect(() => {
-        const fetchContent = async () => {
-            const result = await get_about_page();
-            if (result) {
-                setContent(result.data);
-            }
-        };
-        if (!loadingAuth) {
-            fetchContent();
-        }
-    }, [loadingAuth]);
+        if (isEditing) return;
+        setContent(withDefault("about_page", initialContent));
+    }, [isEditing, withDefault]);
 
     const handleChange = (field, value) => {
         setContent((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleSave = async () => {
-        const result = await update_about_page(content);
+        const result = await updateSection("about_page", content);
         if (result.success) {
             showPopup("success", "About page updated successfully!");
         } else {
@@ -45,12 +40,8 @@ function AboutPage({ isAdmin }) {
         setIsEditing(false);
     };
 
-    const handleClose = async () => {
+    const handleClose = () => {
         setIsEditing(false);
-        const result = await get_about_page();
-        if (result) {
-            setContent(result.data);
-        }
     };
 
     return (

@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getPerformance } from "firebase/performance";
 
 // import {process} from "process";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -57,3 +58,7 @@ setPersistence(auth, browserSessionPersistence)
 
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+// Auto-instruments page loads and fetch/XHR network requests. Plain <img>
+// loads (product photos) aren't covered by that automatic instrumentation,
+// so those are measured with custom traces — see components/ProductImage.
+export const perf = getPerformance(app);

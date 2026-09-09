@@ -1,7 +1,6 @@
 import { useState, useEffect, Fragment } from "react";
 import "./contact.css";
-import { get_contact, update_contact } from "../../database/front_page_queries";
-import { useAuth } from "../../Contexts/authContext.js";
+import { useHomeContent } from "../../Contexts/homeContentContext.js";
 import { usePopup } from "../../Contexts/popupContext.js";
 import { useReveal } from "../../hooks/useReveal.js";
 import deleteIcon from "../../assets/symbols/delete(1).png";
@@ -54,26 +53,25 @@ function serializeList(values) {
 }
 
 function Contact({ isAdmin }) {
-    const [contactContent, setContactContent] = useState(initialContactContent);
-    const [phoneRows, setPhoneRows] = useState(() => parsePairs(initialContactContent.phone_number));
-    const [emailRows, setEmailRows] = useState(() => parseList(initialContactContent.email));
-    const [isEditing, setIsEditing] = useState(false);
-    const [formResult, setFormResult] = useState("");
-    const { loadingAuth } = useAuth();
+    const { homeContent, updateSection } = useHomeContent();
     const { showPopup } = usePopup();
     const { ref, revealClass } = useReveal();
 
+    const [contactContent, setContactContent] = useState({
+        ...initialContactContent,
+        ...homeContent.contact,
+    });
+    const [phoneRows, setPhoneRows] = useState(() => parsePairs(contactContent.phone_number));
+    const [emailRows, setEmailRows] = useState(() => parseList(contactContent.email));
+    const [isEditing, setIsEditing] = useState(false);
+    const [formResult, setFormResult] = useState("");
+
+    // Keep the local editing copy in sync with the shared content, but stop
+    // once the admin starts editing so their in-progress changes aren't overwritten.
     useEffect(() => {
-        const fetchContactContent = async () => {
-            const result = await get_contact();
-            if (result) {
-                setContactContent({ ...initialContactContent, ...result.data });
-            }
-        };
-        if (!loadingAuth) {
-            fetchContactContent();
-        }
-    }, [loadingAuth]);
+        if (isEditing) return;
+        setContactContent({ ...initialContactContent, ...homeContent.contact });
+    }, [homeContent.contact, isEditing]);
 
     const handleContactContentChange = (field, value) => {
         setContactContent((prev) => ({ ...prev, [field]: value }));
@@ -113,7 +111,7 @@ function Contact({ isAdmin }) {
                 email: serializeList(emailRows),
             };
 
-            const result = await update_contact(cleaned);
+            const result = await updateSection("contact", cleaned);
             if (result.success) {
                 setContactContent(cleaned);
                 showPopup("success", "Contact section updated successfully!");
@@ -126,12 +124,8 @@ function Contact({ isAdmin }) {
         setIsEditing(false);
     };
 
-    const handleClose = async () => {
+    const handleClose = () => {
         setIsEditing(false);
-        const result = await get_contact();
-        if (result) {
-            setContactContent({ ...initialContactContent, ...result.data });
-        }
     };
 
     const onSubmit = async (event) => {
