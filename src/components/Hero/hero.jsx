@@ -55,13 +55,13 @@ function Hero({ isAdmin }) {
           {isEditing ? (
             <>
               <button
-                className="contact__admin-btn contact__btn-cancel"
+                className="hero__admin-btn hero__btn-cancel"
                 onClick={handleClose}
               >
                 Cancel
               </button>
               <button
-                className="contact__admin-btn contact__btn-save"
+                className="hero__admin-btn hero__btn-save"
                 onClick={handleSave}
               >
                 Save Changes
@@ -69,7 +69,7 @@ function Hero({ isAdmin }) {
             </>
           ) : (
             <button
-              className="contact__admin-btn contact__btn-edit"
+              className="hero__admin-btn hero__btn-edit"
               onClick={() => setIsEditing(true)}
             >
               Edit Hero Section
